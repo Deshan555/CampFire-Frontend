@@ -1,0 +1,72 @@
+@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
+
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-serif: "Playfair Display", Georgia, serif;
+  --font-display: "Instrument Serif", Georgia, serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, sans-serif;
+  
+  --color-accent-purple: #D8B4FE;
+  --color-accent-green: #D9F99D;
+  --color-brand-dark: #111111;
+  --color-brand-light: #FFFFFF;
+}
+
+@layer base {
+  body {
+    @apply antialiased selection:bg-accent-purple/30;
+    font-family: var(--font-sans);
+    background-color: var(--color-brand-light);
+    color: var(--color-brand-dark);
+  }
+  
+  .dark body {
+    background-color: var(--color-brand-dark);
+    color: #F3F4F6;
+  }
+}
+
+/* Custom Utilities */
+.thin-scrollbar::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+.thin-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.thin-scrollbar::-webkit-scrollbar-thumb {
+  background: #E5E7EB;
+  border-radius: 9999px;
+}
+.dark .thin-scrollbar::-webkit-scrollbar-thumb {
+  background: #374151;
+}
+
+/* Typography styles for content styling */
+.editorial-prose p {
+  margin-bottom: 1.25rem;
+  line-height: 1.75;
+  font-size: 1.125rem;
+  color: #374151;
+}
+.dark .editorial-prose p {
+  color: #D1D5DB;
+}
+
+.editorial-prose blockquote {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 1.5rem;
+  line-height: 1.5;
+  border-left: 2px solid var(--color-brand-dark);
+  padding-left: 1.5rem;
+  margin: 2rem 0;
+  color: var(--color-brand-dark);
+}
+.dark .editorial-prose blockquote {
+  border-left-color: #F3F4F6;
+  color: #F3F4F6;
+}
