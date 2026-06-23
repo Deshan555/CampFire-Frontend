@@ -9,6 +9,8 @@ import ArticleGrid from "./components/ArticleGrid";
 import ArticlePage from "./pages/ArticlePage";
 import CrmDashboard from "./pages/CrmDashboard";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import AdminRegisterPage from "./pages/AdminRegisterPage";
 import AdSensePlaceholder from "./components/AdSensePlaceholder";
 import { fetchArticles } from "./api";
 import type { Article } from "./data/articles";
@@ -204,6 +206,26 @@ function App() {
           element={
             <div className="flex-1 bg-white dark:bg-brand-dark">
               <LoginPage />
+            </div>
+          }
+        />
+
+        {/* Reader Register Route */}
+        <Route
+          path="/register"
+          element={
+            <div className="flex-1 bg-white dark:bg-brand-dark">
+              <RegisterPage />
+            </div>
+          }
+        />
+
+        {/* Admin Register Route */}
+        <Route
+          path="/admin/register"
+          element={
+            <div className="flex-1 bg-white dark:bg-brand-dark">
+              <AdminRegisterPage />
             </div>
           }
         />
