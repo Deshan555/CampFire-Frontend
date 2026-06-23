@@ -74,6 +74,8 @@ export const CrmDashboard: React.FC = () => {
       loadArticles(user);
     } catch (e) {
       localStorage.removeItem("editorUser");
+      localStorage.removeItem("authToken");
+      window.dispatchEvent(new Event("storage"));
       navigate("/login");
     }
   }, [navigate]);

@@ -36,8 +36,11 @@ export const LoginPage: React.FC = () => {
         throw new Error(data.error || "Login failed. Please verify credentials.");
       }
 
-      // Store user details in localStorage
+      // Store user details and JWT token in localStorage
       localStorage.setItem("editorUser", JSON.stringify(data.user));
+      if (data.token) {
+        localStorage.setItem("authToken", data.token);
+      }
       
       // Dispatch an event to notify Navbar and other components of auth status
       window.dispatchEvent(new Event("storage"));

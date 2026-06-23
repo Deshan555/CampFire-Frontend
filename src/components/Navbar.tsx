@@ -145,6 +145,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => {
                 localStorage.removeItem("editorUser");
+                localStorage.removeItem("authToken");
+                window.dispatchEvent(new Event("storage"));
                 setCurrentUser(null);
                 navigate("/");
               }}

@@ -2,6 +2,20 @@ import type { Article } from "./data/articles";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5092/api";
 
+/**
+ * Helper to build request headers, appending the Bearer token if present.
+ */
+function getHeaders(extraHeaders: Record<string, string> = {}): Record<string, string> {
+  const token = localStorage.getItem("authToken");
+  const headers: Record<string, string> = {
+    ...extraHeaders
+  };
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+  return headers;
+}
+
 export async function fetchArticles(
   category?: string,
   editorParams?: {
@@ -29,7 +43,9 @@ export async function fetchArticles(
       url.searchParams.append("authorName", editorParams.authorName);
     }
   }
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), {
+    headers: getHeaders()
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch articles from backend");
   }
@@ -56,7 +72,9 @@ export async function fetchArticleDetails(
       url.searchParams.append("authorName", userParams.authorName);
     }
   }
-  const response = await fetch(url.toString());
+  const response = await fetch(url.toString(), {
+    headers: getHeaders()
+  });
   if (!response.ok) {
     throw new Error(`Failed to fetch article details for ID ${id}`);
   }
@@ -65,7 +83,8 @@ export async function fetchArticleDetails(
 
 export async function likeArticle(id: string): Promise<{ success: boolean; likes: number }> {
   const response = await fetch(`${API_BASE_URL}/articles/${id}/like`, {
-    method: "POST"
+    method: "POST",
+    headers: getHeaders()
   });
   if (!response.ok) {
     throw new Error(`Failed to submit like for article ID ${id}`);
@@ -76,9 +95,9 @@ export async function likeArticle(id: string): Promise<{ success: boolean; likes
 export async function subscribeNewsletter(email: string): Promise<{ success: boolean; message?: string }> {
   const response = await fetch(`${API_BASE_URL}/newsletter/subscribe`, {
     method: "POST",
-    headers: {
+    headers: getHeaders({
       "Content-Type": "application/json"
-    },
+    }),
     body: JSON.stringify({ email })
   });
   if (!response.ok) {
@@ -96,9 +115,9 @@ export async function createArticle(
 ): Promise<{ success: boolean; article: Article }> {
   const response = await fetch(`${API_BASE_URL}/articles`, {
     method: "POST",
-    headers: {
+    headers: getHeaders({
       "Content-Type": "application/json"
-    },
+    }),
     body: JSON.stringify(article)
   });
   if (!response.ok) {
@@ -113,9 +132,9 @@ export async function updateArticle(
 ): Promise<{ success: boolean }> {
   const response = await fetch(`${API_BASE_URL}/articles/${id}`, {
     method: "PUT",
-    headers: {
+    headers: getHeaders({
       "Content-Type": "application/json"
-    },
+    }),
     body: JSON.stringify(article)
   });
   if (!response.ok) {
@@ -145,7 +164,8 @@ export async function deleteArticle(
     }
   }
   const response = await fetch(url.toString(), {
-    method: "DELETE"
+    method: "DELETE",
+    headers: getHeaders()
   });
   if (!response.ok) {
     throw new Error(`Failed to delete article ID ${id}`);
@@ -159,9 +179,9 @@ export async function approveArticle(
 ): Promise<{ success: boolean }> {
   const response = await fetch(`${API_BASE_URL}/articles/${id}/approve`, {
     method: "POST",
-    headers: {
+    headers: getHeaders({
       "Content-Type": "application/json"
-    },
+    }),
     body: JSON.stringify({ role })
   });
   if (!response.ok) {
@@ -176,9 +196,9 @@ export async function rejectArticle(
 ): Promise<{ success: boolean }> {
   const response = await fetch(`${API_BASE_URL}/articles/${id}/reject`, {
     method: "POST",
-    headers: {
+    headers: getHeaders({
       "Content-Type": "application/json"
-    },
+    }),
     body: JSON.stringify({ role })
   });
   if (!response.ok) {
@@ -186,5 +206,3 @@ export async function rejectArticle(
   }
   return response.json();
 }
-
-
