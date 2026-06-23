@@ -206,3 +206,37 @@ export async function rejectArticle(
   }
   return response.json();
 }
+
+export async function registerReader(
+  payload: { username: string; email: string; password?: string; firstName?: string; lastName?: string; avatarUrl?: string; bio?: string }
+): Promise<{ success: boolean; user: any }> {
+  const response = await fetch(`${API_BASE_URL}/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to register user");
+  }
+  return data;
+}
+
+export async function registerAdmin(
+  payload: { username: string; email: string; password?: string; firstName?: string; lastName?: string; avatarUrl?: string; bio?: string; role: string }
+): Promise<{ success: boolean; user: any }> {
+  const response = await fetch(`${API_BASE_URL}/admin/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to register admin");
+  }
+  return data;
+}
