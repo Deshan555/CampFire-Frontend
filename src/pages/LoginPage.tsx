@@ -211,6 +211,21 @@ export const LoginPage: React.FC = () => {
           </div>
         </div>
 
+        <div className="mt-8 text-center pt-6 border-t-[0.5px] border-neutral-250 dark:border-neutral-800">
+          <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-2">
+            Just want to read?{" "}
+            <Link to="/register" className="font-semibold text-neutral-900 dark:text-white hover:underline">
+              Create a Reader Account
+            </Link>
+          </p>
+          <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-2">
+            Are you a writer?{" "}
+            <Link to="/admin/register" className="font-semibold text-neutral-900 dark:text-white hover:underline">
+              Apply for an Editorial Account
+            </Link>
+          </p>
+        </div>
+
       </div>
     </div>
   );
