@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { fetchArticles, createArticle, updateArticle, deleteArticle, approveArticle, rejectArticle } from "../api";
+import { fetchArticles, createArticle, updateArticle, deleteArticle, approveArticle, rejectArticle, generateAiArticle } from "../api";
 import type { Article } from "../data/articles";
+import Markdown from "../components/Markdown";
 
 export const CrmDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -14,6 +15,7 @@ export const CrmDashboard: React.FC = () => {
 
   // Drawer UI state
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [showPreview, setShowPreview] = useState(true);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
 
   // Form Fields
@@ -37,6 +39,58 @@ export const CrmDashboard: React.FC = () => {
   const [formAuthorAvatar, setFormAuthorAvatar] = useState(
     "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80"
   );
+
+  // AI Assistant form states
+  const [aiExpanded, setAiExpanded] = useState(false);
+  const [aiModel, setAiModel] = useState("gemma3:1b");
+  const [aiTopic, setAiTopic] = useState("");
+  const [aiTone, setAiTone] = useState("Professional");
+  const [aiInstructions, setAiInstructions] = useState("");
+  const [aiGenerating, setAiGenerating] = useState(false);
+  const [aiError, setAiError] = useState("");
+  const [aiSuccess, setAiSuccess] = useState("");
+
+  const handleAiGenerate = async () => {
+    if (!aiTopic.trim()) {
+      setAiError("Please specify a topic for the article.");
+      return;
+    }
+    setAiError("");
+    setAiSuccess("");
+    setAiGenerating(true);
+
+    try {
+      const result = await generateAiArticle({
+        model: aiModel,
+        topic: aiTopic.trim(),
+        tone: aiTone,
+        instructions: aiInstructions.trim()
+      });
+
+      // Populate form fields
+      setFormTitle(result.title);
+      // Auto-generate a slug from title if not set
+      if (!editingArticle) {
+        const generatedSlug = result.title
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+        setFormId(generatedSlug);
+      }
+      setFormSummary(result.summary);
+      setFormContent(result.content.join("\n\n"));
+      
+      setAiSuccess("Article generated successfully and populated into the form!");
+      setTimeout(() => {
+        setAiExpanded(false);
+      }, 1500);
+    } catch (err: any) {
+      console.error(err);
+      setAiError(err.message || "Failed to generate AI article.");
+    } finally {
+      setAiGenerating(false);
+    }
+  };
 
   // Fetch articles based on active session role
   const loadArticles = (user: any) => {
@@ -114,6 +168,14 @@ export const CrmDashboard: React.FC = () => {
     );
     setFormAuthorAvatar(currentUser.avatar);
     
+    // Reset AI Assistant states
+    setAiExpanded(false);
+    setAiTopic("");
+    setAiInstructions("");
+    setAiError("");
+    setAiSuccess("");
+    setAiGenerating(false);
+
     setErrorMsg("");
     setIsDrawerOpen(true);
   };
@@ -138,6 +200,15 @@ export const CrmDashboard: React.FC = () => {
       art.author?.avatar ||
         "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80"
     );
+
+    // Reset AI Assistant states
+    setAiExpanded(false);
+    setAiTopic("");
+    setAiInstructions("");
+    setAiError("");
+    setAiSuccess("");
+    setAiGenerating(false);
+
     setErrorMsg("");
     setIsDrawerOpen(true);
   };
@@ -204,8 +275,8 @@ export const CrmDashboard: React.FC = () => {
   };
 
   // Handle Form Submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setErrorMsg("");
 
     if (!currentUser) return;
@@ -542,42 +613,185 @@ export const CrmDashboard: React.FC = () => {
           INTERACTIVE WRITE/EDIT DRAWER (RIGHT ALIGNED)
           ========================================== */}
       {isDrawerOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end">
-          {/* Backdrop layer */}
-          <div
-            onClick={() => setIsDrawerOpen(false)}
-            className="absolute inset-0 bg-neutral-950/45 dark:bg-black/65 backdrop-blur-sm transition-opacity"
-          ></div>
-
-          {/* Drawer container */}
-          <div className="relative w-full max-w-2xl h-full bg-white dark:bg-brand-dark shadow-2xl border-l-[0.5px] border-neutral-200 dark:border-neutral-800 flex flex-col z-10 animate-slide-in">
-            {/* Drawer Header */}
-            <div className="px-6 py-5 border-b-[0.5px] border-neutral-200 dark:border-neutral-800 flex items-center justify-between bg-neutral-50 dark:bg-neutral-900/30">
-              <div>
-                <h2 className="font-serif text-xl font-black text-neutral-900 dark:text-neutral-50">
-                  {editingArticle ? "Modify Publication" : "Compose Editorial"}
-                </h2>
-                <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-0.5">
-                  Ensure all compliance, grammar, and layout fields are satisfied.
-                </p>
-              </div>
+        <div className="fixed inset-0 z-50 bg-white dark:bg-brand-dark flex flex-col animate-fade-in overflow-hidden">
+          {/* Fullscreen Editor Header */}
+          <div className="h-16 shrink-0 border-b-[0.5px] border-neutral-200 dark:border-neutral-850 px-6 bg-neutral-50 dark:bg-neutral-900/30 flex items-center justify-between z-10 transition-colors duration-300">
+            <div className="flex items-center gap-3">
               <button
+                type="button"
                 onClick={() => setIsDrawerOpen(false)}
-                className="w-8 h-8 rounded-full border-[0.5px] border-neutral-200 dark:border-neutral-850 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-500 dark:text-neutral-400 flex items-center justify-center cursor-pointer"
+                className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors cursor-pointer"
               >
-                <i className="fa-solid fa-xmark"></i>
+                <i className="fa-solid fa-arrow-left"></i>
+                <span>Dashboard</span>
+              </button>
+              <span className="text-neutral-300 dark:text-neutral-700 font-normal">|</span>
+              <h2 className="font-serif text-base font-black text-neutral-900 dark:text-neutral-50">
+                {editingArticle ? "Modify Publication" : "Compose Editorial"}
+              </h2>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setShowPreview(!showPreview)}
+                className="px-4 py-2 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-150 dark:hover:bg-neutral-800 rounded-lg text-xs font-semibold text-neutral-600 dark:text-neutral-400 transition-colors cursor-pointer flex items-center gap-1.5"
+              >
+                <i className={`fa-solid ${showPreview ? "fa-eye-slash" : "fa-eye"}`}></i>
+                <span>{showPreview ? "Hide Preview" : "Show Preview"}</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsDrawerOpen(false)}
+                className="px-4 py-2 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-150 dark:hover:bg-neutral-800 rounded-lg text-xs font-semibold text-neutral-600 dark:text-neutral-400 transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => handleSubmit()}
+                className="px-5 py-2 bg-neutral-900 hover:bg-neutral-850 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-xs font-bold rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm"
+              >
+                <i className="fa-solid fa-cloud-arrow-up"></i>
+                <span>{editingArticle ? "Save Changes" : "Publish Article"}</span>
               </button>
             </div>
+          </div>
 
-            {/* Drawer Body Scroll */}
-            <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-6">
-              {/* Internal Drawer Error Notification */}
+          {/* Splitscreen Workspace */}
+          <div className="flex-1 flex overflow-hidden">
+            {/* Left Side: Editor Form (Scrollable) */}
+            <form
+              onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}
+              className={`${
+                showPreview ? "w-1/2 border-r-[0.5px]" : "w-full border-r-0"
+              } border-neutral-200 dark:border-neutral-850 bg-neutral-50/20 dark:bg-neutral-900/5 overflow-y-auto p-6 space-y-6 text-left transition-all duration-300`}
+            >
+              {/* Form Validation Error */}
               {errorMsg && (
-                <div className="bg-red-50 dark:bg-red-950/20 border-[0.5px] border-red-200 dark:border-red-950 text-red-750 dark:text-red-400 text-xs font-bold py-2.5 px-4 rounded-xl flex items-center gap-2 animate-pulse">
-                  <i className="fa-solid fa-circle-exclamation"></i>
+                <div className="bg-red-50 dark:bg-red-950/20 border-[0.5px] border-red-200 dark:border-red-950 text-red-750 dark:text-red-400 text-xs font-bold py-3 px-4 rounded-xl flex items-center gap-2 animate-fade-in">
+                  <i className="fa-solid fa-circle-exclamation text-sm"></i>
                   <span>{errorMsg}</span>
                 </div>
               )}
+
+              {/* AI Writing Assistant Section */}
+              <div className="border-[0.5px] border-violet-200 dark:border-violet-850 rounded-xl bg-violet-50/10 dark:bg-violet-950/5 p-4 space-y-3">
+                <button
+                  type="button"
+                  onClick={() => setAiExpanded(!aiExpanded)}
+                  className="w-full flex items-center justify-between text-xs font-bold text-violet-650 dark:text-violet-450 uppercase tracking-wider focus:outline-none cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <i className="fa-solid fa-wand-magic-sparkles text-violet-500 animate-pulse"></i>
+                    <span>AI Writing Assistant</span>
+                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[9px] bg-violet-100 dark:bg-violet-900/40 text-violet-750 dark:text-violet-300 px-2 py-0.5 rounded-full font-semibold normal-case">
+                      Ollama
+                    </span>
+                    <i className={`fa-solid fa-chevron-${aiExpanded ? "up" : "down"}`}></i>
+                  </div>
+                </button>
+
+                {aiExpanded && (
+                  <div className="pt-3 border-t-[0.5px] border-violet-100 dark:border-violet-900/50 space-y-3">
+                    {aiError && (
+                      <div className="bg-red-50 dark:bg-red-950/20 border-[0.5px] border-red-200 dark:border-red-950 text-red-750 dark:text-red-400 text-[11px] py-1.5 px-3 rounded-lg flex items-center gap-1.5">
+                        <i className="fa-solid fa-circle-exclamation"></i>
+                        <span>{aiError}</span>
+                      </div>
+                    )}
+                    {aiSuccess && (
+                      <div className="bg-emerald-50 dark:bg-emerald-950/20 border-[0.5px] border-emerald-250 dark:border-emerald-950 text-emerald-750 dark:text-emerald-455 text-[11px] py-1.5 px-3 rounded-lg flex items-center gap-1.5 font-bold">
+                        <i className="fa-solid fa-circle-check"></i>
+                        <span>{aiSuccess}</span>
+                      </div>
+                    )}
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-[10px] font-extrabold uppercase text-neutral-455 dark:text-neutral-500 tracking-wider mb-1">
+                          Select Ollama Model
+                        </label>
+                        <select
+                          value={aiModel}
+                          onChange={(e) => setAiModel(e.target.value)}
+                          className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                        >
+                          <option value="gemma3:1b">Gemma 3 1B</option>
+                          <option value="deepseek-r1:1.5b">DeepSeek R1 1.5B</option>
+                          <option value="deepseek-r1:8b">DeepSeek R1 8B</option>
+                          <option value="llama3.2:latest">Llama 3.2 3B</option>
+                          <option value="deepseek-coder:1.3b">DeepSeek Coder 1.3B</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-[10px] font-extrabold uppercase text-neutral-455 dark:text-neutral-500 tracking-wider mb-1">
+                          Article Tone
+                        </label>
+                        <select
+                          value={aiTone}
+                          onChange={(e) => setAiTone(e.target.value)}
+                          className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                        >
+                          <option value="Professional">Professional</option>
+                          <option value="Casual">Casual</option>
+                          <option value="Inspirational">Inspirational</option>
+                          <option value="Technical">Technical</option>
+                          <option value="Informative">Informative</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-extrabold uppercase text-neutral-455 dark:text-neutral-500 tracking-wider mb-1">
+                        Topic or Subject *
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Next-gen grid system architecture using WebAssembly..."
+                        value={aiTopic}
+                        onChange={(e) => setAiTopic(e.target.value)}
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[10px] font-extrabold uppercase text-neutral-455 dark:text-neutral-500 tracking-wider mb-1">
+                        Extra Instructions (Optional)
+                      </label>
+                      <textarea
+                        rows={2}
+                        placeholder="e.g. Focus on memory safety. Keep it under 4 paragraphs."
+                        value={aiInstructions}
+                        onChange={(e) => setAiInstructions(e.target.value)}
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200 resize-none"
+                      ></textarea>
+                    </div>
+
+                    <button
+                      type="button"
+                      disabled={aiGenerating}
+                      onClick={handleAiGenerate}
+                      className="w-full py-2 bg-violet-650 hover:bg-violet-750 disabled:bg-violet-400 text-white rounded-lg text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5"
+                    >
+                      {aiGenerating ? (
+                        <>
+                          <i className="fa-solid fa-spinner animate-spin"></i>
+                          <span>Generating Article...</span>
+                        </>
+                      ) : (
+                        <>
+                          <i className="fa-solid fa-wand-magic-sparkles"></i>
+                          <span>Generate & Populate Form</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* Title Input */}
               <div>
@@ -610,7 +824,7 @@ export const CrmDashboard: React.FC = () => {
                 />
                 {!editingArticle && (
                   <span className="text-[10px] text-neutral-400 mt-1 block">
-                    URL structure: /article/{"{"}slug{"}"} (Only lowercase letters, numbers, and hyphens)
+                    URL route structure: /article/{"{"}slug{"}"} (Only lowercase letters, numbers, and hyphens)
                   </span>
                 )}
               </div>
@@ -741,46 +955,52 @@ export const CrmDashboard: React.FC = () => {
 
               {/* Article content (paragraphs) textarea */}
               <div>
-                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                  Body Content (Paragraphs) *
+                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                  <span>Body Content (Markdown README format) *</span>
+                  <span className="text-[10px] text-neutral-450 normal-case font-normal">
+                    Double-newline separates paragraphs.
+                  </span>
                 </label>
                 <textarea
                   required
-                  rows={8}
-                  placeholder="Enter the main body of the article here. Use a blank line (double enter) to separate paragraphs."
+                  rows={14}
+                  placeholder="Write in Markdown. Support for headings (#), lists (-), bold (**), italic (*), code blocks (```) and blockquotes (>)."
                   value={formContent}
                   onChange={(e) => setFormContent(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-850 dark:text-neutral-100 font-sans resize-y leading-relaxed"
+                  className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 resize-y font-mono"
                 ></textarea>
-                <span className="text-[10px] text-neutral-400 mt-1 block">
-                  Paragraph count: {formContent.split(/\n\n+/).filter(p => p.trim().length > 0).length}
-                </span>
+                <div className="text-[10px] text-neutral-400 mt-1 flex justify-between">
+                  <span>Paragraphs split count: {formContent.split(/\n\n+/).filter(p => p.trim().length > 0).length}</span>
+                  <span>Markdown formatting active</span>
+                </div>
               </div>
 
-              {/* Author Configuration - Admin Only */}
+              {/* Super Admin Author Customization */}
               {currentUser?.role === "super_admin" && (
                 <div className="border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
-                  <span className="block text-[10px] font-extrabold uppercase text-neutral-400 tracking-wider">
-                    Author Metadata (Super Admin Override)
+                  <span className="block text-[10px] font-extrabold uppercase text-neutral-405 tracking-wider flex items-center gap-1.5">
+                    <i className="fa-solid fa-user-pen text-accent-purple"></i>
+                    <span>Author Customization Override (Admin Only)</span>
                   </span>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <label className="block text-[11px] font-bold text-neutral-500 mb-1">Author Name</label>
                       <input
                         type="text"
                         value={formAuthorName}
                         onChange={(e) => setFormAuthorName(e.target.value)}
-                        className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-850 dark:text-neutral-150"
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-850 dark:text-neutral-200"
                       />
                     </div>
+
                     <div>
                       <label className="block text-[11px] font-bold text-neutral-500 mb-1">Author Role/Bio</label>
                       <input
                         type="text"
                         value={formAuthorRole}
                         onChange={(e) => setFormAuthorRole(e.target.value)}
-                        className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-855 dark:text-neutral-150"
+                        className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-850 dark:text-neutral-200"
                       />
                     </div>
                   </div>
@@ -796,24 +1016,74 @@ export const CrmDashboard: React.FC = () => {
                   </div>
                 </div>
               )}
-
-              {/* Drawer footer buttons */}
-              <div className="pt-4 flex justify-end gap-3 border-t-[0.5px] border-neutral-200 dark:border-neutral-800">
-                <button
-                  type="button"
-                  onClick={() => setIsDrawerOpen(false)}
-                  className="px-5 py-2.5 rounded-full border-[0.5px] border-neutral-200 dark:border-neutral-855 hover:bg-neutral-100 dark:hover:bg-neutral-800 text-xs font-semibold text-neutral-600 dark:text-neutral-400 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="px-6 py-2.5 rounded-full bg-neutral-900 hover:bg-neutral-850 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 text-xs font-bold transition-all shadow-sm cursor-pointer"
-                >
-                  {editingArticle ? "Save Changes" : "Publish Article"}
-                </button>
-              </div>
             </form>
+
+            {/* Right Side: Live Markdown Preview (Scrollable) */}
+            {showPreview && (
+              <div className="w-1/2 bg-white dark:bg-brand-dark overflow-y-auto p-8 md:p-12 flex flex-col items-center">
+                <div className="w-full max-w-xl text-left space-y-6">
+                  <div className="flex items-center justify-between border-b-[0.5px] border-neutral-200 dark:border-neutral-850 pb-3 mb-2 select-none">
+                    <span className="text-[9px] font-extrabold uppercase bg-neutral-100 dark:bg-neutral-850 text-neutral-500 dark:text-neutral-400 px-2 py-0.5 rounded-md tracking-wider">
+                      Live Markdown Preview
+                    </span>
+                    <span className="text-[9px] text-neutral-400 dark:text-neutral-550 italic">
+                      Camp Fire Publishing Layout
+                    </span>
+                  </div>
+                  
+                  {formImage && (
+                    <div className="w-full aspect-[16/10] bg-neutral-100 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden shadow-sm">
+                      <img
+                        src={formImage}
+                        alt="Cover Preview"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+                  
+                  <h1 className="font-serif text-3xl font-black text-neutral-950 dark:text-neutral-50 tracking-tight leading-tight">
+                    {formTitle || "Untitled Draft"}
+                  </h1>
+
+                  <div className="flex items-center gap-3">
+                    <img
+                      src={formAuthorAvatar}
+                      alt={formAuthorName}
+                      className="w-8 h-8 rounded-full object-cover border-[0.5px] border-neutral-200 dark:border-neutral-800 shrink-0"
+                    />
+                    <div>
+                      <p className="text-xs font-bold text-neutral-850 dark:text-neutral-100 leading-tight">
+                        {formAuthorName}
+                      </p>
+                      <p className="text-[9px] text-neutral-400 dark:text-neutral-550 uppercase font-bold tracking-wider leading-none mt-0.5">
+                        {formAuthorRole}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {formSummary && (
+                    <div className="bg-neutral-50 dark:bg-neutral-900/30 border-l-2 border-violet-500 p-4 rounded-r-xl">
+                      <span className="block text-[9px] uppercase font-extrabold text-neutral-400 dark:text-neutral-550 mb-1 tracking-wider">
+                        Summary Excerpt
+                      </span>
+                      <p className="font-serif italic text-xs text-neutral-700 dark:text-neutral-300 leading-relaxed">
+                        {formSummary}
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="pt-4 border-t-[0.5px] border-neutral-100 dark:border-neutral-850">
+                    {formContent ? (
+                      <Markdown content={formContent} />
+                    ) : (
+                      <p className="text-xs italic text-neutral-400 dark:text-neutral-500">
+                        Write body content in the markdown editor on the left pane to render the preview.
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}

@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { fetchArticleDetails, likeArticle } from "../api";
+import { fetchArticleDetails, likeArticle, fetchArticleSuggestions } from "../api";
 import type { Article } from "../data/articles";
 import VideoPlayer from "../components/VideoPlayer";
+import Markdown from "../components/Markdown";
 
 export const ArticlePage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [article, setArticle] = useState<Article | null>(null);
+  const [suggestions, setSuggestions] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
   
@@ -59,6 +61,15 @@ export const ArticlePage: React.FC = () => {
         console.error("⚠️ Failed to load article details from API:", err);
         setFetchError(true);
         setLoading(false);
+      });
+
+    fetchArticleSuggestions(id)
+      .then((data) => {
+        setSuggestions(data);
+      })
+      .catch((err) => {
+        console.error("⚠️ Failed to load article suggestions:", err);
+        setSuggestions([]);
       });
   }, [id]);
 
@@ -197,17 +208,9 @@ export const ArticlePage: React.FC = () => {
           </div>
         ) : null}
 
-        {/* Multi-column editorial body columns */}
-        <div className="editorial-prose text-neutral-800 dark:text-neutral-200 md:columns-2 gap-8 column-fill-auto mb-12 select-text text-justify">
-          {article.content.map((paragraph, index) => (
-            <p key={index} className="text-base sm:text-lg leading-relaxed font-sans mb-6">
-              {paragraph}
-            </p>
-          ))}
-          
-          <blockquote className="break-inside-avoid border-l-2 border-neutral-900 dark:border-neutral-100 pl-6 py-2 italic font-serif text-xl text-neutral-900 dark:text-neutral-50 my-6">
-            "Aesthetic excellence and content density go hand in hand on premium publishing platforms."
-          </blockquote>
+        {/* Editorial body rendering Markdown (README) format */}
+        <div className="editorial-prose text-neutral-850 dark:text-neutral-200 mb-12 max-w-2xl mx-auto select-text text-justify">
+          <Markdown content={article.content.join("\n\n")} />
         </div>
 
         {/* Interactive Bottom Actions */}
@@ -252,6 +255,49 @@ export const ArticlePage: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Related / Suggested Articles Section */}
+        {suggestions.length > 0 && (
+          <div className="mt-16 pt-10 border-t-[0.5px] border-neutral-200 dark:border-neutral-800 text-left animate-fade-in">
+            <h3 className="font-serif text-xl font-black text-neutral-900 dark:text-neutral-50 mb-6 tracking-tight">
+              Suggested Reads
+            </h3>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              {suggestions.map((art) => (
+                <Link
+                  key={art.id}
+                  to={`/article/${art.id}`}
+                  className="group flex flex-col gap-3 hover:opacity-95 transition-opacity cursor-pointer"
+                >
+                  {art.image ? (
+                    <div className="aspect-[16/10] bg-neutral-105 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden shadow-sm shrink-0">
+                      <img
+                        src={art.image}
+                        alt={art.title}
+                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
+                      />
+                    </div>
+                  ) : (
+                    <div className="aspect-[16/10] bg-neutral-50 dark:bg-neutral-900 border-[0.5px] border-neutral-250 dark:border-neutral-850 rounded-xl flex items-center justify-center shrink-0 text-neutral-350">
+                      <i className="fa-solid fa-newspaper text-2xl"></i>
+                    </div>
+                  )}
+                  <div>
+                    <span className="text-[10px] font-sans font-extrabold uppercase tracking-wider text-accent-purple dark:text-purple-400">
+                      {art.category}
+                    </span>
+                    <h4 className="font-serif text-sm font-bold text-neutral-900 dark:text-neutral-100 mt-1 line-clamp-2 group-hover:underline leading-snug">
+                      {art.title}
+                    </h4>
+                    <p className="text-[11px] text-neutral-450 dark:text-neutral-500 mt-1 line-clamp-2 leading-relaxed">
+                      {art.summary}
+                    </p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
 
       </article>
     </div>

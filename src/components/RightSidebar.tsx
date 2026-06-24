@@ -1,16 +1,22 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { ARTICLES, AUTHORS } from "../data/articles";
+import { ARTICLES, AUTHORS, type Article } from "../data/articles";
 import AdSensePlaceholder from "./AdSensePlaceholder";
 import { subscribeNewsletter } from "../api";
 
-export const RightSidebar: React.FC = () => {
+interface RightSidebarProps {
+  articles?: Article[];
+}
+
+export const RightSidebar: React.FC<RightSidebarProps> = ({ articles = [] }) => {
   const [subscribed, setSubscribed] = useState(false);
   const [email, setEmail] = useState("");
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<number | null>(null);
 
   // Filter trending articles
-  const trendingArticles = ARTICLES.filter((a) => a.trending);
+  const trendingArticles = articles.length > 0
+    ? articles.filter((a) => a.trending)
+    : ARTICLES.filter((a) => a.trending);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();

@@ -6,6 +6,7 @@ interface AdSensePlaceholderProps {
 }
 
 export const AdSensePlaceholder: React.FC<AdSensePlaceholderProps> = ({ type, className = "" }) => {
+  return null;
   return (
     <div
       className={`relative flex flex-col items-center justify-center bg-neutral-50 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 overflow-hidden transition-all duration-300 ${className}`}

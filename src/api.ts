@@ -240,3 +240,33 @@ export async function registerAdmin(
   }
   return data;
 }
+
+export async function generateAiArticle(payload: {
+  model: string;
+  topic: string;
+  tone?: string;
+  instructions?: string;
+}): Promise<{ title: string; summary: string; content: string[] }> {
+  const response = await fetch(`${API_BASE_URL}/ai/generate-article`, {
+    method: "POST",
+    headers: getHeaders({
+      "Content-Type": "application/json"
+    }),
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to generate article using AI");
+  }
+  return data;
+}
+
+export async function fetchArticleSuggestions(id: string): Promise<Article[]> {
+  const response = await fetch(`${API_BASE_URL}/articles/${id}/suggestions`, {
+    headers: getHeaders()
+  });
+  if (!response.ok) {
+    throw new Error(`Failed to fetch suggestions for article ID ${id}`);
+  }
+  return response.json();
+}

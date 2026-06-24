@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import logoDay from "../assets/logo_day.png";
+import logoNight from "../assets/logo_night.png";
 
 interface NavbarProps {
   searchQuery: string;
@@ -58,8 +60,12 @@ export const Navbar: React.FC<NavbarProps> = ({
     <header className="w-full border-b-[0.5px] border-neutral-200 dark:border-neutral-800 bg-white dark:bg-brand-dark px-6 py-4 flex items-center justify-between transition-colors duration-300">
       {/* Left section: Logo */}
       <div className="flex items-center gap-3">
-        <Link to="/" className="text-3xl font-display font-black tracking-tighter hover:opacity-80 transition-opacity">
-          SSPeech
+        <Link to="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
+          <img src={logoDay} alt="Camp Fire Logo" className="h-8 w-auto block dark:hidden" />
+          <img src={logoNight} alt="Camp Fire Logo" className="h-8 w-auto hidden dark:block" />
+          <span className="text-xl font-display font-black tracking-tighter text-neutral-905 dark:text-neutral-50">
+            Camp Fire
+          </span>
         </Link>
       </div>
 
@@ -91,8 +97,12 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* New Button */}
-        <button className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-xs font-semibold rounded-full text-neutral-800 dark:text-neutral-200 transition-colors">
-          <span>New</span>
+        <button
+          onClick={() => navigate("/ai-writer")}
+          className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-xs font-semibold rounded-full text-neutral-800 dark:text-neutral-200 transition-colors cursor-pointer"
+          title="Open AI Writer Playground"
+        >
+          <span>AI Writer</span>
           <span className="w-1.5 h-1.5 bg-accent-purple rounded-full animate-pulse"></span>
         </button>
 

@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import logoDay from "../assets/logo_day.png";
+import logoNight from "../assets/logo_night.png";
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -66,8 +68,12 @@ export const LoginPage: React.FC = () => {
         
         {/* Brand header */}
         <div className="text-center mb-8">
-          <Link to="/" className="text-3xl font-display font-black tracking-tighter hover:opacity-80 transition-opacity">
-            SSPeech
+          <Link to="/" className="inline-flex flex-col items-center gap-2 hover:opacity-90 transition-opacity">
+            <img src={logoDay} alt="Camp Fire Logo" className="h-10 w-auto block dark:hidden" />
+            <img src={logoNight} alt="Camp Fire Logo" className="h-10 w-auto hidden dark:block" />
+            <span className="text-2xl font-display font-black tracking-tighter text-neutral-905 dark:text-neutral-50 mt-1">
+              Camp Fire
+            </span>
           </Link>
           <h2 className="font-serif text-xl font-bold mt-4 text-neutral-850 dark:text-neutral-50">
             Editorial Staff Login

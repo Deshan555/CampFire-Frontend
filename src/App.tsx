@@ -11,6 +11,7 @@ import CrmDashboard from "./pages/CrmDashboard";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminRegisterPage from "./pages/AdminRegisterPage";
+import AiWriterPage from "./pages/AiWriterPage";
 import AdSensePlaceholder from "./components/AdSensePlaceholder";
 import { fetchArticles } from "./api";
 import type { Article } from "./data/articles";
@@ -109,18 +110,22 @@ function App() {
     return matchesCategory && matchesSearch;
   });
 
+  const showLayout = location.pathname !== "/ai-writer" && location.pathname !== "/editor";
+
   return (
     <div className="min-h-screen flex flex-col bg-white dark:bg-brand-dark transition-colors duration-300">
       {/* 1. Global Banner */}
-      <Banner />
+      {showLayout && <Banner />}
 
       {/* 2. Top Header Navbar */}
-      <Navbar
-        searchQuery={searchQuery}
-        onSearchChange={setSearchQuery}
-        darkMode={darkMode}
-        onToggleDarkMode={handleToggleDarkMode}
-      />
+      {showLayout && (
+        <Navbar
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
+          darkMode={darkMode}
+          onToggleDarkMode={handleToggleDarkMode}
+        />
+      )}
 
       {/* 3. Routing Layer */}
       <Routes>
@@ -175,7 +180,7 @@ function App() {
               </main>
 
               {/* Right Sidebar Widgets */}
-              <RightSidebar />
+              <RightSidebar articles={articles} />
             </div>
           }
         />
@@ -196,6 +201,16 @@ function App() {
           element={
             <div className="flex-1 bg-white dark:bg-brand-dark">
               <CrmDashboard />
+            </div>
+          }
+        />
+
+        {/* Public AI Writer Playground Route */}
+        <Route
+          path="/ai-writer"
+          element={
+            <div className="flex-1 bg-white dark:bg-brand-dark">
+              <AiWriterPage />
             </div>
           }
         />
