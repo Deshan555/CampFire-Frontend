@@ -57,12 +57,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="w-full border-b-[0.5px] border-neutral-200 dark:border-neutral-800 bg-white dark:bg-brand-dark px-6 py-4 flex items-center justify-between transition-colors duration-300">
+    <header className="sticky top-0 z-40 w-full border-b-[0.5px] border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-brand-dark/80 backdrop-blur-md px-6 py-4 flex items-center justify-between transition-all duration-300">
       {/* Left section: Logo */}
       <div className="flex items-center gap-3">
-        <Link to="/" className="flex items-center gap-2.5 hover:opacity-90 transition-opacity">
-          <img src={logoDay} alt="Camp Fire Logo" className="h-8 w-auto block dark:hidden" />
-          <img src={logoNight} alt="Camp Fire Logo" className="h-8 w-auto hidden dark:block" />
+        <Link to="/" className="flex items-center gap-2.5 hover:opacity-90 active:scale-95 transition-all duration-200 group">
+          <img src={logoDay} alt="Camp Fire Logo" className="h-8 w-auto block dark:hidden group-hover:scale-105 transition-transform duration-300" />
+          <img src={logoNight} alt="Camp Fire Logo" className="h-8 w-auto hidden dark:block group-hover:scale-105 transition-transform duration-300" />
           <span className="text-xl font-display font-black tracking-tighter text-neutral-905 dark:text-neutral-50">
             Camp Fire
           </span>
