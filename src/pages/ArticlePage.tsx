@@ -122,7 +122,7 @@ export const ArticlePage: React.FC = () => {
   ];
 
   return (
-    <div className="flex-1 w-full max-w-[900px] mx-auto px-6 py-12 border-x-[0.5px] border-neutral-200 dark:border-neutral-800 transition-colors duration-300">
+    <div className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-12 border-x-[0.5px] border-neutral-200 dark:border-neutral-800 transition-colors duration-300 font-sans">
       
       {/* Back to feed button */}
       <div className="mb-8 flex justify-start">
@@ -138,7 +138,7 @@ export const ArticlePage: React.FC = () => {
       {/* Main article content panel */}
       <article className="text-left">
         {/* Category */}
-        <span className="text-xs font-sans font-extrabold uppercase tracking-widest text-accent-purple dark:text-purple-400 mb-3 block">
+        <span className="text-xs font-sans font-extrabold uppercase tracking-widest text-accent-coral dark:text-accent-coral mb-3 block">
           {article.category}
         </span>
 
@@ -209,7 +209,7 @@ export const ArticlePage: React.FC = () => {
         ) : null}
 
         {/* Editorial body rendering Markdown (README) format */}
-        <div className="editorial-prose text-neutral-850 dark:text-neutral-200 mb-12 max-w-2xl mx-auto select-text text-justify">
+        <div className="editorial-prose text-neutral-850 dark:text-neutral-200 mb-12 max-w-3xl mx-auto select-text text-justify">
           <Markdown content={article.content.join("\n\n")} />
         </div>
 
@@ -283,7 +283,7 @@ export const ArticlePage: React.FC = () => {
                     </div>
                   )}
                   <div>
-                    <span className="text-[10px] font-sans font-extrabold uppercase tracking-wider text-accent-purple dark:text-purple-400">
+                    <span className="text-[10px] font-sans font-extrabold uppercase tracking-wider text-accent-coral dark:text-accent-coral">
                       {art.category}
                     </span>
                     <h4 className="font-serif text-sm font-bold text-neutral-900 dark:text-neutral-100 mt-1 line-clamp-2 group-hover:underline leading-snug">

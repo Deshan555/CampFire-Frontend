@@ -48,160 +48,120 @@ export const AUTHORS: Record<string, Author> = {
 
 export const ARTICLES: Article[] = [
   {
-    id: "banking-app",
-    title: "How to create a mobile banking app in 2023-2024: Key features, tech stack, and common pitfalls",
-    summary: "The mobile banking market is heated nowadays, but some entrepreneurs may fear its complexity. And it's not for nothing — there are many competing apps, law restrictions to follow, and a lot of features to include in the interface. In this article, we'll try to make banking app development less scary and explain what features any banking app needs to have, what difficulties you may encounter on this path, and what unique ideas you can implement in the process of mobile app development.",
-    category: "Tech",
-    date: "June 18, 2026",
-    readingTime: "12 min read",
-    author: AUTHORS.robert,
-    image: "/hero_banking_app.png",
+    id: "film-photography",
+    title: "The Timeless Allure of Film Photography",
+    summary: "In the digital age, where cameras are in everyone's pocket, the resurgence of film photography might seem surprising. Yet, it has evolved from a medium of necessity to a cherished art form. What makes film photography so enduringly relevant in a world dominated by pixels?",
+    category: "Art",
+    date: "November 12, 2024",
+    readingTime: "8 min read",
+    author: AUTHORS.esther,
+    image: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1200&h=600&q=80",
     featured: true,
-    likes: 42,
+    likes: 124,
     content: [
-      "The mobile banking market is heated nowadays, but some entrepreneurs may fear its complexity. And it's not for nothing — there are many competing apps, law restrictions to follow, and a lot of features to include in the interface. In this article, we'll try to make banking app development less scary and explain what features any banking app needs to have, what difficulties you may encounter on this path, and what unique ideas you can implement in the process of mobile app development.",
-      "To build a successful mobile banking product in today's environment, you must navigate strict compliance guidelines (such as GDPR, PSD2, and local banking laws) while creating an interface that feels modern, lightweight, and completely secure.",
-      "The core architectural stack often features React Native or Flutter for client-side versatility, coupled with custom microservices running on AWS or Google Cloud for the transaction engine. High-performance databases like PostgreSQL or Cassandra handle record scaling, while secure OAuth/OIDC protocols shield API endpoints.",
-      "Key features that separate standard applications from premium market leaders include intelligent analytics engines, instant peer-to-peer transfers, customizable virtual debit cards, and seamless integration with localized payment gateways.",
-      "We recommend starting with a robust Minimal Viable Product (MVP) focusing on absolute core security features—biometric authentication, basic account balances, transaction histories, and card freeze triggers. Only after stabilizing this core should you layer in AI-powered budget trackers or advanced crypto-wallet connectors."
+      "In the digital age, where cameras are in everyone's pocket, the resurgence of film photography might seem surprising. Yet, it has evolved from a medium of necessity to a cherished art form. What makes film photography so enduringly relevant in a world dominated by pixels?",
+      "For many, the appeal lies in the tactile process: winding the film, adjusting the mechanical dials, and hearing the satisfying click of the physical shutter. Unlike digital cameras that offer endless retakes, film forces the photographer to slow down and consider each frame with intent.",
+      "The chemistry of film adds another dimension. The unique grain structure, the organic way highlights roll off, and the unpredictable color shifts all contribute to an aesthetic that digital filters attempt to mimic but rarely replicate. Developing film in a darkroom also brings back a level of craftsmanship and surprise that the instant feedback of screen previews has completely eliminated."
     ]
   },
   {
-    id: "fintech-video",
-    title: "Video Report: Future of Decentralized Fintech and Automated Liquidity in 2026",
-    summary: "Watch our exclusive editorial video summary on how decentralized ledger infrastructures and custom micro-transaction APIs are transforming cross-border settlement channels in Europe.",
-    category: "Tech",
-    date: "June 18, 2026",
-    readingTime: "3 min watch",
+    id: "leo-hart-interview",
+    title: "Soundscapes of the City: An Interview with Leo Hart",
+    summary: "Explore the world of sound artist Leo Hart, who transforms urban noise into captivating musical compositions. In this detailed interview, we discuss the borders between acoustic clutter and auditory art.",
+    category: "Music",
+    date: "September 18, 2024",
+    readingTime: "6 min read",
+    author: AUTHORS.margareth,
+    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&h=400&q=80",
+    trending: true,
+    likes: 92,
+    content: [
+      "Explore the world of sound artist Leo Hart, who transforms urban noise into captivating musical compositions. In this detailed interview, we discuss the borders between acoustic clutter and auditory art.",
+      "Leo Hart finds beauty where others find annoyance. The rumble of subways, the chatter of crowds, and the hiss of rain on asphalt are the instruments he uses. By utilizing specialized field recorders, Hart captures raw sounds and loops them into rich, textured acoustic ambient pieces.",
+      "'The city is constantly performing,' Hart explains. 'Our job as sound artists is not to silence the environment, but to guide the listener's focus so they hear the inherent rhythm and harmonic structure of our shared urban spaces.'"
+    ]
+  },
+  {
+    id: "eva-martinez-visionary",
+    title: "Eva Martinez: The Visionary Behind the Canves",
+    summary: "Discover the creative journey of Eva Martinez, a self-taught painter whose bold use of color and texture redefines modern art. We step inside her bright Madrid studio to discuss her latest abstract exhibits.",
+    category: "Art",
+    date: "November 7, 2024",
+    readingTime: "10 min read",
+    author: AUTHORS.esther,
+    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&h=400&q=80",
+    trending: true,
+    likes: 147,
+    content: [
+      "Discover the creative journey of Eva Martinez, a self-taught painter whose bold use of color and texture redefines modern art. We step inside her Madrid studio to discuss her latest abstract exhibits.",
+      "Martinez's style is immediately recognizable for its thick, impasto layers and vibrant, high-contrast color choices. Her works, often spanning several meters, dominate galleries with an energetic physical presence that commands attention.",
+      "Initially working in corporate graphic design, Martinez walked away from digital design to reconnect with physical canvas. 'I needed the friction of the bristles, the smell of linseed oil, and the unpredictability of wet paint,' she shares."
+    ]
+  },
+  {
+    id: "unmissable-shows",
+    title: "Unmissable Shows This Season. Our recommendations",
+    summary: "Get ready for an unforgettable cultural experience. From performance art to physical theater and experimental visual projections, here is our handpicked list of shows you cannot miss this autumn.",
+    category: "Art",
+    date: "November 10, 2024",
+    readingTime: "14 min read",
+    author: AUTHORS.robert,
+    image: "https://images.unsplash.com/photo-1503095391758-11200cf53674?auto=format&fit=crop&w=400&h=300&q=80",
+    likes: 85,
+    content: [
+      "Get ready for an unforgettable cultural experience. From performance art to physical theater and experimental visual projections, here is our handpicked list of shows you cannot miss this autumn.",
+      "This season marks a powerful return to interactive and immersive theater layouts. Directors are breaking down the fourth wall, placing audiences directly in the center of the staging, and utilizing multi-sensory projections to enhance dramatic tension."
+    ]
+  },
+  {
+    id: "hidden-gems-exhibits",
+    title: "Hidden Gems: Lesser-Known Exhibits Worth Exploring",
+    summary: "Discover the beauty of art off the beaten path. We tour five boutique galleries and independent artist collectives showing remarkable installations that bypass mainstream gallery attention.",
+    category: "Art",
+    date: "November 10, 2024",
+    readingTime: "10 min read",
+    author: AUTHORS.devon,
+    image: "https://images.unsplash.com/photo-1492037766660-2a56f9eb3fcb?auto=format&fit=crop&w=400&h=300&q=80",
+    likes: 67,
+    content: [
+      "Discover the beauty of art off the beaten path. We tour five boutique galleries and independent artist collectives showing remarkable installations that bypass mainstream gallery attention.",
+      "Often, the most innovative and raw artistic statements are made on shoestring budgets in converted industrial garages. These venues allow artists absolute creative freedom, free from the commercial expectations of major national museums."
+    ]
+  },
+  {
+    id: "design-diaries",
+    title: "Design Diaries: Where to Find Inspiration",
+    summary: "From organic sculpture forms in urban parks to architectural concrete structures and historical graphic design, discover where leading modern designers turn to recharge their creative batteries.",
+    category: "Design",
+    date: "November 8, 2024",
+    readingTime: "5 min read",
+    author: AUTHORS.margareth,
+    image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=400&h=300&q=80",
+    likes: 112,
+    content: [
+      "From organic sculpture forms in urban parks to architectural concrete structures and historical graphic design, discover where leading modern designers turn to recharge their creative batteries.",
+      "Inspiration is rarely found by staring at a computer screen or browsing design aggregation sites. True creative breakthroughs occur when you step outside and observe how light hits raw concrete, how shadows shift at sunset, or how old book layouts utilized white space."
+    ]
+  },
+  {
+    id: "creative-pulse",
+    title: "The Creative Pulse Podcast: Audio Edition",
+    summary: "Listen to the latest episodes of The Creative Pulse, exploring the intersections of art, design, and music with leading voices in the creative industry.",
+    category: "Podcast",
+    date: "November 1, 2024",
+    readingTime: "25 min listen",
     author: AUTHORS.devon,
     video: {
       src: "https://vjs.zencdn.net/v/oceans.mp4",
       type: "video/mp4",
-      poster: "/dashboard_mockup.png"
+      poster: "https://images.unsplash.com/photo-1516280440614-37939bbacd6a?auto=format&fit=crop&w=400&h=400&q=80"
     },
-    likes: 88,
+    likes: 245,
     content: [
-      "In this special SSPeech Video Brief, CEO Devon Lane discusses the latest technical aggregation patterns shaping cross-border payments.",
-      "The accompanying video highlights details on transaction speed ratios, settlement compliance layers, and structural microservice bottlenecks."
-    ]
-  },
-  {
-    id: "trending-ai-role",
-    title: "Understanding the role of AI in software development",
-    summary: "AI coding assistants are evolving from simple auto-complete extensions into autonomous software engineers. Discover how developers are leveraging this shift to build products twice as fast without losing code quality.",
-    category: "Tech",
-    date: "09:00 AM",
-    readingTime: "12 min read",
-    author: AUTHORS.robert,
-    trending: true,
-    likes: 85,
-    content: [
-      "AI coding assistants are transforming the paradigm of software creation. No longer confined to basic syntax highlighting, advanced language models can now structure entire applications, suggest refactorings, and write unit tests.",
-      "Developers who integrate agentic AI workflows report dramatic speedups in repetitive tasks like boilerplate generation, database configuration, and documentation writing, freeing them to focus on architecture and core business logic."
-    ]
-  },
-  {
-    id: "trending-efficiency",
-    title: "Maximizing business efficiency: Why you need to know about the software development process",
-    summary: "A deep dive into agile workflows, CI/CD pipelines, and modern collaboration frameworks that separate high-velocity engineering teams from stagnant organizations.",
-    category: "How to",
-    date: "11:15 AM",
-    readingTime: "20 min read",
-    author: AUTHORS.esther,
-    trending: true,
-    likes: 56,
-    content: [
-      "Engineering efficiency is not just about writing lines of code; it is about establishing robust deployment pipelines and tight feedback loops that let you ship features safely several times a day.",
-      "By standardizing on clear Scrum and Kanban models, keeping codebases modular, and automating testing at every stage, startups can prevent burnout while delivering consistent value to users."
-    ]
-  },
-  {
-    id: "trending-knowledge-systems",
-    title: "How AI-based knowledge management systems help companies improve performance",
-    summary: "Explore how modern vector databases and retrieval-augmented generation (RAG) platforms are unifying fragmented company documentation to onboard new hires instantly.",
-    category: "Tech",
-    date: "08:57 AM",
-    readingTime: "9 min read",
-    author: AUTHORS.devon,
-    trending: true,
-    likes: 92,
-    content: [
-      "Fragmented internal documentation is one of the largest silent productivity drains in modern companies. AI-based search platforms resolve this by offering semantic search across all local files, repositories, and messaging history.",
-      "By implementing semantic vector retrieval layers, developers can ask complex technical questions and receive accurate answers with direct source link references, accelerating developer velocity by up to 40%."
-    ]
-  },
-  {
-    id: "grid-data-management",
-    title: "Top ways data management services can increase your business efficiency",
-    summary: "Data-heavy workflows can quickly become bottlenecked without appropriate structuring. Discover why modern teams are building custom visual dashboards to monitor real-time pipeline status and track resource distribution.",
-    category: "Tech",
-    date: "12:00 AM",
-    readingTime: "12 min read",
-    author: AUTHORS.margareth,
-    image: "/dashboard_mockup.png",
-    likes: 73,
-    content: [
-      "Data-heavy workflows can quickly become bottlenecked without appropriate structuring. Discover why modern teams are building custom visual dashboards to monitor real-time pipeline status and track resource distribution.",
-      "Integrating systems like Apache Kafka for streaming, and building custom dashboard cards with React and Tailwind CSS, provides operational managers with a premium window into their system health at a glance."
-    ]
-  },
-  {
-    id: "grid-mvp-guide",
-    title: "How to build an MVP: A step-by-step guide for 2026",
-    summary: "Building a minimum viable product doesn't mean sacrificing quality. Learn how to scope features, design interactive mockups, and run quick feedback loops to validate market demand.",
-    category: "How to",
-    date: "12:19 PM",
-    readingTime: "9 min read",
-    author: AUTHORS.robert,
-    likes: 118,
-    content: [
-      "The goal of an MVP is to validate core hypotheses, not to ship a broken layout. Focus on polishing the single most critical flow—such as a user signing up and completing one target action—with exceptional design visual standards.",
-      "Lean on responsive front-end frameworks and hosted backend services to get to market in weeks, rather than spending months planning complex microservices architectures."
-    ]
-  },
-  {
-    id: "grid-enterprise-features",
-    title: "11 must-have features for successful enterprise mobile apps",
-    summary: "From SSO authentication to local caching and offline sync, these are the core requirements that major IT departments expect from client-facing software.",
-    category: "Tech",
-    date: "09:27 AM",
-    readingTime: "10 min read",
-    author: AUTHORS.esther,
-    likes: 64,
-    content: [
-      "Enterprise software requires a level of reliability and security that consumer products rarely demand. This includes absolute adherence to OAuth protocols, custom role-based access control (RBAC), and high-integrity audit logging.",
-      "Offline sync using local database layers like SQLite or Realm guarantees that service technicians and remote representatives remain productive even when cellular coverage fails."
-    ]
-  },
-  {
-    id: "grid-web-services",
-    title: "Finding the perfect fit: Exploring web app development services in Europe",
-    summary: "An overview of top European engineering hubs, software agencies, and the legal structures required to build high-performing outsourcing partnerships.",
-    category: "How to",
-    date: "01:00 PM",
-    readingTime: "7 min read",
-    author: AUTHORS.margareth,
-    likes: 47,
-    content: [
-      "European engineering hubs like Berlin, Warsaw, and Tallinn have become global epicenters for high-quality software craftsmanship. They combine deep technical academies with standard European compliance practices.",
-      "When partnering with a service agency, establish clear performance benchmarks, check their previous design portfolios for responsive premium aesthetics, and define secure code sharing rules."
-    ]
-  },
-  {
-    id: "partner-mvp-guide",
-    title: "How to build an MVP: A step-by-step guide for 2026",
-    summary: "Our partners outline the most successful strategies for launching products in fast-paced software markets, showcasing how UX and performance impact retention rates.",
-    category: "Case study",
-    date: "01:00 PM",
-    readingTime: "12 min read",
-    author: AUTHORS.devon,
-    isPartner: true,
-    likes: 21,
-    content: [
-      "In our partners' news, launching MVP products is analyzed through the lens of user retention. Statistics show that products with high visual polish and quick interactive loading speeds maintain 30% higher second-month user retention.",
-      "Designing clean layouts, avoiding complex loading states, and utilizing web hosting servers that score highly on Largest Contentful Paint (LCP) are the keys to long-term digital growth."
+      "The Creative Pulse is our weekly auditory journey into the minds of makers. Hosted by Devon Lane, each episode hosts a dialog with musicians, visual artists, and designers who push boundaries.",
+      "In this special compilation, we review clip highlights from our first five episodes, covering topics from city acoustics to the tactile allure of modern painting."
     ]
   }
 ];
 
-export const CATEGORIES = ["All", "Awards", "How to", "Tech", "Case study", "Case"];
+export const CATEGORIES = ["All", "Latest", "Trending", "Art", "Design", "Music", "Podcast"];

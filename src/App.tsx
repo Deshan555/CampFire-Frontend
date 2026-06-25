@@ -2,9 +2,7 @@ import { useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import Banner from "./components/Banner";
 import Navbar from "./components/Navbar";
-import Sidebar from "./components/Sidebar";
 import FeaturedArticle from "./components/FeaturedArticle";
-import RightSidebar from "./components/RightSidebar";
 import ArticleGrid from "./components/ArticleGrid";
 import ArticlePage from "./pages/ArticlePage";
 import CrmDashboard from "./pages/CrmDashboard";
@@ -12,7 +10,11 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminRegisterPage from "./pages/AdminRegisterPage";
 import AiWriterPage from "./pages/AiWriterPage";
-import AdSensePlaceholder from "./components/AdSensePlaceholder";
+import PodcastWidget from "./components/PodcastWidget";
+import ArtistSpotlight from "./components/ArtistSpotlight";
+import NewsletterSignup from "./components/NewsletterSignup";
+import MustSeeMoments from "./components/MustSeeMoments";
+import Footer from "./components/Footer";
 import { fetchArticles } from "./api";
 import type { Article } from "./data/articles";
 
@@ -99,7 +101,8 @@ function App() {
   // Filtering logic
   const filteredArticles = articles.filter((article) => {
     const matchesCategory =
-      selectedCategory === "All" || article.category === selectedCategory;
+      selectedCategory === "All" ||
+      (selectedCategory === "Trending" ? article.trending : article.category === selectedCategory);
 
     const matchesSearch =
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -124,6 +127,8 @@ function App() {
           onSearchChange={setSearchQuery}
           darkMode={darkMode}
           onToggleDarkMode={handleToggleDarkMode}
+          selectedCategory={selectedCategory}
+          onSelectCategory={setSelectedCategory}
         />
       )}
 
@@ -133,54 +138,83 @@ function App() {
         <Route
           path="/"
           element={
-            <div className="flex-1 max-w-[1440px] w-full mx-auto flex flex-col md:flex-row border-x-[0.5px] border-neutral-200 dark:border-neutral-800">
-              {/* Left Sidebar */}
-              <Sidebar
-                selectedCategory={selectedCategory}
-                onSelectCategory={setSelectedCategory}
-              />
-
-              {/* Main Content Area */}
-              <main className="flex-1 p-6 md:p-8 flex flex-col gap-6 border-r-[0.5px] border-neutral-200 dark:border-neutral-800">
-                {/* AdSense Top Banner */}
-                <AdSensePlaceholder type="banner" className="h-20 w-full mb-4" />
-
-                {loading ? (
-                  <div className="py-32 text-center flex flex-col items-center justify-center">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 dark:border-white mb-4"></div>
-                    <p className="font-serif italic text-sm text-neutral-500 uppercase tracking-widest">
-                      Loading Current Edition...
-                    </p>
+            <div className="flex-1 w-full bg-brand-light dark:bg-brand-dark flex flex-col">
+              {loading ? (
+                <div className="py-48 text-center flex flex-col items-center justify-center flex-grow">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-neutral-900 dark:border-white mb-4"></div>
+                  <p className="font-serif italic text-xs text-neutral-500 uppercase tracking-widest">
+                    Loading CANVES Edition...
+                  </p>
+                </div>
+              ) : searchQuery !== "" || (selectedCategory !== "All" && selectedCategory !== "Trending") ? (
+                /* Dynamic filtered search / category list */
+                <main className="max-w-[1400px] w-full mx-auto p-6 md:p-8 flex flex-col gap-6 flex-grow">
+                  <div className="text-left border-b-[1.5px] border-brand-dark pb-4 mb-4 mt-6">
+                    <span className="text-[10px] text-accent-coral uppercase tracking-widest font-extrabold font-display block mb-1">
+                      Category Feed
+                    </span>
+                    <h2 className="font-serif font-black text-3xl leading-tight text-neutral-900 dark:text-white uppercase tracking-tight">
+                      {searchQuery !== "" ? `Search results for "${searchQuery}"` : `${selectedCategory} Articles`}
+                    </h2>
                   </div>
-                ) : filteredArticles.length === 0 ? (
-                  <div className="py-20 text-center text-neutral-500 dark:text-neutral-400 border-[0.5px] border-dashed border-neutral-200 dark:border-neutral-850 rounded-2xl">
-                    <p className="font-serif text-lg italic">No articles found matching your criteria.</p>
-                    <button
-                      onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}
-                      className="mt-4 px-6 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold rounded-full hover:opacity-90 transition-opacity cursor-pointer"
-                    >
-                      Reset Filters
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    {/* Featured Article */}
-                    {(selectedCategory === "All" || (featuredArticle && featuredArticle.category === selectedCategory)) &&
-                      (searchQuery === "" || (featuredArticle && filteredArticles.some(a => a.id === featuredArticle.id))) && (
-                        <FeaturedArticle article={featuredArticle} />
-                    )}
 
-                    {/* Secondary Articles Grid */}
+                  {filteredArticles.length === 0 ? (
+                    <div className="py-24 text-center border-[1.5px] border-brand-dark rounded-xl bg-brand-cream dark:bg-brand-charcoal text-neutral-500 dark:text-neutral-400 p-8 shadow-[3px_3px_0px_0px_#111]">
+                      <p className="font-serif text-lg italic">No articles found matching your criteria.</p>
+                      <button
+                        onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}
+                        className="mt-6 px-6 py-2.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold rounded-md border border-neutral-900 hover:opacity-90 cursor-pointer"
+                      >
+                        Reset Filters
+                      </button>
+                    </div>
+                  ) : (
                     <ArticleGrid articles={filteredArticles} />
-                  </>
-                )}
+                  )}
+                </main>
+              ) : (
+                /* Editorial inspired print layout */
+                <>
+                  {/* Big homepage title brand banner */}
+                  <div className="w-full bg-brand-charcoal text-white pt-10 pb-6 px-6 select-none border-b border-neutral-900">
+                    <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-neutral-800 pb-8">
+                      <div className="text-left">
+                        <h1 className="font-display font-black text-6xl sm:text-7xl md:text-8xl lg:text-10xl leading-[0.85] tracking-tighter uppercase">
+                          THE CANVES
+                        </h1>
+                        <p className="text-xs text-accent-coral uppercase tracking-widest font-extrabold font-display mt-3.5 pl-1.5">
+                          Blog about art music design.
+                        </p>
+                      </div>
+                      
+                      {/* Social Audio buttons */}
+                      <div className="flex gap-3 shrink-0 mb-1">
+                        <button className="w-9 h-9 rounded-full bg-accent-coral hover:bg-accent-coral-dark text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-md" title="Soundcloud">
+                          <i className="fa-brands fa-soundcloud text-base"></i>
+                        </button>
+                        <button className="w-9 h-9 rounded-full bg-accent-coral hover:bg-accent-coral-dark text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-md" title="Spotify">
+                          <i className="fa-brands fa-spotify text-base"></i>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
 
-                {/* AdSense Bottom Banner */}
-                <AdSensePlaceholder type="banner" className="h-20 w-full mt-4" />
-              </main>
+                  {/* Horizontal featured article block */}
+                  <FeaturedArticle article={featuredArticle} />
 
-              {/* Right Sidebar Widgets */}
-              <RightSidebar articles={articles} />
+                  {/* Podcast block */}
+                  <PodcastWidget />
+
+                  {/* Artist Spotlight block */}
+                  <ArtistSpotlight articles={articles} />
+
+                  {/* Newsletter block */}
+                  <NewsletterSignup />
+
+                  {/* Must-See Moments bottom block */}
+                  <MustSeeMoments articles={articles} />
+                </>
+              )}
             </div>
           }
         />
@@ -245,6 +279,9 @@ function App() {
           }
         />
       </Routes>
+
+      {/* 4. Global Footer */}
+      {showLayout && <Footer />}
     </div>
   );
 }

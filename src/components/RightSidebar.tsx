@@ -101,7 +101,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ articles = [] }) => 
       </div>
 
       {/* 3. Soft Green Newsletter Subscription Box */}
-      <div className="relative bg-accent-green text-neutral-900 p-6 rounded-2xl overflow-hidden border-[0.5px] border-emerald-350 select-none text-left shadow-sm">
+      <div className="relative bg-gradient-to-br from-accent-green via-emerald-100 to-accent-green/85 dark:from-emerald-950/45 dark:via-neutral-900/60 dark:to-emerald-950/20 text-neutral-900 dark:text-neutral-100 p-6 rounded-2xl overflow-hidden border-[0.5px] border-emerald-350 dark:border-emerald-900/40 select-none text-left shadow-sm transition-all duration-300 hover:shadow-md">
         {/* Abstract background graphics */}
         <svg
           className="absolute inset-0 opacity-15 pointer-events-none"
@@ -109,19 +109,19 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ articles = [] }) => 
           height="100%"
           xmlns="http://www.w3.org/2000/svg"
         >
-          <path d="M-20,60 Q40,120 120,40 T280,140" fill="none" stroke="#000" strokeWidth="2" />
-          <path d="M-10,80 Q60,150 140,70 T300,160" fill="none" stroke="#000" strokeWidth="1" />
+          <path d="M-20,60 Q40,120 120,40 T280,140" fill="none" stroke="currentColor" strokeWidth="2" className="text-neutral-900 dark:text-neutral-600" />
+          <path d="M-10,80 Q60,150 140,70 T300,160" fill="none" stroke="currentColor" strokeWidth="1" className="text-neutral-900 dark:text-neutral-600" />
         </svg>
 
         <h4 className="font-serif text-2xl font-black leading-tight tracking-tight uppercase mb-2">
           Subscribe To Read More
         </h4>
-        <p className="text-xs text-neutral-800 leading-relaxed mb-4 font-medium">
+        <p className="text-xs text-neutral-850 dark:text-neutral-350 leading-relaxed mb-4 font-medium">
           Get unlimited access for <span className="font-bold">80 cents/week</span> and receive instant notifications about new releases.
         </p>
 
         {subscribed ? (
-          <div className="bg-white/95 text-emerald-800 text-xs font-semibold py-2 px-3 rounded-lg border-[0.5px] border-emerald-200 text-center animate-fade-in">
+          <div className="bg-white/95 dark:bg-neutral-900/90 text-emerald-800 dark:text-emerald-400 text-xs font-semibold py-2 px-3 rounded-lg border-[0.5px] border-emerald-250 dark:border-emerald-900/60 text-center animate-fade-in">
             ✓ Successfully subscribed! Check your inbox.
           </div>
         ) : (
@@ -132,11 +132,11 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ articles = [] }) => 
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 bg-white/90 focus:bg-white text-xs border-[0.5px] border-emerald-300 rounded-full focus:outline-none focus:ring-1 focus:ring-emerald-600 text-neutral-900"
+              className="w-full px-4 py-2 bg-white/90 dark:bg-neutral-900/60 focus:bg-white dark:focus:bg-neutral-900 text-xs border-[0.5px] border-emerald-350 dark:border-neutral-800 rounded-full focus:outline-none focus:ring-1 focus:ring-emerald-600 text-neutral-900 dark:text-neutral-200 placeholder-neutral-450 dark:placeholder-neutral-600 transition-all"
             />
             <button
               type="submit"
-              className="w-full py-2 bg-neutral-900 hover:bg-neutral-800 text-white text-xs font-semibold rounded-full transition-colors flex items-center justify-center gap-1 cursor-pointer"
+              className="w-full py-2 bg-neutral-900 hover:bg-neutral-800 dark:bg-white dark:hover:bg-neutral-100 dark:text-neutral-950 text-white text-xs font-semibold rounded-full transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-1 cursor-pointer"
             >
               <span>Subscribe</span>
               <i className="fa-solid fa-chevron-right text-[10px]"></i>

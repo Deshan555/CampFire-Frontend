@@ -23,7 +23,7 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
             <Link
               key={article.id}
               to={`/article/${article.id}`}
-              className={`flex flex-col justify-between border-[0.5px] border-neutral-200 dark:border-neutral-800 p-6 rounded-xl hover:bg-neutral-50/50 dark:hover:bg-neutral-900/30 cursor-pointer transition-all duration-300 text-left ${
+              className={`flex flex-col justify-between border-[0.5px] border-neutral-200 dark:border-neutral-800 p-6 rounded-xl hover:bg-neutral-50/50 dark:hover:bg-neutral-900/30 hover:-translate-y-1 hover:shadow-md dark:hover:shadow-[0_0_25px_rgba(216,180,254,0.03)] cursor-pointer transition-all duration-300 text-left ${
                 hasImage && index === 0 ? "md:col-span-2 md:flex-row gap-6" : ""
               }`}
             >
@@ -79,7 +79,7 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
               <Link
                 key={article.id}
                 to={`/article/${article.id}`}
-                className="p-6 bg-neutral-50/50 dark:bg-neutral-900/10 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 rounded-xl cursor-pointer transition-all duration-300 block"
+                className="p-6 bg-neutral-50/50 dark:bg-neutral-900/10 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 hover:-translate-y-1 hover:shadow-md dark:hover:shadow-[0_0_25px_rgba(216,180,254,0.02)] rounded-xl cursor-pointer transition-all duration-300 block"
               >
                 <span className="text-[9px] font-sans tracking-widest text-neutral-450 dark:text-neutral-555 uppercase font-semibold block mb-1">
                   Partner Article

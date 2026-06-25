@@ -7,84 +7,81 @@ interface FeaturedArticleProps {
 }
 
 export const FeaturedArticle: React.FC<FeaturedArticleProps> = ({ article }) => {
+  if (!article) return null;
+
   return (
-    <article className="border-b-[0.5px] border-neutral-200 dark:border-neutral-800 pb-12 transition-colors duration-300">
-      {/* Newspaper style edition header */}
-      <div className="border-b-[0.5px] border-neutral-200 dark:border-neutral-800 pb-6 mb-8 text-left">
-        <span className="text-sm font-serif italic text-neutral-500 block mb-1">
-          Thursday,
-        </span>
-        <h1 className="font-display text-[72px] sm:text-[96px] lg:text-[110px] leading-[0.85] font-black tracking-tight text-neutral-900 dark:text-neutral-50 uppercase select-none">
-          February 12
-        </h1>
-      </div>
+    <div className="w-full px-6 py-8 md:py-12 bg-brand-charcoal text-white transition-colors duration-300">
+      <div className="max-w-[1400px] mx-auto">
+        <article className="bg-[#EAEAEA] text-neutral-900 border-[1.5px] border-neutral-900 p-6 md:p-8 flex flex-col md:flex-row gap-8 items-stretch rounded-xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_#000] transition-all duration-300">
+          
+          {/* Left Text details */}
+          <div className="flex-1 flex flex-col justify-between text-left gap-6">
+            <div>
+              <span className="text-xs md:text-sm font-serif italic text-neutral-500 block mb-2">
+                {article.date}
+              </span>
+              
+              <Link
+                to={`/article/${article.id}`}
+                className="font-serif text-2xl sm:text-3xl lg:text-4xl font-black leading-[1.15] text-neutral-900 hover:text-accent-coral transition-colors mb-3 block"
+              >
+                {article.title}
+              </Link>
+              
+              <p className="text-neutral-600 text-sm sm:text-base leading-relaxed font-sans mb-4">
+                {article.summary}
+              </p>
+            </div>
 
-      {/* Author and meta block */}
-      <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
-        <div className="flex items-center gap-3">
-          <img
-            src={article.author.avatar}
-            alt={article.author.name}
-            className="w-10 h-10 rounded-full object-cover border-[0.5px] border-neutral-200 dark:border-neutral-800"
-          />
-          <div className="text-left">
-            <span className="text-sm font-bold text-neutral-850 dark:text-neutral-200 block">
-              {article.author.name}
-            </span>
-            <span className="text-xs text-neutral-400 dark:text-neutral-500 font-medium">
-              {article.date} • {article.readingTime} • {article.category}
-            </span>
+            <div className="flex flex-col gap-4">
+              {/* Author & reading time */}
+              <div className="flex items-center gap-3 border-t border-neutral-300/80 pt-4">
+                <img
+                  src={article.author.avatar}
+                  alt={article.author.name}
+                  className="w-8 h-8 rounded-full object-cover border border-neutral-900"
+                />
+                <div>
+                  <span className="text-xs font-bold text-neutral-850 block">
+                    {article.author.name} ({article.author.role})
+                  </span>
+                  <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold font-display">
+                    {article.readingTime}
+                  </span>
+                </div>
+              </div>
+
+              {/* Tags block */}
+              <div className="flex gap-2 flex-wrap">
+                {["Trends", "Photography", "Film"].map((tag) => (
+                  <span
+                    key={tag}
+                    className="px-3 py-1 bg-neutral-900 text-white rounded-full text-[9px] uppercase font-extrabold tracking-wider font-display"
+                  >
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
-        </div>
 
-        {/* Action sharing triggers */}
-        <div className="flex items-center gap-3 text-neutral-400 dark:text-neutral-500">
-          <button className="p-2 hover:bg-neutral-50 dark:hover:bg-neutral-900 rounded-full transition-all hover:text-neutral-700 dark:hover:text-neutral-300 cursor-pointer" title="Share article">
-            <i className="fa-solid fa-share-nodes text-sm"></i>
-          </button>
-          <button className="p-2 hover:bg-neutral-50 dark:hover:bg-neutral-900 rounded-full transition-all hover:text-neutral-700 dark:hover:text-neutral-300 cursor-pointer" title="Save bookmark">
-            <i className="fa-solid fa-bookmark text-sm"></i>
-          </button>
-        </div>
+          {/* Right Image */}
+          <Link
+            to={`/article/${article.id}`}
+            className="flex-1 aspect-[16/10] md:aspect-auto md:w-1/2 bg-neutral-200 border-[1.5px] border-neutral-900 rounded-lg overflow-hidden group cursor-pointer block"
+          >
+            <img
+              src={article.image || "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80"}
+              alt={article.title}
+              className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700 ease-out"
+              loading="eager"
+            />
+          </Link>
+
+        </article>
       </div>
-
-      {/* Article Title */}
-      <Link
-        to={`/article/${article.id}`}
-        className="font-serif text-3xl sm:text-4xl lg:text-5xl font-black text-left text-neutral-900 dark:text-neutral-100 hover:text-neutral-700 dark:hover:text-neutral-300 cursor-pointer transition-colors leading-[1.1] mb-6 block"
-      >
-        {article.title}
-      </Link>
-
-      {/* Featured Hero Image */}
-      <Link
-        to={`/article/${article.id}`}
-        className="w-full aspect-[16/10] bg-neutral-100 dark:bg-neutral-900 rounded-lg overflow-hidden border-[0.5px] border-neutral-200 dark:border-neutral-800 mb-6 group cursor-pointer block"
-      >
-        <img
-          src={article.image}
-          alt={article.title}
-          className="w-full h-full object-cover group-hover:scale-[1.01] transition-transform duration-700 ease-out"
-          loading="eager"
-        />
-      </Link>
-
-      {/* Summary Paragraph */}
-      <p className="text-neutral-605 dark:text-neutral-400 text-left text-base sm:text-lg leading-relaxed mb-6 font-sans">
-        {article.summary}
-      </p>
-
-      {/* Read All Button */}
-      <div className="flex justify-start">
-        <Link
-          to={`/article/${article.id}`}
-          className="px-6 py-2.5 bg-neutral-900 hover:bg-neutral-850 dark:bg-white dark:hover:bg-neutral-100 text-white dark:text-neutral-950 font-semibold text-sm rounded-full flex items-center gap-2 group transition-all duration-300 shadow-sm cursor-pointer"
-        >
-          <span>Read article</span>
-          <i className="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-        </Link>
-      </div>
-    </article>
+    </div>
   );
 };
+
 export default FeaturedArticle;

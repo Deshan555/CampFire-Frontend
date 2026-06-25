@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
-import logoDay from "../assets/logo_day.png";
-import logoNight from "../assets/logo_night.png";
 
 interface NavbarProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
   darkMode: boolean;
   onToggleDarkMode: () => void;
+  selectedCategory: string;
+  onSelectCategory: (category: string) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -15,6 +15,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   onSearchChange,
   darkMode,
   onToggleDarkMode,
+  selectedCategory,
+  onSelectCategory,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -57,53 +59,85 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b-[0.5px] border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-brand-dark/80 backdrop-blur-md px-6 py-4 flex items-center justify-between transition-all duration-300">
+    <header className="sticky top-0 z-40 w-full border-b-[0.5px] border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-brand-dark/80 backdrop-blur-md px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-300">
+      
       {/* Left section: Logo */}
-      <div className="flex items-center gap-3">
-        <Link to="/" className="flex items-center gap-2.5 hover:opacity-90 active:scale-95 transition-all duration-200 group">
-          <img src={logoDay} alt="Camp Fire Logo" className="h-8 w-auto block dark:hidden group-hover:scale-105 transition-transform duration-300" />
-          <img src={logoNight} alt="Camp Fire Logo" className="h-8 w-auto hidden dark:block group-hover:scale-105 transition-transform duration-300" />
-          <span className="text-xl font-display font-black tracking-tighter text-neutral-905 dark:text-neutral-50">
-            Camp Fire
+      <div className="flex items-center justify-between w-full md:w-auto gap-6 shrink-0">
+        <Link to="/" className="flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all duration-200 group">
+          <span className="text-sm font-display font-black tracking-widest text-neutral-500 dark:text-neutral-400 uppercase select-none">
+            THE CANVES BLOG.
           </span>
         </Link>
-      </div>
-
-      {/* Center section: Search Bar */}
-      <div className="flex-1 max-w-lg mx-8 relative hidden md:block">
-        <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none text-neutral-400 dark:text-neutral-500">
-          <i className="fa-solid fa-magnifying-glass"></i>
+        
+        {/* Mobile menu toggle or controls */}
+        <div className="flex items-center md:hidden gap-3">
+          <button
+            onClick={onToggleDarkMode}
+            className="p-1.5 text-neutral-600 dark:text-neutral-450 text-sm"
+          >
+            {darkMode ? <i className="fa-solid fa-sun"></i> : <i className="fa-solid fa-moon"></i>}
+          </button>
         </div>
-        <input
-          type="text"
-          placeholder="Search articles, categories, authors..."
-          value={searchQuery}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className="w-full pl-11 pr-4 py-2 bg-neutral-50 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-sm rounded-full focus:outline-none focus:ring-1 focus:ring-accent-purple/50 focus:border-accent-purple text-neutral-800 dark:text-neutral-200 placeholder-neutral-400 dark:placeholder-neutral-600 transition-all"
-        />
       </div>
 
-      {/* Right section: CTA Actions */}
-      <div className="flex items-center gap-4">
-        {/* Mobile Search Input */}
-        <div className="md:hidden relative">
+      {/* Center Section: Editorial Categories Navigation */}
+      <nav className="flex items-center gap-5 overflow-x-auto max-w-full pb-1 md:pb-0 font-display text-[10px] sm:text-xs font-extrabold uppercase tracking-widest text-neutral-500 dark:text-neutral-450 shrink-0 thin-scrollbar">
+        {[
+          { name: "Latest", value: "All" },
+          { name: "Trending", value: "Trending" },
+          { name: "Art", value: "Art" },
+          { name: "Design", value: "Design" },
+          { name: "Music", value: "Music" },
+          { name: "Podcast", value: "Podcast" }
+        ].map((item) => {
+          const isActive =
+            item.value === "Trending"
+              ? selectedCategory === "Trending"
+              : selectedCategory === item.value;
+          return (
+            <button
+              key={item.name}
+              onClick={() => {
+                onSelectCategory(item.value);
+                if (location.pathname !== "/") {
+                  navigate("/");
+                }
+              }}
+              className={`hover:text-accent-coral transition-colors cursor-pointer ${
+                isActive ? "text-accent-coral underline underline-offset-4 decoration-2" : ""
+              }`}
+            >
+              {item.name}
+            </button>
+          );
+        })}
+      </nav>
+
+      {/* Right section: Search & CTA Actions */}
+      <div className="flex items-center gap-3 w-full md:w-auto justify-end shrink-0">
+        
+        {/* Search Input */}
+        <div className="relative flex-1 md:flex-initial max-w-xs">
+          <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-neutral-400">
+            <i className="fa-solid fa-magnifying-glass text-xs"></i>
+          </div>
           <input
             type="text"
-            placeholder="Search..."
+            placeholder="Search articles..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-32 px-3 py-1 bg-neutral-50 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-xs rounded-full focus:outline-none text-neutral-800 dark:text-neutral-200 transition-all focus:w-44"
+            className="w-full md:w-44 lg:w-56 pl-9 pr-3 py-1.5 bg-neutral-50 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-xs rounded-full focus:outline-none focus:ring-1 focus:ring-accent-coral/50 focus:border-accent-coral text-neutral-850 dark:text-neutral-200 placeholder-neutral-400 transition-all focus:w-full md:focus:w-52 lg:focus:w-64"
           />
         </div>
 
         {/* New Button */}
         <button
           onClick={() => navigate("/ai-writer")}
-          className="hidden sm:flex items-center gap-1.5 px-4 py-1.5 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-xs font-semibold rounded-full text-neutral-800 dark:text-neutral-200 transition-colors cursor-pointer"
+          className="hidden lg:flex items-center gap-1 px-3 py-1.5 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-[10px] font-bold uppercase tracking-wider rounded-full text-neutral-750 dark:text-neutral-350 transition-colors cursor-pointer"
           title="Open AI Writer Playground"
         >
           <span>AI Writer</span>
-          <span className="w-1.5 h-1.5 bg-accent-purple rounded-full animate-pulse"></span>
+          <span className="w-1.5 h-1.5 bg-accent-coral rounded-full animate-pulse"></span>
         </button>
 
         {/* Language selector */}
