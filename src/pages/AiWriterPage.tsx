@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { generateAiArticle } from "../api";
 import Markdown from "../components/Markdown";
+import { AnimatedButton, ThinkingIndicator, ShimmerEffect } from "../components/canves-animations";
 
 export const AiWriterPage: React.FC = () => {
   const [model, setModel] = useState("gemma3:1b");
@@ -212,10 +213,11 @@ export const AiWriterPage: React.FC = () => {
                 </label>
               </div>
 
-              <button
+              <AnimatedButton
                 type="submit"
                 disabled={generating}
-                className="w-full py-2.5 bg-violet-650 hover:bg-violet-750 disabled:bg-violet-400 text-white rounded-lg text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                variant="primary"
+                className="w-full py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
               >
                 {generating ? (
                   <>
@@ -228,7 +230,7 @@ export const AiWriterPage: React.FC = () => {
                     <span>Generate Draft</span>
                   </>
                 )}
-              </button>
+              </AnimatedButton>
             </form>
           </div>
 
@@ -258,20 +260,19 @@ export const AiWriterPage: React.FC = () => {
             )}
 
             {generating && (
-              <div className="flex-1 flex flex-col items-start justify-center py-20 animate-pulse text-left w-full">
-                <div className="flex items-center gap-3 mb-6">
-                  <i className="fa-solid fa-wand-magic-sparkles text-3xl text-violet-500 animate-spin"></i>
-                  <h3 className="font-serif text-xl italic font-bold text-neutral-800 dark:text-neutral-255">
-                    THE CANVES AI Editor is writing...
-                  </h3>
-                </div>
+              <div className="flex-1 flex flex-col items-start justify-center py-20 text-left w-full">
+                <ThinkingIndicator
+                  size="lg"
+                  message="THE CANVES AI Editor is writing..."
+                  className="mb-6"
+                />
                 <div className="space-y-4 w-full">
-                  <div className="h-6 bg-neutral-200 dark:bg-neutral-800 rounded-md w-3/4 animate-pulse"></div>
-                  <div className="h-4 bg-neutral-200 dark:bg-neutral-800 rounded-md w-1/2 animate-pulse"></div>
-                  <div className="space-y-2 pt-6 w-full">
-                    <div className="h-3 bg-neutral-100 dark:bg-neutral-850 rounded-md w-full"></div>
-                    <div className="h-3 bg-neutral-100 dark:bg-neutral-850 rounded-md w-11/12"></div>
-                    <div className="h-3 bg-neutral-100 dark:bg-neutral-850 rounded-md w-5/6"></div>
+                  <ShimmerEffect className="h-6 w-3/4 rounded-md" />
+                  <ShimmerEffect className="h-4 w-1/2 rounded-md" />
+                  <div className="space-y-3 pt-6 w-full">
+                    <ShimmerEffect className="h-3 w-full rounded-md" />
+                    <ShimmerEffect className="h-3 w-11/12 rounded-md" />
+                    <ShimmerEffect className="h-3 w-5/6 rounded-md" />
                   </div>
                 </div>
               </div>
