@@ -1,0 +1,671 @@
+/* ============================================================================
+   CANVES ANIMATIONS - Custom CSS Animations for AI Art & Craft Companion
+   ============================================================================ */
+
+/* ============================================================================
+   KEYFRAME ANIMATIONS
+   ============================================================================ */
+
+/* Smooth spinning animation with conic gradient */
+@keyframes spin-smooth {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Thinking bounce - organic dot animation */
+@keyframes thinking-bounce {
+  0%, 100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 0.6;
+  }
+}
+
+/* Shimmer effect - loading skeleton */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Wave effect - text reveal */
+@keyframes wave {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+/* Orbit animation - circular motion */
+@keyframes orbit {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulse effect - breathing animation */
+@keyframes pulse-gentle {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Morph animation - shape shifting */
+@keyframes morph {
+  0% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  25% {
+    border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+  }
+  50% {
+    border-radius: 40% 30% 60% 70% / 60% 50% 40% 30%;
+  }
+  75% {
+    border-radius: 70% 40% 30% 60% / 30% 60% 50% 40%;
+  }
+  100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+}
+
+/* Flow animation - particle stream */
+@keyframes flow {
+  0% {
+    transform: translateY(100%) translateX(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-100%) translateX(50px);
+    opacity: 0;
+  }
+}
+
+/* Ripple effect - button interaction */
+@keyframes ripple {
+  0% {
+    width: 20px;
+    height: 20px;
+    opacity: 0.8;
+  }
+  100% {
+    width: 300px;
+    height: 300px;
+    opacity: 0;
+  }
+}
+
+/* Glow effect - subtle pulsing glow */
+@keyframes glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(99, 102, 241, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(99, 102, 241, 0.6);
+  }
+}
+
+/* Float effect - gentle up and down motion */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+/* Slide in from left */
+@keyframes slide-in-left {
+  from {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Slide in from right */
+@keyframes slide-in-right {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Fade in up */
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Fade in down */
+@keyframes fade-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Scale pulse - growing and shrinking */
+@keyframes scale-pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+/* Bounce animation */
+@keyframes bounce-custom {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-25%);
+  }
+}
+
+/* ============================================================================
+   ANIMATION CLASSES - Utility Classes for Easy Application
+   ============================================================================ */
+
+/* Spin animations with different speeds */
+.animate-spin-slow {
+  animation: spin-smooth 3s linear infinite;
+}
+
+.animate-spin-normal {
+  animation: spin-smooth 1.5s linear infinite;
+}
+
+.animate-spin-fast {
+  animation: spin-smooth 0.8s linear infinite;
+}
+
+/* Thinking bounce animations */
+.animate-thinking {
+  animation: thinking-bounce 1.4s ease-in-out infinite;
+}
+
+.animate-thinking-slow {
+  animation: thinking-bounce 2s ease-in-out infinite;
+}
+
+.animate-thinking-fast {
+  animation: thinking-bounce 0.8s ease-in-out infinite;
+}
+
+/* Shimmer animations */
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+.animate-shimmer-fast {
+  animation: shimmer 1s infinite;
+}
+
+.animate-shimmer-slow {
+  animation: shimmer 3s infinite;
+}
+
+/* Wave animations */
+.animate-wave {
+  animation: wave 1.2s ease-in-out infinite;
+}
+
+.animate-wave-slow {
+  animation: wave 1.8s ease-in-out infinite;
+}
+
+.animate-wave-fast {
+  animation: wave 0.8s ease-in-out infinite;
+}
+
+/* Orbit animations */
+.animate-orbit {
+  animation: orbit 6s linear infinite;
+}
+
+.animate-orbit-slow {
+  animation: orbit 8s linear infinite;
+}
+
+.animate-orbit-fast {
+  animation: orbit 4s linear infinite;
+}
+
+/* Pulse animations */
+.animate-pulse-gentle {
+  animation: pulse-gentle 2s ease-in-out infinite;
+}
+
+.animate-pulse-slow {
+  animation: pulse-gentle 3s ease-in-out infinite;
+}
+
+.animate-pulse-fast {
+  animation: pulse-gentle 1s ease-in-out infinite;
+}
+
+/* Morph animations */
+.animate-morph {
+  animation: morph 8s ease-in-out infinite;
+}
+
+.animate-morph-slow {
+  animation: morph 12s ease-in-out infinite;
+}
+
+.animate-morph-fast {
+  animation: morph 4s ease-in-out infinite;
+}
+
+/* Flow animations */
+.animate-flow {
+  animation: flow 4s linear infinite;
+}
+
+.animate-flow-slow {
+  animation: flow 6s linear infinite;
+}
+
+.animate-flow-fast {
+  animation: flow 2s linear infinite;
+}
+
+/* Ripple animations */
+.animate-ripple {
+  animation: ripple 0.6s ease-out;
+}
+
+/* Glow animations */
+.animate-glow {
+  animation: glow 2s ease-in-out infinite;
+}
+
+.animate-glow-slow {
+  animation: glow 3s ease-in-out infinite;
+}
+
+.animate-glow-fast {
+  animation: glow 1s ease-in-out infinite;
+}
+
+/* Float animations */
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-fast {
+  animation: float 2s ease-in-out infinite;
+}
+
+/* Slide animations */
+.animate-slide-in-left {
+  animation: slide-in-left 0.4s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.4s ease-out forwards;
+}
+
+/* Fade animations */
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+.animate-fade-in-down {
+  animation: fade-in-down 0.5s ease-out forwards;
+}
+
+/* Scale pulse animations */
+.animate-scale-pulse {
+  animation: scale-pulse 2s ease-in-out infinite;
+}
+
+.animate-scale-pulse-slow {
+  animation: scale-pulse 3s ease-in-out infinite;
+}
+
+.animate-scale-pulse-fast {
+  animation: scale-pulse 1s ease-in-out infinite;
+}
+
+/* Bounce animations */
+.animate-bounce-custom {
+  animation: bounce-custom 1s ease-in-out infinite;
+}
+
+/* ============================================================================
+   DURATION MODIFIERS - Control animation speed
+   ============================================================================ */
+
+.animation-duration-slow {
+  animation-duration: 2s;
+}
+
+.animation-duration-normal {
+  animation-duration: 1.4s;
+}
+
+.animation-duration-fast {
+  animation-duration: 0.8s;
+}
+
+/* ============================================================================
+   DELAY MODIFIERS - Stagger animations
+   ============================================================================ */
+
+.animation-delay-1 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-2 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-3 {
+  animation-delay: 0.3s;
+}
+
+.animation-delay-4 {
+  animation-delay: 0.4s;
+}
+
+/* ============================================================================
+   THEME-AWARE GRADIENT ANIMATIONS
+   ============================================================================ */
+
+/* Dark mode - cool indigo tones */
+@media (prefers-color-scheme: dark) {
+  .theme-gradient-dark {
+    background: linear-gradient(135deg, #818cf8, #e0e7ff);
+  }
+
+  .theme-gradient-pulse-dark {
+    animation: pulse-gradient-dark 3s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse-gradient-dark {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* Light mode - vibrant indigo tones */
+@media (prefers-color-scheme: light) {
+  .theme-gradient-light {
+    background: linear-gradient(135deg, #4f46e5, #818cf8);
+  }
+
+  .theme-gradient-pulse-light {
+    animation: pulse-gradient-light 3s ease-in-out infinite;
+  }
+}
+
+@keyframes pulse-gradient-light {
+  0%, 100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ============================================================================
+   PERFORMANCE OPTIMIZATIONS
+   ============================================================================ */
+
+/* Enable GPU acceleration for smooth animations */
+.animate-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ============================================================================
+   COMPOSITION UTILITIES - Combine multiple animations
+   ============================================================================ */
+
+/* Pulse with glow */
+.animate-pulse-glow {
+  animation: pulse-gentle 2s ease-in-out infinite, glow 2s ease-in-out infinite;
+}
+
+/* Float with gentle pulse */
+.animate-float-pulse {
+  animation: float 3s ease-in-out infinite, pulse-gentle 2s ease-in-out infinite;
+}
+
+/* Morph with glow */
+.animate-morph-glow {
+  animation: morph 8s ease-in-out infinite, glow 2s ease-in-out infinite;
+}
+
+/* ============================================================================
+   STAGGERED ANIMATIONS - For lists and multi-element sequences
+   ============================================================================ */
+
+.animate-stagger-1 {
+  animation-delay: 0s;
+}
+
+.animate-stagger-2 {
+  animation-delay: 0.1s;
+}
+
+.animate-stagger-3 {
+  animation-delay: 0.2s;
+}
+
+.animate-stagger-4 {
+  animation-delay: 0.3s;
+}
+
+.animate-stagger-5 {
+  animation-delay: 0.4s;
+}
+
+.animate-stagger-6 {
+  animation-delay: 0.5s;
+}
+
+/* ============================================================================
+   LOADING STATES - Pre-built loading combinations
+   ============================================================================ */
+
+.loading-skeleton {
+  background-color: #f3f4f6;
+  animation: shimmer 2s infinite;
+  background-size: 200% 100%;
+}
+
+.loading-skeleton.dark {
+  background-color: #374151;
+  background-image: linear-gradient(90deg, #374151 0%, #4b5563 50%, #374151 100%);
+}
+
+.loading-dots {
+  display: flex;
+  gap: 0.375rem;
+  align-items: center;
+}
+
+.loading-dots span {
+  display: inline-block;
+  animation: thinking-bounce 1.4s ease-in-out infinite;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+/* ============================================================================
+   INTERACTIVE STATES - Hover and focus animations
+   ============================================================================ */
+
+.interactive-element {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-element:hover {
+  transform: translateY(-2px);
+}
+
+.interactive-element:active {
+  transform: translateY(0px);
+  transition-duration: 0.1s;
+}
+
+.interactive-element:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   SCROLL TRIGGERED ANIMATIONS - Use with Intersection Observer
+   ============================================================================ */
+
+.scroll-fade-in {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.scroll-slide-in {
+  opacity: 0;
+  transform: translateX(-30px);
+  animation: slide-in-left 0.6s ease-out forwards;
+}
+
+/* ============================================================================
+   TEXT ANIMATIONS
+   ============================================================================ */
+
+.animate-text-shimmer {
+  background: linear-gradient(90deg, currentColor, rgba(99, 102, 241, 0.5), currentColor);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 2s linear infinite;
+}
+
+/* ============================================================================
+   ADVANCED COMPOSITION - Complex animation combinations
+   ============================================================================ */
+
+/* Loading state with multiple elements */
+.loading-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.loading-container .spinner {
+  animation: spin-smooth 1.5s linear infinite;
+}
+
+.loading-container .dots {
+  animation: thinking-bounce 1.4s ease-in-out infinite;
+}
+
+/* Thinking state */
+.thinking-state {
+  animation: scale-pulse 1.5s ease-in-out infinite;
+}
+
+/* Success state */
+@keyframes success-check {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.animate-success {
+  animation: success-check 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+/* Error state */
+@keyframes error-shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  10%, 30%, 50%, 70%, 90% {
+    transform: translateX(-5px);
+  }
+  20%, 40%, 60%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+.animate-error {
+  animation: error-shake 0.5s ease-in-out;
+}
