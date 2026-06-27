@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerReader } from "../api";
+import { AnimatedButton, LoadingSpinner, MorphAnimation } from "../components/canves-animations";
 
 export const RegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -43,8 +44,16 @@ export const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 min-h-[80vh] flex items-center justify-center px-6 py-16 bg-neutral-50 dark:bg-neutral-900/10">
-      <div className="w-full max-w-md bg-white dark:bg-brand-dark border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 shadow-xl transition-all duration-300">
+    <div className="flex-1 min-h-[80vh] flex items-center justify-center px-6 py-16 bg-neutral-50 dark:bg-neutral-900/10 relative overflow-hidden">
+      {/* Decorative Morph background */}
+      <div className="absolute -top-20 -left-20 opacity-20 dark:opacity-10 pointer-events-none">
+        <MorphAnimation size="lg" />
+      </div>
+      <div className="absolute -bottom-20 -right-20 opacity-20 dark:opacity-10 pointer-events-none">
+        <MorphAnimation size="lg" />
+      </div>
+
+      <div className="w-full max-w-md bg-white dark:bg-brand-dark border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 shadow-xl transition-all duration-300 relative z-10">
         
         {/* Brand header */}
         <div className="text-center mb-8">
@@ -153,20 +162,21 @@ export const RegisterPage: React.FC = () => {
             </div>
           </div>
 
-          <button
+          <AnimatedButton
             type="submit"
             disabled={loading}
-            className="w-full py-3 mt-4 bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 text-xs font-bold rounded-full hover:opacity-90 transition-opacity flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            variant="primary"
+            className="w-full py-3 mt-4 text-xs font-bold rounded-full transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
-              <div className="w-4 h-4 border-2 border-current border-b-transparent rounded-full animate-spin"></div>
+              <LoadingSpinner size="sm" message="" className="text-white" />
             ) : (
               <>
                 <span>Sign Up</span>
                 <i className="fa-solid fa-arrow-right text-[10px]"></i>
               </>
             )}
-          </button>
+          </AnimatedButton>
         </form>
 
         <div className="mt-8 text-center">
