@@ -4,6 +4,7 @@ import { fetchArticleDetails, likeArticle, fetchArticleSuggestions } from "../ap
 import type { Article } from "../data/articles";
 import VideoPlayer from "../components/VideoPlayer";
 import Markdown from "../components/Markdown";
+import { LoadingSpinner, AnimatedButton } from "../components/canves-animations";
 
 interface WordPosition {
   word: string;
@@ -372,11 +373,8 @@ export const ArticlePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex-1 py-32 text-center flex flex-col items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 dark:border-white mb-4"></div>
-        <p className="font-serif italic text-sm text-neutral-505 text-neutral-500 uppercase tracking-widest">
-          Loading Publication Details...
-        </p>
+      <div className="flex-1 py-32 text-center flex flex-col items-center justify-center bg-white dark:bg-brand-dark">
+        <LoadingSpinner message="Loading Publication Details..." size="md" />
       </div>
     );
   }
