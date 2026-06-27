@@ -33,10 +33,10 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ articles = [] }) => 
   };
 
   const emojis = [
-    { label: "Unhappy", symbol: "😞" },
-    { label: "Neutral", symbol: "😐" },
-    { label: "Happy", symbol: "😊" },
-    { label: "Loved it", symbol: "🤩" },
+    { label: "Unhappy", symbol: "😞", iconClass: "fa-regular fa-face-frown text-red-500 hover:text-red-650 transition-colors" },
+    { label: "Neutral", symbol: "😐", iconClass: "fa-regular fa-face-meh text-amber-500 hover:text-amber-605 transition-colors" },
+    { label: "Happy", symbol: "😊", iconClass: "fa-regular fa-face-smile text-emerald-500 hover:text-emerald-605 transition-colors" },
+    { label: "Loved it", symbol: "🤩", iconClass: "fa-solid fa-face-grin-stars text-accent-coral" },
   ];
 
   return (
@@ -176,19 +176,19 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ articles = [] }) => 
           How did you like the article?
         </h4>
         {feedbackSubmitted !== null ? (
-          <p className="text-xs font-medium text-purple-600 dark:text-purple-400 animate-pulse">
-            Thank you for your feedback! {emojis[feedbackSubmitted].symbol}
+          <p className="text-xs font-medium text-purple-650 dark:text-purple-405 animate-pulse flex items-center justify-center gap-1.5">
+            Thank you for your feedback! <i className={`${emojis[feedbackSubmitted].iconClass} text-base`}></i>
           </p>
         ) : (
-          <div className="flex justify-center gap-3">
+          <div className="flex justify-center gap-3.5">
             {emojis.map((emoji, index) => (
               <button
                 key={index}
                 onClick={() => setFeedbackSubmitted(index)}
                 title={emoji.label}
-                className="text-2xl hover:scale-125 hover:-translate-y-0.5 active:scale-95 transition-all duration-200 filter hover:grayscale-0 grayscale-[40%] cursor-pointer"
+                className="hover:scale-125 transition-all duration-200 cursor-pointer flex items-center justify-center p-0.5"
               >
-                {emoji.symbol}
+                <i className={`${emoji.iconClass} text-xl`}></i>
               </button>
             ))}
           </div>
