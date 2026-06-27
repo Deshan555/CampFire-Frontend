@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerAdmin } from "../api";
+import { AnimatedButton, LoadingSpinner, MorphAnimation } from "../components/canves-animations";
 
 export const AdminRegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -45,8 +46,16 @@ export const AdminRegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 min-h-[80vh] flex items-center justify-center px-6 py-16 bg-neutral-50 dark:bg-neutral-900/10">
-      <div className="w-full max-w-md bg-white dark:bg-brand-dark border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 shadow-xl transition-all duration-300">
+    <div className="flex-1 min-h-[80vh] flex items-center justify-center px-6 py-16 bg-neutral-50 dark:bg-neutral-900/10 relative overflow-hidden">
+      {/* Decorative Morph background */}
+      <div className="absolute -top-20 -left-20 opacity-20 dark:opacity-10 pointer-events-none">
+        <MorphAnimation size="lg" />
+      </div>
+      <div className="absolute -bottom-20 -right-20 opacity-20 dark:opacity-10 pointer-events-none">
+        <MorphAnimation size="lg" />
+      </div>
+
+      <div className="w-full max-w-md bg-white dark:bg-brand-dark border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 shadow-xl transition-all duration-300 relative z-10">
         
         {/* Brand header */}
         <div className="text-center mb-8">
@@ -171,20 +180,21 @@ export const AdminRegisterPage: React.FC = () => {
             </div>
           </div>
 
-          <button
+          <AnimatedButton
             type="submit"
             disabled={loading}
-            className="w-full py-3 mt-4 bg-purple-600 hover:bg-purple-700 text-white text-xs font-bold rounded-full transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+            variant="primary"
+            className="w-full py-3 mt-4 text-xs font-bold rounded-full transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
           >
             {loading ? (
-              <div className="w-4 h-4 border-2 border-white border-b-transparent rounded-full animate-spin"></div>
+              <LoadingSpinner size="sm" message="" className="text-white" />
             ) : (
               <>
                 <span>Submit Application</span>
                 <i className="fa-solid fa-pen-nib text-[10px]"></i>
               </>
             )}
-          </button>
+          </AnimatedButton>
         </form>
 
         <div className="mt-8 text-center">
