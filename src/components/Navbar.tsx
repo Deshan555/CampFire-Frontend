@@ -21,6 +21,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   const navigate = useNavigate();
   const location = useLocation();
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const dropdownRef = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const checkUser = () => {
@@ -42,6 +44,20 @@ export const Navbar: React.FC<NavbarProps> = ({
     };
   }, []);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setProfileDropdownOpen(false);
+      }
+    };
+    if (profileDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [profileDropdownOpen]);
+
   const handleSearchChange = (val: string) => {
     onSearchChange(val);
     // Auto-redirect to home if search is initiated from a detailed page
@@ -50,13 +66,6 @@ export const Navbar: React.FC<NavbarProps> = ({
     }
   };
 
-  const handleWriteClick = () => {
-    if (currentUser) {
-      navigate("/editor");
-    } else {
-      navigate("/login");
-    }
-  };
 
   return (
     <header className="sticky top-0 z-40 w-full border-b-[0.5px] border-neutral-200/80 dark:border-neutral-800/80 bg-white/80 dark:bg-brand-dark/80 backdrop-blur-md px-6 py-4 flex flex-col md:flex-row items-center justify-between gap-4 transition-all duration-300">
@@ -64,8 +73,8 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Left section: Logo */}
       <div className="flex items-center justify-between w-full md:w-auto gap-6 shrink-0">
         <Link to="/" className="flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all duration-200 group">
-          <span className="text-sm font-display font-black tracking-widest text-neutral-500 dark:text-neutral-400 uppercase select-none">
-            THE CANVES BLOG.
+          <span className="text-lg font-display font-black tracking-widest text-neutral-900 dark:text-white uppercase select-none">
+            THE CANVES
           </span>
         </Link>
         
@@ -113,12 +122,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         })}
       </nav>
 
-      {/* Right section: Search & CTA Actions */}
       <div className="flex items-center gap-3 w-full md:w-auto justify-end shrink-0">
-        
-        {/* Search Input */}
         <div className="relative flex-1 md:flex-initial max-w-xs">
-          <div className="absolute inset-y-0 left-3 flex items-center pointer-events-none text-neutral-400">
+          <div className="absolute inset-y-0 left-3.5 flex items-center pointer-events-none text-neutral-400">
             <i className="fa-solid fa-magnifying-glass text-xs"></i>
           </div>
           <input
@@ -126,41 +132,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             placeholder="Search articles..."
             value={searchQuery}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="w-full md:w-44 lg:w-56 pl-9 pr-3 py-1.5 bg-neutral-50 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-xs rounded-full focus:outline-none focus:ring-1 focus:ring-accent-coral/50 focus:border-accent-coral text-neutral-850 dark:text-neutral-200 placeholder-neutral-400 transition-all focus:w-full md:focus:w-52 lg:focus:w-64"
+            className="w-full md:w-44 lg:w-56 pl-10 pr-4 py-2.5 bg-neutral-50 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-xs rounded-full focus:outline-none focus:ring-1 focus:ring-accent-coral/50 focus:border-accent-coral text-neutral-850 dark:text-neutral-200 placeholder-neutral-400 transition-all focus:w-full md:focus:w-52 lg:focus:w-64"
           />
         </div>
-
-        {/* New Button */}
-        <button
-          onClick={() => navigate("/ai-writer")}
-          className="hidden lg:flex items-center gap-1 px-3 py-1.5 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-[10px] font-bold uppercase tracking-wider rounded-full text-neutral-750 dark:text-neutral-350 transition-colors cursor-pointer"
-          title="Open AI Writer Playground"
-        >
-          <span>AI Writer</span>
-          <span className="w-1.5 h-1.5 bg-accent-coral rounded-full animate-pulse"></span>
-        </button>
-
-        {/* Language selector */}
-        <button className="p-2 text-neutral-650 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors rounded-full" title="Language">
-          <i className="fa-solid fa-globe text-base"></i>
-        </button>
-
-        {/* Create post button */}
-        <button
-          onClick={handleWriteClick}
-          className="p-2 text-neutral-650 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors rounded-full"
-          title="Write article"
-        >
-          <i className="fa-solid fa-pen-to-square text-base"></i>
-        </button>
-
-        {/* Notifications */}
-        <button className="p-2 text-neutral-655 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors rounded-full relative" title="Notifications">
-          <i className="fa-solid fa-bell text-base"></i>
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-brand-dark"></span>
-        </button>
-
-        {/* Dark Mode Toggle */}
         <button
           onClick={onToggleDarkMode}
           className="p-2 text-neutral-650 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors rounded-full"
@@ -168,37 +142,60 @@ export const Navbar: React.FC<NavbarProps> = ({
         >
           {darkMode ? <i className="fa-solid fa-sun text-base"></i> : <i className="fa-solid fa-moon text-base"></i>}
         </button>
-
-        {/* Profile / Login Status Badge */}
         {currentUser ? (
-          <div className="flex items-center gap-3 pl-3 border-l-[0.5px] border-neutral-200 dark:border-neutral-800">
-            <img
-              src={currentUser.avatar}
-              alt={currentUser.name}
-              className="w-7 h-7 rounded-full object-cover border-[0.5px] border-neutral-200 dark:border-neutral-800 shrink-0 shadow-sm"
-              title={`${currentUser.name} (${currentUser.role})`}
-            />
-            <div className="hidden lg:flex flex-col text-left">
-              <span className="text-xs font-bold text-neutral-850 dark:text-neutral-100 leading-tight truncate max-w-[80px]">
-                {currentUser.name}
-              </span>
-              <span className="text-[9px] text-neutral-400 dark:text-neutral-550 uppercase font-bold tracking-wider leading-none">
-                {currentUser.role === "super_admin" ? "Admin" : "Author"}
-              </span>
-            </div>
+          <div className="relative" ref={dropdownRef}>
             <button
-              onClick={() => {
-                localStorage.removeItem("editorUser");
-                localStorage.removeItem("authToken");
-                window.dispatchEvent(new Event("storage"));
-                setCurrentUser(null);
-                navigate("/");
-              }}
-              className="p-2 text-neutral-500 hover:text-red-500 dark:text-neutral-400 dark:hover:text-red-500 transition-colors rounded-full cursor-pointer"
-              title="Logout"
+              onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
+              className="flex items-center gap-2.5 pl-3 border-l-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none cursor-pointer group"
             >
-              <i className="fa-solid fa-arrow-right-from-bracket text-sm"></i>
+              <img
+                src={currentUser.avatar}
+                alt={currentUser.name}
+                className="w-7 h-7 rounded-full object-cover border-[0.5px] border-neutral-200 dark:border-neutral-800 shrink-0 shadow-sm group-hover:opacity-85 transition-opacity"
+              />
+              <div className="hidden lg:flex flex-col text-left">
+                <span className="text-xs font-bold text-neutral-850 dark:text-neutral-100 leading-tight truncate max-w-[80px] group-hover:text-accent-coral transition-colors">
+                  {currentUser.name}
+                </span>
+                <span className="text-[9px] text-neutral-400 dark:text-neutral-550 uppercase font-bold tracking-wider leading-none">
+                  {currentUser.role === "SUPER_ADMIN" ? "Admin" : "Author"}
+                </span>
+              </div>
+              <i className={`fa-solid fa-chevron-down text-[9px] text-neutral-400 dark:text-neutral-555 transition-transform duration-200 ${profileDropdownOpen ? "rotate-180" : ""}`}></i>
             </button>
+            {profileDropdownOpen && (
+              <div className="absolute right-0 mt-2.5 w-48 bg-white dark:bg-brand-charcoal border-[1.5px] border-brand-dark rounded-xl shadow-[4px_4px_0px_0px_#000] py-2 z-50 animate-fade-in text-left">
+                <div className="px-4 py-1.5 border-b-[0.5px] border-neutral-200 dark:border-neutral-800 lg:hidden">
+                  <p className="text-xs font-bold text-neutral-800 dark:text-neutral-205 truncate">{currentUser.name}</p>
+                  <p className="text-[9px] text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">{currentUser.role === "SUPER_ADMIN" ? "Admin" : "Author"}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    setProfileDropdownOpen(false);
+                    navigate("/editor");
+                  }}
+                  className="w-full px-4 py-2.5 text-xs font-semibold text-neutral-755 hover:text-neutral-950 dark:text-neutral-300 dark:hover:text-white hover:bg-neutral-50 dark:hover:bg-neutral-800/50 flex items-center gap-2 cursor-pointer transition-colors"
+                >
+                  <i className="fa-solid fa-pen-to-square text-neutral-500 dark:text-neutral-400"></i>
+                  <span>Editor Workspace</span>
+                </button>
+                <div className="h-[0.5px] bg-neutral-200 dark:bg-neutral-800 my-1"></div>
+                <button
+                  onClick={() => {
+                    setProfileDropdownOpen(false);
+                    localStorage.removeItem("editorUser");
+                    localStorage.removeItem("authToken");
+                    window.dispatchEvent(new Event("storage"));
+                    setCurrentUser(null);
+                    navigate("/");
+                  }}
+                  className="w-full px-4 py-2.5 text-xs font-bold text-red-550 hover:text-red-650 hover:bg-red-50/50 dark:hover:bg-red-950/20 flex items-center gap-2 cursor-pointer transition-colors"
+                >
+                  <i className="fa-solid fa-arrow-right-from-bracket"></i>
+                  <span>Logout</span>
+                </button>
+              </div>
+            )}
           </div>
         ) : (
           <button
