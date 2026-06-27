@@ -5,6 +5,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import type { Article } from "../../data/articles";
+import { LoadingSpinner } from "../canves-animations";
 
 interface CrmTableProps {
   currentUser: any;
@@ -34,10 +35,7 @@ export const CrmTable: React.FC<CrmTableProps> = ({
   if (loading) {
     return (
       <div className="py-24 text-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-neutral-900 dark:border-white mx-auto mb-4"></div>
-        <p className="font-serif italic text-sm text-neutral-500 uppercase tracking-wider">
-          Syncing with Supabase Ledger...
-        </p>
+        <LoadingSpinner message="Syncing with Supabase Ledger..." size="md" />
       </div>
     );
   }
