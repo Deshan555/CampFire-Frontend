@@ -14,6 +14,11 @@ export interface Article {
   readingTime: string;
   category: string;
   image?: string;
+  imageUrls?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  reviewFeedback?: string;
+  reviewedAt?: string;
   video?: { src: string; type: string; poster?: string };
   featured?: boolean;
   trending?: boolean;
