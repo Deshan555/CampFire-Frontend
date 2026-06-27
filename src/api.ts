@@ -192,14 +192,15 @@ export async function approveArticle(
 
 export async function rejectArticle(
   id: string,
-  role: string
+  role: string,
+  reason?: string
 ): Promise<{ success: boolean }> {
   const response = await fetch(`${API_BASE_URL}/articles/${id}/reject`, {
     method: "POST",
     headers: getHeaders({
       "Content-Type": "application/json"
     }),
-    body: JSON.stringify({ role })
+    body: JSON.stringify({ role, reason })
   });
   if (!response.ok) {
     throw new Error("Failed to reject article");
@@ -246,7 +247,8 @@ export async function generateAiArticle(payload: {
   topic: string;
   tone?: string;
   instructions?: string;
-}): Promise<{ title: string; summary: string; content: string[] }> {
+  includeVideo?: boolean;
+}): Promise<any> {
   const response = await fetch(`${API_BASE_URL}/ai/generate-article`, {
     method: "POST",
     headers: getHeaders({
@@ -270,3 +272,103 @@ export async function fetchArticleSuggestions(id: string): Promise<Article[]> {
   }
   return response.json();
 }
+
+/**
+ * Uploads a file to the backend storage
+ */
+export async function uploadFile(file: File): Promise<{ success: boolean; url: string; fileName: string }> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await fetch(`${API_BASE_URL}/upload`, {
+    method: "POST",
+    headers: getHeaders(), // Browser automatically sets Content-Type with boundary for FormData
+    body: formData
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    throw new Error(errData.error || "File upload failed");
+  }
+
+  return response.json();
+}
+
+export interface ReviewRule {
+  id?: string;
+  blog_site_id?: string;
+  name: string;
+  criteria: string;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export async function fetchRules(blogSiteId: string): Promise<ReviewRule[]> {
+  const response = await fetch(`${API_BASE_URL}/ai/rules?blogSiteId=${blogSiteId}`, {
+    headers: getHeaders()
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to fetch AI review rules");
+  }
+  return data.rules || [];
+}
+
+export async function createRule(payload: { blogSiteId: string; name: string; criteria: string; isActive?: boolean }): Promise<ReviewRule> {
+  const response = await fetch(`${API_BASE_URL}/ai/rules`, {
+    method: "POST",
+    headers: getHeaders({
+      "Content-Type": "application/json"
+    }),
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to create AI review rule");
+  }
+  return data.rule;
+}
+
+export async function updateRule(id: string, payload: { name: string; criteria: string; isActive: boolean }): Promise<ReviewRule> {
+  const response = await fetch(`${API_BASE_URL}/ai/rules/${id}`, {
+    method: "PUT",
+    headers: getHeaders({
+      "Content-Type": "application/json"
+    }),
+    body: JSON.stringify(payload)
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to update AI review rule");
+  }
+  return data.rule;
+}
+
+export async function deleteRule(id: string): Promise<boolean> {
+  const response = await fetch(`${API_BASE_URL}/ai/rules/${id}`, {
+    method: "DELETE",
+    headers: getHeaders()
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "Failed to delete AI review rule");
+  }
+  return data.success;
+}
+
+export async function reviewArticleWithAi(id: string, model: string): Promise<{ success: boolean; approved: boolean; feedback: string }> {
+  const response = await fetch(`${API_BASE_URL}/ai/review/${id}`, {
+    method: "POST",
+    headers: getHeaders({
+      "Content-Type": "application/json"
+    }),
+    body: JSON.stringify({ model })
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || "AI Article review failed");
+  }
+  return data;
+}
+
