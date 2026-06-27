@@ -2,14 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { generateAiArticle } from "../api";
 import Markdown from "../components/Markdown";
-import logoDay from "../assets/logo_day.png";
-import logoNight from "../assets/logo_night.png";
 
 export const AiWriterPage: React.FC = () => {
   const [model, setModel] = useState("gemma3:1b");
   const [tone, setTone] = useState("Professional");
   const [topic, setTopic] = useState("");
   const [instructions, setInstructions] = useState("");
+  const [includeVideo, setIncludeVideo] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
@@ -38,6 +37,11 @@ export const AiWriterPage: React.FC = () => {
     title: string;
     summary: string;
     content: string[];
+    video?: {
+      src: string;
+      type: string;
+      poster: string;
+    };
   } | null>(null);
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -57,7 +61,8 @@ export const AiWriterPage: React.FC = () => {
         model,
         topic: topic.trim(),
         tone,
-        instructions: instructions.trim()
+        instructions: instructions.trim(),
+        includeVideo
       });
 
       setGeneratedArticle(response);
@@ -93,10 +98,8 @@ export const AiWriterPage: React.FC = () => {
             <span>Back</span>
           </Link>
           <div className="flex items-center gap-2">
-            <img src={logoDay} alt="Camp Fire Logo" className="h-7 w-auto block dark:hidden" />
-            <img src={logoNight} alt="Camp Fire Logo" className="h-7 w-auto hidden dark:block" />
-            <span className="text-base font-display font-black tracking-tighter text-neutral-905 dark:text-neutral-50">
-              Camp Fire AI Editor
+            <span className="text-sm font-display font-black tracking-widest text-neutral-900 dark:text-white uppercase select-none">
+              THE CANVES AI EDITOR
             </span>
           </div>
         </div>
@@ -196,6 +199,19 @@ export const AiWriterPage: React.FC = () => {
                 ></textarea>
               </div>
 
+              <div className="flex items-center gap-2 py-1">
+                <input
+                  type="checkbox"
+                  id="includeVideo"
+                  checked={includeVideo}
+                  onChange={(e) => setIncludeVideo(e.target.checked)}
+                  className="rounded border-neutral-300 dark:border-neutral-800 text-violet-650 focus:ring-accent-purple h-4 w-4 cursor-pointer"
+                />
+                <label htmlFor="includeVideo" className="text-[11px] font-medium text-neutral-600 dark:text-neutral-300 cursor-pointer select-none">
+                  Find and attach a matching YouTube video
+                </label>
+              </div>
+
               <button
                 type="submit"
                 disabled={generating}
@@ -246,7 +262,7 @@ export const AiWriterPage: React.FC = () => {
                 <div className="flex items-center gap-3 mb-6">
                   <i className="fa-solid fa-wand-magic-sparkles text-3xl text-violet-500 animate-spin"></i>
                   <h3 className="font-serif text-xl italic font-bold text-neutral-800 dark:text-neutral-255">
-                    Camp Fire AI Editor is writing...
+                    THE CANVES AI Editor is writing...
                   </h3>
                 </div>
                 <div className="space-y-4 w-full">
@@ -304,6 +320,24 @@ export const AiWriterPage: React.FC = () => {
                     {generatedArticle.summary}
                   </p>
                 </div>
+
+                {/* Video Player Preview if Available */}
+                {generatedArticle.video?.src && (
+                  <div className="bg-neutral-50 dark:bg-neutral-900/30 border-l-2 border-red-500 p-4 rounded-r-xl my-4">
+                    <span className="block text-[9px] uppercase font-extrabold text-neutral-400 dark:text-neutral-505 mb-2 tracking-wider flex items-center gap-1.5">
+                      <i className="fa-brands fa-youtube text-red-500"></i> Recommended Contextual Video
+                    </span>
+                    <div className="aspect-video w-full overflow-hidden rounded-lg bg-black">
+                      <iframe
+                        src={generatedArticle.video.src.replace("watch?v=", "embed/")}
+                        title="YouTube video player"
+                        className="w-full h-full border-0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                    </div>
+                  </div>
+                )}
 
                 {/* Paragraphs body with full Markdown support */}
                 <div className="pt-2">
