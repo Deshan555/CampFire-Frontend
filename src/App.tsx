@@ -10,6 +10,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminRegisterPage from "./pages/AdminRegisterPage";
 import AiWriterPage from "./pages/AiWriterPage";
+import CanvesAnimationShowcase from "./components/canves-animations";
 import PodcastWidget from "./components/PodcastWidget";
 import ArtistSpotlight from "./components/ArtistSpotlight";
 import NewsletterSignup from "./components/NewsletterSignup";
@@ -275,6 +276,16 @@ function App() {
           element={
             <div className="flex-1 bg-white dark:bg-brand-dark">
               <AdminRegisterPage />
+            </div>
+          }
+        />
+
+        {/* Animation Showcase Route */}
+        <Route
+          path="/animation-showcase"
+          element={
+            <div className="flex-1">
+              <CanvesAnimationShowcase />
             </div>
           }
         />

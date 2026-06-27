@@ -90,6 +90,7 @@ export const CrmDashboard: React.FC = () => {
   const [aiTopic, setAiTopic] = useState("");
   const [aiTone, setAiTone] = useState("Professional & Analytical");
   const [aiInstructions, setAiInstructions] = useState("");
+  const [aiIncludeVideo, setAiIncludeVideo] = useState(true);
   const [aiError, setAiError] = useState("");
   const [aiSuccess, setAiSuccess] = useState("");
 
@@ -111,7 +112,8 @@ export const CrmDashboard: React.FC = () => {
         model: "gemma3:1b",
         topic: aiTopic.trim(),
         tone: aiTone,
-        instructions: aiInstructions.trim()
+        instructions: aiInstructions.trim(),
+        includeVideo: aiIncludeVideo
       });
 
       setFormTitle(result.title);
@@ -124,6 +126,14 @@ export const CrmDashboard: React.FC = () => {
       }
       setFormSummary(result.summary);
       setFormContent(result.content.join("\n\n"));
+      
+      if (result.video) {
+        setFormVideoSrc(result.video.src || "");
+        setFormVideoPoster(result.video.poster || "");
+      } else {
+        setFormVideoSrc("");
+        setFormVideoPoster("");
+      }
       
       setAiSuccess("Article generated successfully and populated into the form!");
       setTimeout(() => {
@@ -654,6 +664,8 @@ export const CrmDashboard: React.FC = () => {
         aiError={aiError}
         aiSuccess={aiSuccess}
         handleRunAiWriter={handleRunAiWriter}
+        aiIncludeVideo={aiIncludeVideo}
+        setAiIncludeVideo={setAiIncludeVideo}
       />
 
       <AiRulesModal

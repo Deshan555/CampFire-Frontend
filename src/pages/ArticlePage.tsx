@@ -32,7 +32,7 @@ export const ArticlePage: React.FC = () => {
   const [suggestions, setSuggestions] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState(false);
-  
+
   // Likes state
   const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
@@ -88,7 +88,7 @@ export const ArticlePage: React.FC = () => {
 
     const loadVoices = () => {
       const availableVoices = window.speechSynthesis.getVoices();
-      
+
       // Filter for human/neural/premium/enhanced/siri voices
       let humanVoices = availableVoices.filter(v => {
         const name = v.name.toLowerCase();
@@ -116,9 +116,9 @@ export const ArticlePage: React.FC = () => {
       }
 
       setVoices(humanVoices);
-      
+
       // Default to Siri, Microsoft Natural, Apple Premium/Enhanced, Google US English, etc.
-      const defaultVoice = 
+      const defaultVoice =
         humanVoices.find(v => v.name.toLowerCase().includes("siri")) ||
         humanVoices.find(v => v.name.toLowerCase().includes("natural") || v.name.toLowerCase().includes("neural")) ||
         humanVoices.find(v => v.name.toLowerCase().includes("premium") || v.name.toLowerCase().includes("enhanced")) ||
@@ -126,7 +126,7 @@ export const ArticlePage: React.FC = () => {
         humanVoices.find(v => v.lang.startsWith("en-US")) ||
         humanVoices.find(v => v.lang.startsWith("en")) ||
         humanVoices[0];
-        
+
       if (defaultVoice) {
         setSelectedVoiceName(defaultVoice.name);
       }
@@ -193,7 +193,7 @@ export const ArticlePage: React.FC = () => {
     utterance.onboundary = (event) => {
       boundaryFiredRef.current = true;
       clearFallbackTimers();
-      
+
       // Highlight the word (Safari/Chrome event.charIndex relative to rawText)
       setCurrentCharIndex(event.charIndex);
     };
@@ -254,7 +254,7 @@ export const ArticlePage: React.FC = () => {
       window.speechSynthesis.resume();
       setIsPaused(false);
       setIsSpeaking(true);
-      
+
       // Resume fallback highlighting interval if native boundaries are not firing
       if (!boundaryFiredRef.current && currentCharIndex !== null && activeParagraphIndex !== null) {
         const rawText = article.content[activeParagraphIndex]
@@ -324,7 +324,7 @@ export const ArticlePage: React.FC = () => {
     if (!id) return;
     setLoading(true);
     setFetchError(false);
-    
+
     let userParams: any = undefined;
     try {
       const stored = localStorage.getItem("editorUser");
@@ -339,19 +339,19 @@ export const ArticlePage: React.FC = () => {
     } catch (e) {
       console.error(e);
     }
-    
+
     fetchArticleDetails(id, userParams)
       .then((data) => {
         setArticle(data);
         setLikes(data.likes || 0);
         setLoading(false);
-        
+
         // Reset local interaction states
         setIsLiked(false);
         setIsFollowing(false);
         setIsSaved(false);
         setFeedbackSubmitted(null);
-        
+
         // Scroll to top
         window.scrollTo(0, 0);
       })
@@ -418,7 +418,7 @@ export const ArticlePage: React.FC = () => {
 
   return (
     <div className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-12 border-x-[0.5px] border-neutral-200 dark:border-neutral-800 transition-colors duration-300 font-sans">
-      
+
       {/* Back to feed button */}
       <div className="mb-8 flex justify-start">
         <Link
@@ -459,16 +459,15 @@ export const ArticlePage: React.FC = () => {
               </p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3 mt-2 sm:mt-0">
             {/* Listen Button */}
             <button
               onClick={isSpeaking && !isPaused ? handlePauseSpeech : handlePlaySpeech}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider font-display transition-all cursor-pointer flex items-center gap-1.5 border-[1.5px] ${
-                isSpeaking && !isPaused
+              className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider font-display transition-all cursor-pointer flex items-center gap-1.5 border-[1.5px] ${isSpeaking && !isPaused
                   ? "bg-accent-coral text-white border-brand-dark shadow-[2px_2px_0px_0px_#111]"
                   : "bg-white text-neutral-900 hover:bg-neutral-50 border-neutral-300 dark:bg-neutral-900 dark:text-white dark:border-neutral-800 dark:hover:bg-neutral-800"
-              }`}
+                }`}
               title={isSpeaking && !isPaused ? "Pause listening" : "Listen to article audio"}
             >
               {isSpeaking && !isPaused ? (
@@ -481,21 +480,19 @@ export const ArticlePage: React.FC = () => {
 
             <button
               onClick={() => setIsFollowing(!isFollowing)}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${
-                isFollowing
+              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${isFollowing
                   ? "bg-neutral-105 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
                   : "bg-neutral-900 text-white hover:bg-neutral-850 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
-              }`}
+                }`}
             >
               {isFollowing ? "Following" : "Follow"}
             </button>
             <button
               onClick={() => setIsSaved(!isSaved)}
-              className={`p-2.5 rounded-full border-[0.5px] transition-all cursor-pointer ${
-                isSaved
+              className={`p-2.5 rounded-full border-[0.5px] transition-all cursor-pointer ${isSaved
                   ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 border-transparent"
                   : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 text-neutral-550"
-              }`}
+                }`}
               title="Bookmark"
             >
               <i className={`${isSaved ? "fa-solid" : "fa-regular"} fa-bookmark text-sm`}></i>
@@ -525,7 +522,7 @@ export const ArticlePage: React.FC = () => {
         <div className="editorial-prose text-neutral-850 dark:text-neutral-200 mb-12 max-w-3xl mx-auto select-text text-justify flex flex-col gap-6">
           {article.content.map((paragraph, index) => {
             const isCurrent = activeParagraphIndex === index;
-            
+
             // Raw text version of paragraph for word highlighting during narration
             const rawText = paragraph
               .replace(/[\#\*\_\[\]\(\)\-\`\>]/g, "")
@@ -534,11 +531,10 @@ export const ArticlePage: React.FC = () => {
             return (
               <div
                 key={index}
-                className={`transition-all duration-300 ${
-                  isCurrent
+                className={`transition-all duration-300 ${isCurrent
                     ? "bg-accent-coral/10 border-l-[3.5px] border-accent-coral pl-4 pr-2 py-3 rounded-r-lg"
                     : ""
-                }`}
+                  }`}
               >
                 {isCurrent ? (
                   <p className="font-serif text-sm sm:text-base md:text-lg leading-relaxed text-neutral-850 dark:text-neutral-200 select-text text-justify">
@@ -580,7 +576,7 @@ export const ArticlePage: React.FC = () => {
             <h3 className="font-serif text-2xl font-black text-neutral-900 dark:text-white leading-tight mb-6">
               Featured Gallery
             </h3>
-            
+
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {article.imageUrls.map((url, idx) => (
                 <div
@@ -624,7 +620,7 @@ export const ArticlePage: React.FC = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setActiveImageIndex((prev) => 
+                setActiveImageIndex((prev) =>
                   prev !== null ? (prev === 0 ? article.imageUrls!.length - 1 : prev - 1) : 0
                 );
               }}
@@ -650,7 +646,7 @@ export const ArticlePage: React.FC = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                setActiveImageIndex((prev) => 
+                setActiveImageIndex((prev) =>
                   prev !== null ? (prev === article.imageUrls!.length - 1 ? 0 : prev + 1) : 0
                 );
               }}
@@ -674,11 +670,10 @@ export const ArticlePage: React.FC = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={handleLike}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full border-[0.5px] text-sm font-semibold transition-all cursor-pointer ${
-                isLiked
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-full border-[0.5px] text-sm font-semibold transition-all cursor-pointer ${isLiked
                   ? "bg-accent-purple/10 border-accent-purple text-purple-650 dark:text-purple-400"
                   : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 text-neutral-650 dark:text-neutral-450"
-              }`}
+                }`}
             >
               <i className={`${isLiked ? "fa-solid" : "fa-regular"} fa-heart text-base`}></i>
               <span>{likes} Likes</span>
@@ -760,7 +755,7 @@ export const ArticlePage: React.FC = () => {
       {/* Floating Audio Player Panel */}
       {isSpeaking && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md bg-white/95 dark:bg-brand-charcoal/95 border-[1.5px] border-brand-dark rounded-xl shadow-[4px_4px_0px_0px_#000] p-4 flex flex-col gap-3 backdrop-blur-md animate-fade-in text-neutral-900 dark:text-white transition-all">
-          
+
           <div className="flex items-center justify-between">
             <div className="text-left truncate flex-1 pr-4">
               <span className="text-[9px] uppercase tracking-widest font-extrabold text-accent-coral font-display">
@@ -770,7 +765,7 @@ export const ArticlePage: React.FC = () => {
                 {article.title}
               </h5>
             </div>
-            
+
             {/* Playback Controls */}
             <div className="flex items-center gap-2 shrink-0">
               <button
@@ -780,7 +775,7 @@ export const ArticlePage: React.FC = () => {
               >
                 <i className={`fa-solid ${isPaused ? "fa-play pl-0.5" : "fa-pause"}`}></i>
               </button>
-              
+
               <button
                 onClick={handleStopSpeech}
                 className="w-8 h-8 rounded-full border border-brand-dark hover:bg-red-500 hover:text-white transition-all flex items-center justify-center cursor-pointer bg-neutral-50 dark:bg-neutral-800"
@@ -805,11 +800,10 @@ export const ArticlePage: React.FC = () => {
                   <button
                     key={r}
                     onClick={() => handleRateChange(r)}
-                    className={`px-1.5 py-0.5 rounded text-[9px] font-bold border transition-all cursor-pointer ${
-                      playbackRate === r
+                    className={`px-1.5 py-0.5 rounded text-[9px] font-bold border transition-all cursor-pointer ${playbackRate === r
                         ? "bg-accent-coral text-white border-brand-dark"
                         : "border-neutral-200 hover:bg-neutral-100 dark:border-neutral-800 dark:hover:bg-neutral-800"
-                    }`}
+                      }`}
                   >
                     {r}x
                   </button>
@@ -839,7 +833,7 @@ export const ArticlePage: React.FC = () => {
               </div>
             )}
           </div>
-          
+
         </div>
       )}
 

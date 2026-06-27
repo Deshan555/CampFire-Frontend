@@ -5,8 +5,11 @@
 import React from "react";
 import Markdown from "../Markdown";
 import type { Article } from "../../data/articles";
+import { ParticleGlobe, AnimatedButton, GlowingFluidOrb } from "../canves-animations";
 
 interface ArticleFormDrawerProps {
+  aiIncludeVideo: boolean;
+  setAiIncludeVideo: (val: boolean) => void;
   isDrawerOpen: boolean;
   setIsDrawerOpen: (open: boolean) => void;
   editingArticle: Article | null;
@@ -65,6 +68,8 @@ interface ArticleFormDrawerProps {
 }
 
 export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
+  aiIncludeVideo,
+  setAiIncludeVideo,
   isDrawerOpen,
   setIsDrawerOpen,
   editingArticle,
@@ -119,6 +124,17 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
   aiSuccess,
   handleRunAiWriter,
 }) => {
+  const [activeTab, setActiveTab] = React.useState<'ai' | 'manual'>(editingArticle ? 'manual' : 'ai');
+
+  React.useEffect(() => {
+    if (aiSuccess) {
+      const timer = setTimeout(() => {
+        setActiveTab('manual');
+      }, 1200);
+      return () => clearTimeout(timer);
+    }
+  }, [aiSuccess]);
+
   if (!isDrawerOpen) return null;
 
   return (
@@ -170,330 +186,370 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
           onSubmit={handleSave}
           className={`${showPreview ? "w-1/2" : "w-full"} overflow-y-auto p-6 md:p-8 space-y-6 border-r-[0.5px] border-neutral-200 dark:border-neutral-850 text-left`}
         >
-          <div className="border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
-            <div className="flex items-center justify-between">
-              <span className="block text-[10px] font-extrabold uppercase text-neutral-400 tracking-wider flex items-center gap-1.5">
-                <i className="fa-solid fa-wand-magic-sparkles text-accent-purple"></i>
-                <span>Campfire AI Editorial Copilot</span>
-              </span>
-              <button
-                type="button"
-                onClick={() => setAiExpanded(!aiExpanded)}
-                className="text-[10px] font-bold text-accent-purple hover:underline cursor-pointer bg-transparent border-none"
-              >
-                {aiExpanded ? "Collapse AI Assist" : "Generate Draft using AI"}
-              </button>
-            </div>
+          {/* Redesigned Tab Bar */}
+          <div className="flex border-b-[0.5px] border-neutral-200 dark:border-neutral-800 mb-6 select-none bg-neutral-50/50 dark:bg-neutral-900/10 rounded-xl p-1.5 gap-2">
+            <button
+              type="button"
+              onClick={() => setActiveTab('ai')}
+              className={`flex-grow py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border-none ${
+                activeTab === 'ai'
+                  ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 shadow-sm'
+                  : 'bg-transparent text-neutral-450 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
+              }`}
+            >
+              <i className="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+              <span>AI Composer</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('manual')}
+              className={`flex-grow py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border-none ${
+                activeTab === 'manual'
+                  ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 shadow-sm'
+                  : 'bg-transparent text-neutral-450 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
+              }`}
+            >
+              <i className="fa-solid fa-pen-nib text-[10px]"></i>
+              <span>Manual Editor</span>
+            </button>
+          </div>
 
-            {aiExpanded && (
-              <div className="space-y-3 pt-2 border-t-[0.5px] border-neutral-200 dark:border-neutral-800 animate-fade-in">
+          {/* AI Composer Tab Content */}
+          {activeTab === 'ai' && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="border-[0.5px] border-neutral-200 dark:border-neutral-800 p-5 rounded-2xl bg-neutral-50/30 dark:bg-neutral-900/5 space-y-5">
+                <div className="flex items-center gap-2 border-b-[0.5px] border-neutral-200 dark:border-neutral-800 pb-3 mb-2 select-none">
+                  <i className="fa-solid fa-sparkles text-accent-purple text-sm"></i>
+                  <span className="text-[10px] font-extrabold uppercase text-neutral-500 tracking-wider">
+                    Copilot Generation Settings
+                  </span>
+                </div>
+
+                {aiGenerating ? (
+                  <div className="py-8 flex flex-col items-center justify-center">
+                    <GlowingFluidOrb message="Copilot generating draft structure..." size="md" />
+                  </div>
+                ) : (
+                  <>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
+                          AI Prompt/Topic Description *
+                        </label>
+                        <input
+                          type="text"
+                          placeholder="e.g. 5 essential steps to learn React 19 for beginners"
+                          value={aiTopic}
+                          onChange={(e) => setAiTopic(e.target.value)}
+                          className="w-full px-4 py-3 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
+                            Editorial Tone
+                          </label>
+                          <select
+                            value={aiTone}
+                            onChange={(e) => setAiTone(e.target.value)}
+                            className="w-full px-4 py-3 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                          >
+                            <option value="Professional & Analytical">Professional & Analytical</option>
+                            <option value="Casual & Friendly">Casual & Friendly</option>
+                            <option value="Tech-Savy & Deep-Dive">Tech-Savy & Deep-Dive</option>
+                            <option value="Inspirational & Creative">Inspirational & Creative</option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
+                            Custom Instructions
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Include code snippets"
+                            value={aiInstructions}
+                            onChange={(e) => setAiInstructions(e.target.value)}
+                            className="w-full px-4 py-3 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                          />
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl bg-white dark:bg-neutral-900">
+                        <div className="pr-4">
+                          <span className="text-xs font-bold text-neutral-855 dark:text-neutral-100 block">AI YouTube Video Suggestion</span>
+                          <span className="text-[10px] text-neutral-400 block mt-0.5">Let AI automatically search and append a matching YouTube video.</span>
+                        </div>
+                        <input
+                          type="checkbox"
+                          checked={aiIncludeVideo}
+                          onChange={(e) => setAiIncludeVideo(e.target.checked)}
+                          className="w-4 h-4 text-accent-purple border-neutral-300 rounded focus:ring-accent-purple cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    {aiError && <div className="text-[10px] text-red-500 font-bold font-mono">{aiError}</div>}
+                    {aiSuccess && <div className="text-[10px] text-emerald-500 font-bold font-mono">{aiSuccess}</div>}
+
+                    <AnimatedButton
+                      type="button"
+                      disabled={aiGenerating}
+                      onClick={handleRunAiWriter}
+                      variant="primary"
+                      className="w-full py-3 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+                    >
+                      <i className="fa-solid fa-sparkles text-[10px]"></i>
+                      <span>Generate Full Content Structure</span>
+                    </AnimatedButton>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Manual Editor Tab Content */}
+          {activeTab === 'manual' && (
+            <div className="space-y-6 animate-fade-in">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">
-                    AI Prompt/Topic Description *
+                  <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                    Article Title *
                   </label>
                   <input
+                    required={activeTab === 'manual'}
                     type="text"
-                    placeholder="e.g. 5 essential steps to learn React 19 for beginners"
-                    value={aiTopic}
-                    onChange={(e) => setAiTopic(e.target.value)}
-                    className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                    placeholder="Enter a compelling title..."
+                    value={formTitle}
+                    onChange={(e) => setFormTitle(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">
-                      Editorial Tone
-                    </label>
-                    <select
-                      value={aiTone}
-                      onChange={(e) => setAiTone(e.target.value)}
-                      className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
-                    >
-                      <option value="Professional & Analytical">Professional & Analytical</option>
-                      <option value="Casual & Friendly">Casual & Friendly</option>
-                      <option value="Tech-Savy & Deep-Dive">Tech-Savy & Deep-Dive</option>
-                      <option value="Inspirational & Creative">Inspirational & Creative</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1">
-                      Custom Instructions
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="e.g. Include code snippets"
-                      value={aiInstructions}
-                      onChange={(e) => setAiInstructions(e.target.value)}
-                      className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
-                    />
-                  </div>
-                </div>
-
-                {aiError && <div className="text-[10px] text-red-500 font-bold font-mono">{aiError}</div>}
-                {aiSuccess && <div className="text-[10px] text-emerald-500 font-bold font-mono">{aiSuccess}</div>}
-
-                <button
-                  type="button"
-                  disabled={aiGenerating}
-                  onClick={handleRunAiWriter}
-                  className="w-full py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold rounded-lg hover:opacity-90 disabled:opacity-60 transition-opacity flex items-center justify-center gap-2 cursor-pointer border-none"
-                >
-                  {aiGenerating ? (
-                    <>
-                      <div className="animate-spin rounded-full h-3.5 w-3.5 border-b-2 border-white dark:border-neutral-900"></div>
-                      <span>Copilot generating draft...</span>
-                    </>
-                  ) : (
-                    <>
-                      <i className="fa-solid fa-sparkles text-[9px]"></i>
-                      <span>Generate Full Content Structure</span>
-                    </>
-                  )}
-                </button>
-              </div>
-            )}
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                Article Title *
-              </label>
-              <input
-                required
-                type="text"
-                placeholder="Enter a compelling title..."
-                value={formTitle}
-                onChange={(e) => setFormTitle(e.target.value)}
-                className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                Unique Slug ID *
-              </label>
-              <input
-                required
-                disabled={!!editingArticle}
-                type="text"
-                placeholder="e.g. React-19-guide (use lowercase-hyphens)"
-                value={formId}
-                onChange={(e) => setFormId(e.target.value.toLowerCase().replace(/[^a-z0-9\-]+/g, "-"))}
-                className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 disabled:opacity-50"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                Magazine Category *
-              </label>
-              <select
-                value={formCategory}
-                onChange={(e) => setFormCategory(e.target.value)}
-                className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
-              >
-                <option value="Tech">Tech</option>
-                <option value="Art">Art</option>
-                <option value="Design">Design</option>
-                <option value="Music">Music</option>
-                <option value="Trends">Trends</option>
-                <option value="Podcast">Podcast</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                Cover Hero Image *
-              </label>
-              <div className="flex gap-2">
-                <input
-                  required
-                  type="text"
-                  placeholder="https://images.unsplash.com/..."
-                  value={formImage}
-                  onChange={(e) => setFormImage(e.target.value)}
-                  className="flex-1 px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
-                />
-                <label className="relative shrink-0 flex items-center justify-center px-4 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-xl transition-all text-xs font-bold cursor-pointer text-neutral-800 dark:text-neutral-250 select-none">
-                  {isUploadingImage ? (
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-neutral-900 dark:border-white"></div>
-                  ) : (
-                    <>
-                      <i className="fa-solid fa-cloud-arrow-up mr-1.5"></i>
-                      Upload File
-                    </>
-                  )}
+                <div>
+                  <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                    Unique Slug ID *
+                  </label>
                   <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleUploadHeroImage}
-                    disabled={isUploadingImage}
-                    className="hidden"
+                    required={activeTab === 'manual'}
+                    disabled={!!editingArticle}
+                    type="text"
+                    placeholder="e.g. React-19-guide (use lowercase-hyphens)"
+                    value={formId}
+                    onChange={(e) => setFormId(e.target.value.toLowerCase().replace(/[^a-z0-9\-]+/g, "-"))}
+                    className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 disabled:opacity-50"
                   />
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
-              Article Gallery Images (Optional)
-            </label>
-            <div className="border-[0.5px] border-dashed border-neutral-200 dark:border-neutral-800 p-6 rounded-xl text-center space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
-              <label className="inline-flex items-center justify-center px-5 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-lg text-xs font-bold cursor-pointer text-neutral-800 dark:text-neutral-200 transition-colors shadow-sm select-none">
-                {isUploadingGallery ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-neutral-900 dark:border-white mr-2"></div>
-                ) : (
-                  <i className="fa-solid fa-images mr-1.5 text-accent-purple"></i>
-                )}
-                <span>Select Multiple Gallery Images</span>
-                <input
-                  type="file"
-                  multiple
-                  accept="image/*"
-                  onChange={handleUploadGalleryImages}
-                  disabled={isUploadingGallery}
-                  className="hidden"
-                />
-              </label>
-
-              {formImageUrls.length > 0 && (
-                <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 pt-3 border-t-[0.5px] border-neutral-250 dark:border-neutral-850">
-                  {formImageUrls.map((url, idx) => (
-                    <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border-[0.5px] border-neutral-200 dark:border-neutral-800 shadow-sm bg-white dark:bg-neutral-900">
-                      <img src={url} alt="" className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveGalleryImage(url)}
-                        className="absolute inset-0 bg-red-500/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs border-none cursor-pointer"
-                        title="Remove image"
-                      >
-                        <i className="fa-solid fa-trash-can"></i>
-                      </button>
-                    </div>
-                  ))}
                 </div>
-              )}
-            </div>
-          </div>
-
-          <div className="border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
-            <span className="block text-[10px] font-extrabold uppercase text-neutral-400 tracking-wider flex items-center gap-1.5">
-              <i className="fa-solid fa-sliders text-accent-purple"></i>
-              <span>Display Options & Layout Roles</span>
-            </span>
-
-            <div className="flex items-center justify-between">
-              <div className="pr-4">
-                <span className="text-xs font-bold text-neutral-855 dark:text-neutral-100 block">Featured Post</span>
-                <span className="text-[10px] text-neutral-400 block mt-0.5">Render in the premium hero section at the top of homepage.</span>
               </div>
-              <input
-                type="checkbox"
-                checked={formFeatured}
-                onChange={(e) => setFormFeatured(e.target.checked)}
-                className="w-4 h-4 text-accent-purple border-neutral-300 rounded focus:ring-accent-purple cursor-pointer"
-              />
-            </div>
 
-            <div className="flex items-center justify-between pt-3 border-t-[0.5px] border-neutral-200 dark:border-neutral-800">
-              <div className="pr-4">
-                <span className="text-xs font-bold text-neutral-855 dark:text-neutral-100 block">Trending Post</span>
-                <span className="text-[10px] text-neutral-400 block mt-0.5">Display in the right sidebar's trending news feed.</span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                    Magazine Category *
+                  </label>
+                  <select
+                    value={formCategory}
+                    onChange={(e) => setFormCategory(e.target.value)}
+                    className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
+                  >
+                    <option value="Tech">Tech</option>
+                    <option value="Art">Art</option>
+                    <option value="Design">Design</option>
+                    <option value="Music">Music</option>
+                    <option value="Trends">Trends</option>
+                    <option value="Podcast">Podcast</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                    Cover Hero Image *
+                  </label>
+                  <div className="flex gap-2">
+                    <input
+                      required={activeTab === 'manual'}
+                      type="text"
+                      placeholder="https://images.unsplash.com/..."
+                      value={formImage}
+                      onChange={(e) => setFormImage(e.target.value)}
+                      className="flex-1 px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
+                    />
+                    <label className="relative shrink-0 flex items-center justify-center px-4 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-xl transition-all text-xs font-bold cursor-pointer text-neutral-800 dark:text-neutral-255 select-none">
+                      {isUploadingImage ? (
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-neutral-900 dark:border-white"></div>
+                      ) : (
+                        <>
+                          <i className="fa-solid fa-cloud-arrow-up mr-1.5"></i>
+                          Upload File
+                        </>
+                      )}
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleUploadHeroImage}
+                        disabled={isUploadingImage}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
               </div>
-              <input
-                type="checkbox"
-                checked={formTrending}
-                onChange={(e) => setFormTrending(e.target.checked)}
-                className="w-4 h-4 text-accent-purple border-neutral-300 rounded focus:ring-accent-purple cursor-pointer"
-              />
-            </div>
 
-            <div className="flex items-center justify-between pt-3 border-t-[0.5px] border-neutral-200 dark:border-neutral-800">
-              <div className="pr-4">
-                <span className="text-xs font-bold text-neutral-855 dark:text-neutral-100 block">Partner Article</span>
-                <span className="text-[10px] text-neutral-400 block mt-0.5">Label this article as sponsored partner press content.</span>
+              <div>
+                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                  Article Gallery Images (Optional)
+                </label>
+                <div className="border-[0.5px] border-dashed border-neutral-200 dark:border-neutral-800 p-6 rounded-xl text-center space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
+                  <label className="inline-flex items-center justify-center px-5 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-lg text-xs font-bold cursor-pointer text-neutral-800 dark:text-neutral-200 transition-colors shadow-sm select-none">
+                    {isUploadingGallery ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-neutral-900 dark:border-white mr-2"></div>
+                    ) : (
+                      <i className="fa-solid fa-images mr-1.5 text-accent-purple"></i>
+                    )}
+                    <span>Select Multiple Gallery Images</span>
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleUploadGalleryImages}
+                      disabled={isUploadingGallery}
+                      className="hidden"
+                    />
+                  </label>
+
+                  {formImageUrls.length > 0 && (
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 pt-3 border-t-[0.5px] border-neutral-250 dark:border-neutral-850">
+                      {formImageUrls.map((url, idx) => (
+                        <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border-[0.5px] border-neutral-200 dark:border-neutral-800 shadow-sm bg-white dark:bg-neutral-900">
+                          <img src={url} alt="" className="w-full h-full object-cover" />
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveGalleryImage(url)}
+                            className="absolute inset-0 bg-red-500/80 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs border-none cursor-pointer"
+                            title="Remove image"
+                          >
+                            <i className="fa-solid fa-trash-can"></i>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
-              <input
-                type="checkbox"
-                checked={formIsPartner}
-                onChange={(e) => setFormIsPartner(e.target.checked)}
-                className="w-4 h-4 text-accent-purple border-neutral-300 rounded focus:ring-accent-purple cursor-pointer"
-              />
-            </div>
-          </div>
 
-          <div className="border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
-            <span className="block text-[10px] font-extrabold uppercase text-neutral-400 tracking-wider flex items-center gap-1.5">
-              <i className="fa-solid fa-video text-accent-purple"></i>
-              <span>Video Settings (Video.js Stream Player)</span>
-            </span>
+              <div className="border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
+                <span className="block text-[10px] font-extrabold uppercase text-neutral-400 tracking-wider flex items-center gap-1.5">
+                  <i className="fa-solid fa-sliders text-accent-purple"></i>
+                  <span>Display Options & Layout Roles</span>
+                </span>
 
-            <div>
-              <label className="block text-[11px] font-bold text-neutral-500 mb-1">Video Stream URL</label>
-              <input
-                type="text"
-                placeholder="e.g. https://stream.mux.com/YOUR_STREAM_KEY/highest.mp4 or HLS (.m3u8)"
-                value={formVideoSrc}
-                onChange={(e) => setFormVideoSrc(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-800 dark:text-neutral-200"
-              />
-            </div>
+                <div className="flex items-center justify-between">
+                  <div className="pr-4">
+                    <span className="text-xs font-bold text-neutral-855 dark:text-neutral-100 block">Featured Post</span>
+                    <span className="text-[10px] text-neutral-400 block mt-0.5">Render in the premium hero section at the top of homepage.</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={formFeatured}
+                    onChange={(e) => setFormFeatured(e.target.checked)}
+                    className="w-4 h-4 text-accent-purple border-neutral-300 rounded focus:ring-accent-purple cursor-pointer"
+                  />
+                </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-neutral-500 mb-1">Video Poster Image URL</label>
-              <input
-                type="text"
-                placeholder="https://image.mux.com/YOUR_STREAM_KEY/thumbnail.webp"
-                value={formVideoPoster}
-                onChange={(e) => setFormVideoPoster(e.target.value)}
-                className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-800 dark:text-neutral-200"
-              />
-            </div>
-          </div>
+                <div className="flex items-center justify-between pt-3 border-t-[0.5px] border-neutral-200 dark:border-neutral-800">
+                  <div className="pr-4">
+                    <span className="text-xs font-bold text-neutral-855 dark:text-neutral-100 block">Trending Post</span>
+                    <span className="text-[10px] text-neutral-400 block mt-0.5">Display in the right sidebar's trending news feed.</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={formTrending}
+                    onChange={(e) => setFormTrending(e.target.checked)}
+                    className="w-4 h-4 text-accent-purple border-neutral-300 rounded focus:ring-accent-purple cursor-pointer"
+                  />
+                </div>
 
-          <div>
-            <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
-              Article Summary / Excerpt *
-            </label>
-            <textarea
-              required
-              rows={3}
-              placeholder="Write a brief editorial hook that summarises the core story outline..."
-              value={formSummary}
-              onChange={(e) => setFormSummary(e.target.value)}
-              className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 resize-y"
-            ></textarea>
-          </div>
+                <div className="flex items-center justify-between pt-3 border-t-[0.5px] border-neutral-200 dark:border-neutral-800">
+                  <div className="pr-4">
+                    <span className="text-xs font-bold text-neutral-855 dark:text-neutral-100 block">Partner Article</span>
+                    <span className="text-[10px] text-neutral-400 block mt-0.5">Label this article as sponsored partner press content.</span>
+                  </div>
+                  <input
+                    type="checkbox"
+                    checked={formIsPartner}
+                    onChange={(e) => setFormIsPartner(e.target.checked)}
+                    className="w-4 h-4 text-accent-purple border-neutral-300 rounded focus:ring-accent-purple cursor-pointer"
+                  />
+                </div>
+              </div>
 
-          <div>
-            <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2 flex items-center justify-between">
-              <span>Body Content (Markdown README format) *</span>
-              <span className="text-[10px] text-neutral-450 normal-case font-normal">
-                Double-newline separates paragraphs.
-              </span>
-            </label>
-            <textarea
-              required
-              rows={14}
-              placeholder="Write in Markdown. Support for headings (#), lists (-), bold (**), italic (*), code blocks (```) and blockquotes (>)."
-              value={formContent}
-              onChange={(e) => setFormContent(e.target.value)}
-              className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 resize-y font-mono"
-            ></textarea>
-            <div className="text-[10px] text-neutral-450 mt-1 flex justify-between">
-              <span>
-                Paragraphs split count:{" "}
-                {formContent.split(/\n\n+/).filter((p) => p.trim().length > 0).length}
-              </span>
-              <span>Markdown formatting active</span>
-            </div>
-          </div>
+              <div className="border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
+                <span className="block text-[10px] font-extrabold uppercase text-neutral-400 tracking-wider flex items-center gap-1.5">
+                  <i className="fa-solid fa-video text-accent-purple"></i>
+                  <span>Video Settings (Video.js Stream Player)</span>
+                </span>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-neutral-500 mb-1">Video Stream URL</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. https://stream.mux.com/YOUR_STREAM_KEY/highest.mp4 or HLS (.m3u8)"
+                    value={formVideoSrc}
+                    onChange={(e) => setFormVideoSrc(e.target.value)}
+                    className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-800 dark:text-neutral-200"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-neutral-500 mb-1">Video Poster Image URL</label>
+                  <input
+                    type="text"
+                    placeholder="https://image.mux.com/YOUR_STREAM_KEY/thumbnail.webp"
+                    value={formVideoPoster}
+                    onChange={(e) => setFormVideoPoster(e.target.value)}
+                    className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-800 dark:text-neutral-200"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                  Article Summary / Excerpt *
+                </label>
+                <textarea
+                  required={activeTab === 'manual'}
+                  rows={3}
+                  placeholder="Write a brief editorial hook that summarises the core story outline..."
+                  value={formSummary}
+                  onChange={(e) => setFormSummary(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 resize-y"
+                ></textarea>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2 flex items-center justify-between">
+                  <span>Body Content (Markdown README format) *</span>
+                  <span className="text-[10px] text-neutral-455 normal-case font-normal">
+                    Double-newline separates paragraphs.
+                  </span>
+                </label>
+                <textarea
+                  required={activeTab === 'manual'}
+                  rows={14}
+                  placeholder="Write in Markdown. Support for headings (#), lists (-), bold (**), italic (*), code blocks (```) and blockquotes (>)."
+                  value={formContent}
+                  onChange={(e) => setFormContent(e.target.value)}
+                  className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 resize-y font-mono"
+                ></textarea>
+                <div className="text-[10px] text-neutral-450 mt-1 flex justify-between">
+                  <span>
+                    Paragraphs split count:{" "}
+                    {formContent.split(/\n\n+/).filter((p) => p.trim().length > 0).length}
+                  </span>
+                  <span>Markdown formatting active</span>
+                </div>
+              </div>
 
           {currentUser?.role === "SUPER_ADMIN" && (
             <div className="border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
@@ -534,6 +590,8 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                 />
               </div>
             </div>
+          )}
+          </div>
           )}
         </form>
 

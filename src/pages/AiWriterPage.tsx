@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { generateAiArticle } from "../api";
 import Markdown from "../components/Markdown";
-import { AnimatedButton, ThinkingIndicator, ShimmerEffect } from "../components/canves-animations";
+import { AnimatedButton, ThinkingIndicator, ShimmerEffect, ParticleGlobe, GlowingFluidOrb } from "../components/canves-animations";
 
 export const AiWriterPage: React.FC = () => {
   const [model, setModel] = useState("gemma3:1b");
@@ -13,7 +13,7 @@ export const AiWriterPage: React.FC = () => {
   const [generating, setGenerating] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  
+
   // Theme state local sync
   const [darkMode, setDarkMode] = useState(false);
 
@@ -260,15 +260,14 @@ export const AiWriterPage: React.FC = () => {
             )}
 
             {generating && (
-              <div className="flex-1 flex flex-col items-start justify-center py-20 text-left w-full">
-                <ThinkingIndicator
+              <div className="flex-1 flex flex-col items-center justify-center py-20 text-center w-full">
+                <GlowingFluidOrb
                   size="lg"
                   message="THE CANVES AI Editor is writing..."
-                  className="mb-6"
                 />
-                <div className="space-y-4 w-full">
-                  <ShimmerEffect className="h-6 w-3/4 rounded-md" />
-                  <ShimmerEffect className="h-4 w-1/2 rounded-md" />
+                <div className="space-y-4 w-full mt-8">
+                  <ShimmerEffect className="h-6 w-3/4 rounded-md mx-auto" />
+                  <ShimmerEffect className="h-4 w-1/2 rounded-md mx-auto" />
                   <div className="space-y-3 pt-6 w-full">
                     <ShimmerEffect className="h-3 w-full rounded-md" />
                     <ShimmerEffect className="h-3 w-11/12 rounded-md" />
@@ -297,7 +296,7 @@ export const AiWriterPage: React.FC = () => {
                   <span className="text-[9px] font-extrabold uppercase bg-violet-100 dark:bg-violet-950 text-violet-750 dark:text-violet-300 px-2.5 py-1 rounded-md">
                     AI Generated Draft ({model})
                   </span>
-                  
+
                   <button
                     onClick={handleCopy}
                     className="flex items-center gap-1.5 px-3 py-1.5 border-[0.5px] border-neutral-200 dark:border-neutral-805 hover:bg-neutral-50 dark:hover:bg-neutral-900 rounded-lg text-xs font-semibold text-neutral-700 dark:text-neutral-300 cursor-pointer shadow-sm"

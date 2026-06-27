@@ -44,6 +44,10 @@ export const Footer: React.FC = () => {
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-left font-sans text-xs text-neutral-400">
           {/* Navigation Links */}
           <div className="flex flex-wrap gap-x-6 gap-y-2.5 justify-center md:justify-start">
+            <Link to="/animation-showcase" className="hover:text-accent-coral font-bold text-accent-coral transition-colors">
+              🎨 Animation Showcase
+            </Link>
+            <span className="text-neutral-700">|</span>
             <Link to="#" className="hover:text-accent-coral transition-colors">
               Terms & Conditions
             </Link>
