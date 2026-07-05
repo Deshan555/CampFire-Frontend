@@ -6,8 +6,10 @@ import React from "react";
 import Markdown from "../Markdown";
 import type { Article } from "../../data/articles";
 import { ParticleGlobe, AnimatedButton, GlowingFluidOrb } from "../canves-animations";
+import { Spin, Skeleton } from "antd";
 
 interface ArticleFormDrawerProps {
+  isSaving: boolean;
   aiIncludeVideo: boolean;
   setAiIncludeVideo: (val: boolean) => void;
   isDrawerOpen: boolean;
@@ -68,6 +70,7 @@ interface ArticleFormDrawerProps {
 }
 
 export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
+  isSaving,
   aiIncludeVideo,
   setAiIncludeVideo,
   isDrawerOpen,
@@ -139,18 +142,25 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-white dark:bg-brand-dark flex flex-col animate-fade-in overflow-hidden">
+      {/* Ant Design loading overlay when publish/edit API call is running */}
+      {isSaving && (
+        <div className="absolute inset-0 bg-white/70 dark:bg-brand-dark/70 z-50 flex items-center justify-center">
+          <Spin size="large" tip="Publishing and saving changes..." />
+        </div>
+      )}
+
       <div className="h-16 shrink-0 border-b-[0.5px] border-neutral-200 dark:border-neutral-850 px-6 bg-neutral-50 dark:bg-neutral-900/30 flex items-center justify-between z-10 transition-colors duration-300">
         <div className="flex items-center gap-3">
           <button
             type="button"
             onClick={() => setIsDrawerOpen(false)}
-            className="flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors cursor-pointer"
+            className="editor-component-base flex items-center gap-1.5 text-xs font-semibold text-neutral-500 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100 transition-colors cursor-pointer border-none bg-transparent"
           >
             <i className="fa-solid fa-arrow-left"></i>
             <span>Dashboard</span>
           </button>
           <span className="text-neutral-300 dark:text-neutral-700 font-normal">|</span>
-          <h2 className="font-serif text-sm font-black text-neutral-850 dark:text-white uppercase tracking-wider">
+          <h2 className="font-serif text-sm font-black text-neutral-855 dark:text-white uppercase tracking-wider">
             {editingArticle ? `Edit Draft (${editingArticle.id})` : "Create New Publication"}
           </h2>
         </div>
@@ -159,43 +169,56 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
           <button
             type="button"
             onClick={() => setShowPreview(!showPreview)}
-            className="px-3.5 py-1.5 border-[0.5px] border-neutral-250 dark:border-neutral-800 text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-900 rounded-lg transition-colors cursor-pointer"
+            className="editor-component-base px-3.5 border-[0.5px] border-neutral-250 dark:border-neutral-800 text-xs font-semibold text-neutral-600 dark:text-neutral-300 hover:bg-neutral-50 dark:hover:bg-neutral-900 bg-transparent rounded-lg transition-colors cursor-pointer flex items-center justify-center gap-1.5"
           >
-            {showPreview ? "Hide Live Preview" : "Show Live Preview"}
+            {showPreview ? (
+              <>
+                <i className="fa-solid fa-eye-slash"></i>
+                <span>Hide Live Preview</span>
+              </>
+            ) : (
+              <>
+                <i className="fa-solid fa-eye"></i>
+                <span>Show Live Preview</span>
+              </>
+            )}
           </button>
 
           <button
             type="submit"
             form="article-editor-form"
-            className="px-5 py-1.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold rounded-lg hover:opacity-90 transition-opacity cursor-pointer border-none"
+            className="editor-component-base px-5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold rounded-lg hover:opacity-90 transition-opacity cursor-pointer border-none flex items-center justify-center gap-1.5"
           >
-            {editingArticle
-              ? currentUser?.role === "SUPER_ADMIN"
-                ? "Save & Publish"
-                : "Update Draft"
-              : currentUser?.role === "SUPER_ADMIN"
-              ? "Publish Article"
-              : "Submit for Approval"}
+            <i className="fa-solid fa-cloud-arrow-up"></i>
+            <span>
+              {editingArticle
+                ? currentUser?.role === "SUPER_ADMIN"
+                  ? "Save & Publish"
+                  : "Update Draft"
+                : currentUser?.role === "SUPER_ADMIN"
+                  ? "Publish Article"
+                  : "Submit for Approval"}
+            </span>
           </button>
         </div>
       </div>
 
-      <div className="flex-1 min-h-0 flex">
+      {/* Improved Responsiveness (flex-col on small screens, flex-row on desktop) */}
+      <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden">
         <form
           id="article-editor-form"
           onSubmit={handleSave}
-          className={`${showPreview ? "w-1/2" : "w-full"} overflow-y-auto p-6 md:p-8 space-y-6 border-r-[0.5px] border-neutral-200 dark:border-neutral-850 text-left`}
+          className={`${showPreview ? "w-full lg:w-1/2" : "w-full"} overflow-y-auto p-6 md:p-8 space-y-6 border-b-[0.5px] lg:border-b-0 lg:border-r-[0.5px] border-neutral-200 dark:border-neutral-850 text-left`}
         >
           {/* Redesigned Tab Bar */}
           <div className="flex border-b-[0.5px] border-neutral-200 dark:border-neutral-800 mb-6 select-none bg-neutral-50/50 dark:bg-neutral-900/10 rounded-xl p-1.5 gap-2">
             <button
               type="button"
               onClick={() => setActiveTab('ai')}
-              className={`flex-grow py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border-none ${
-                activeTab === 'ai'
+              className={`flex-grow editor-component-base rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border-none ${activeTab === 'ai'
                   ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 shadow-sm'
                   : 'bg-transparent text-neutral-450 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
-              }`}
+                }`}
             >
               <i className="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
               <span>AI Composer</span>
@@ -203,11 +226,10 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
             <button
               type="button"
               onClick={() => setActiveTab('manual')}
-              className={`flex-grow py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border-none ${
-                activeTab === 'manual'
+              className={`flex-grow editor-component-base rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer border-none ${activeTab === 'manual'
                   ? 'bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 shadow-sm'
                   : 'bg-transparent text-neutral-450 hover:text-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-200'
-              }`}
+                }`}
             >
               <i className="fa-solid fa-pen-nib text-[10px]"></i>
               <span>Manual Editor</span>
@@ -226,7 +248,8 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                 </div>
 
                 {aiGenerating ? (
-                  <div className="py-8 flex flex-col items-center justify-center">
+                  <div className="py-8 flex flex-col items-center justify-center space-y-4">
+                    <Spin size="large" tip="AI Composer is writing content..." />
                     <GlowingFluidOrb message="Copilot generating draft structure..." size="md" />
                   </div>
                 ) : (
@@ -241,39 +264,38 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                           placeholder="e.g. 5 essential steps to learn React 19 for beginners"
                           value={aiTopic}
                           onChange={(e) => setAiTopic(e.target.value)}
-                          className="w-full px-4 py-3 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                          className="w-full editor-component-base px-4 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
                         />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
-                            Editorial Tone
-                          </label>
-                          <select
-                            value={aiTone}
-                            onChange={(e) => setAiTone(e.target.value)}
-                            className="w-full px-4 py-3 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
-                          >
-                            <option value="Professional & Analytical">Professional & Analytical</option>
-                            <option value="Casual & Friendly">Casual & Friendly</option>
-                            <option value="Tech-Savy & Deep-Dive">Tech-Savy & Deep-Dive</option>
-                            <option value="Inspirational & Creative">Inspirational & Creative</option>
-                          </select>
-                        </div>
+                      {/* Single field per row (stacked) */}
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
+                          Editorial Tone
+                        </label>
+                        <select
+                          value={aiTone}
+                          onChange={(e) => setAiTone(e.target.value)}
+                          className="w-full editor-component-base px-4 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                        >
+                          <option value="Professional & Analytical">Professional & Analytical</option>
+                          <option value="Casual & Friendly">Casual & Friendly</option>
+                          <option value="Tech-Savy & Deep-Dive">Tech-Savy & Deep-Dive</option>
+                          <option value="Inspirational & Creative">Inspirational & Creative</option>
+                        </select>
+                      </div>
 
-                        <div>
-                          <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
-                            Custom Instructions
-                          </label>
-                          <input
-                            type="text"
-                            placeholder="e.g. Include code snippets"
-                            value={aiInstructions}
-                            onChange={(e) => setAiInstructions(e.target.value)}
-                            className="w-full px-4 py-3 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
-                          />
-                        </div>
+                      <div>
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
+                          Custom Instructions (Markdown)
+                        </label>
+                        <textarea
+                          placeholder="e.g. Include code snippets, focus on performance, add bullet points..."
+                          value={aiInstructions}
+                          onChange={(e) => setAiInstructions(e.target.value)}
+                          rows={3}
+                          className="w-full editor-component-base p-4 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200 resize-y"
+                        />
                       </div>
 
                       <div className="flex items-center justify-between border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl bg-white dark:bg-neutral-900">
@@ -298,7 +320,7 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                       disabled={aiGenerating}
                       onClick={handleRunAiWriter}
                       variant="primary"
-                      className="w-full py-3 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center justify-center gap-2"
+                      className="w-full editor-component-base py-3 text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-2 border-none"
                     >
                       <i className="fa-solid fa-sparkles text-[10px]"></i>
                       <span>Generate Full Content Structure</span>
@@ -312,87 +334,84 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
           {/* Manual Editor Tab Content */}
           {activeTab === 'manual' && (
             <div className="space-y-6 animate-fade-in">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                    Article Title *
-                  </label>
-                  <input
-                    required={activeTab === 'manual'}
-                    type="text"
-                    placeholder="Enter a compelling title..."
-                    value={formTitle}
-                    onChange={(e) => setFormTitle(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                    Unique Slug ID *
-                  </label>
-                  <input
-                    required={activeTab === 'manual'}
-                    disabled={!!editingArticle}
-                    type="text"
-                    placeholder="e.g. React-19-guide (use lowercase-hyphens)"
-                    value={formId}
-                    onChange={(e) => setFormId(e.target.value.toLowerCase().replace(/[^a-z0-9\-]+/g, "-"))}
-                    className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 disabled:opacity-50"
-                  />
-                </div>
+              {/* Stacked single field per row */}
+              <div>
+                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                  Article Title *
+                </label>
+                <input
+                  required={activeTab === 'manual'}
+                  type="text"
+                  placeholder="Enter a compelling title..."
+                  value={formTitle}
+                  onChange={(e) => setFormTitle(e.target.value)}
+                  className="w-full editor-component-base px-4 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
+                />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                    Magazine Category *
-                  </label>
-                  <select
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
-                  >
-                    <option value="Tech">Tech</option>
-                    <option value="Art">Art</option>
-                    <option value="Design">Design</option>
-                    <option value="Music">Music</option>
-                    <option value="Trends">Trends</option>
-                    <option value="Podcast">Podcast</option>
-                  </select>
-                </div>
+              <div>
+                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                  Unique Slug ID *
+                </label>
+                <input
+                  required={activeTab === 'manual'}
+                  disabled={!!editingArticle}
+                  type="text"
+                  placeholder="e.g. react-19-guide (use lowercase-hyphens)"
+                  value={formId}
+                  onChange={(e) => setFormId(e.target.value.toLowerCase().replace(/[^a-z0-9\-]+/g, "-"))}
+                  className="w-full editor-component-base px-4 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 disabled:opacity-50"
+                />
+              </div>
 
-                <div>
-                  <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
-                    Cover Hero Image *
-                  </label>
-                  <div className="flex gap-2">
+              <div>
+                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                  Magazine Category *
+                </label>
+                <select
+                  value={formCategory}
+                  onChange={(e) => setFormCategory(e.target.value)}
+                  className="w-full editor-component-base px-4 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
+                >
+                  <option value="Tech">Tech</option>
+                  <option value="Art">Art</option>
+                  <option value="Design">Design</option>
+                  <option value="Music">Music</option>
+                  <option value="Trends">Trends</option>
+                  <option value="Podcast">Podcast</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                  Cover Hero Image *
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    required={activeTab === 'manual'}
+                    type="text"
+                    placeholder="https://images.unsplash.com/..."
+                    value={formImage}
+                    onChange={(e) => setFormImage(e.target.value)}
+                    className="flex-1 editor-component-base px-4 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
+                  />
+                  <label className="relative editor-component-base shrink-0 flex items-center justify-center px-4 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-900 bg-transparent transition-all text-xs font-bold cursor-pointer text-neutral-800 dark:text-neutral-255 select-none flex items-center justify-center gap-1.5">
+                    {isUploadingImage ? (
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-neutral-900 dark:border-white"></div>
+                    ) : (
+                      <>
+                        <i className="fa-solid fa-cloud-arrow-up"></i>
+                        <span>Upload File</span>
+                      </>
+                    )}
                     <input
-                      required={activeTab === 'manual'}
-                      type="text"
-                      placeholder="https://images.unsplash.com/..."
-                      value={formImage}
-                      onChange={(e) => setFormImage(e.target.value)}
-                      className="flex-1 px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
+                      type="file"
+                      accept="image/*"
+                      onChange={handleUploadHeroImage}
+                      disabled={isUploadingImage}
+                      className="hidden"
                     />
-                    <label className="relative shrink-0 flex items-center justify-center px-4 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-100 dark:hover:bg-neutral-900 rounded-xl transition-all text-xs font-bold cursor-pointer text-neutral-800 dark:text-neutral-255 select-none">
-                      {isUploadingImage ? (
-                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-neutral-900 dark:border-white"></div>
-                      ) : (
-                        <>
-                          <i className="fa-solid fa-cloud-arrow-up mr-1.5"></i>
-                          Upload File
-                        </>
-                      )}
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleUploadHeroImage}
-                        disabled={isUploadingImage}
-                        className="hidden"
-                      />
-                    </label>
-                  </div>
+                  </label>
                 </div>
               </div>
 
@@ -400,14 +419,24 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                 <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
                   Article Gallery Images (Optional)
                 </label>
-                <div className="border-[0.5px] border-dashed border-neutral-200 dark:border-neutral-800 p-6 rounded-xl text-center space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
-                  <label className="inline-flex items-center justify-center px-5 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-850 rounded-lg text-xs font-bold cursor-pointer text-neutral-800 dark:text-neutral-200 transition-colors shadow-sm select-none">
+                {/* Modernized Drag and Drop style controller */}
+                <div className="border border-dashed border-neutral-250 dark:border-neutral-800 p-8 rounded-2xl text-center space-y-4 bg-neutral-50/20 dark:bg-neutral-900/5 hover:border-accent-purple dark:hover:border-accent-purple hover:bg-neutral-50/40 dark:hover:bg-neutral-900/10 transition-all duration-300 group">
+                  <div className="flex flex-col items-center justify-center space-y-2">
+                    <div className="w-12 h-12 rounded-full bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center group-hover:scale-110 transition-transform duration-300 shadow-sm">
+                      <i className="fa-solid fa-images text-accent-purple text-lg"></i>
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-neutral-700 dark:text-neutral-300">Article Media Gallery Manager</p>
+                      <p className="text-[10px] text-neutral-450 mt-1">Upload inline article layout graphics or gallery images</p>
+                    </div>
+                  </div>
+                  <label className="editor-component-base inline-flex items-center justify-center px-6 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 font-bold cursor-pointer transition-all shadow-sm hover:opacity-90 border-none select-none">
                     {isUploadingGallery ? (
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-neutral-900 dark:border-white mr-2"></div>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white dark:border-neutral-950 mr-2"></div>
                     ) : (
-                      <i className="fa-solid fa-images mr-1.5 text-accent-purple"></i>
+                      <i className="fa-solid fa-plus-circle mr-1.5"></i>
                     )}
-                    <span>Select Multiple Gallery Images</span>
+                    <span>Browse Gallery Files</span>
                     <input
                       type="file"
                       multiple
@@ -419,9 +448,9 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                   </label>
 
                   {formImageUrls.length > 0 && (
-                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 pt-3 border-t-[0.5px] border-neutral-250 dark:border-neutral-850">
+                    <div className="grid grid-cols-4 sm:grid-cols-6 gap-3 pt-4 border-t-[0.5px] border-neutral-250 dark:border-neutral-855">
                       {formImageUrls.map((url, idx) => (
-                        <div key={idx} className="relative group aspect-square rounded-lg overflow-hidden border-[0.5px] border-neutral-200 dark:border-neutral-800 shadow-sm bg-white dark:bg-neutral-900">
+                        <div key={url + idx} className="relative group aspect-square rounded-lg overflow-hidden border-[0.5px] border-neutral-200 dark:border-neutral-800 shadow-sm bg-white dark:bg-neutral-900">
                           <img src={url} alt="" className="w-full h-full object-cover" />
                           <button
                             type="button"
@@ -497,7 +526,7 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                     placeholder="e.g. https://stream.mux.com/YOUR_STREAM_KEY/highest.mp4 or HLS (.m3u8)"
                     value={formVideoSrc}
                     onChange={(e) => setFormVideoSrc(e.target.value)}
-                    className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-800 dark:text-neutral-200"
+                    className="w-full editor-component-base px-3 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none text-neutral-800 dark:text-neutral-200"
                   />
                 </div>
 
@@ -508,7 +537,7 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                     placeholder="https://image.mux.com/YOUR_STREAM_KEY/thumbnail.webp"
                     value={formVideoPoster}
                     onChange={(e) => setFormVideoPoster(e.target.value)}
-                    className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-800 dark:text-neutral-200"
+                    className="w-full editor-component-base px-3 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none text-neutral-800 dark:text-neutral-200"
                   />
                 </div>
               </div>
@@ -523,7 +552,7 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                   placeholder="Write a brief editorial hook that summarises the core story outline..."
                   value={formSummary}
                   onChange={(e) => setFormSummary(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 resize-y"
+                  className="w-full editor-component-base p-4 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 resize-y"
                 ></textarea>
               </div>
 
@@ -540,9 +569,9 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                   placeholder="Write in Markdown. Support for headings (#), lists (-), bold (**), italic (*), code blocks (```) and blockquotes (>)."
                   value={formContent}
                   onChange={(e) => setFormContent(e.target.value)}
-                  className="w-full px-4 py-2.5 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-sm focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 resize-y font-mono"
+                  className="w-full editor-component-base p-4 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 resize-y font-mono"
                 ></textarea>
-                <div className="text-[10px] text-neutral-450 mt-1 flex justify-between">
+                <div className="text-[10px] text-neutral-455 mt-1 flex justify-between">
                   <span>
                     Paragraphs split count:{" "}
                     {formContent.split(/\n\n+/).filter((p) => p.trim().length > 0).length}
@@ -551,55 +580,56 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                 </div>
               </div>
 
-          {currentUser?.role === "SUPER_ADMIN" && (
-            <div className="border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
-              <span className="block text-[10px] font-extrabold uppercase text-neutral-405 tracking-wider flex items-center gap-1.5">
-                <i className="fa-solid fa-user-pen text-accent-purple"></i>
-                <span>Author Customization Override (Admin Only)</span>
-              </span>
+              {currentUser?.role === "SUPER_ADMIN" && (
+                <div className="border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl space-y-4 bg-neutral-50/50 dark:bg-neutral-900/10">
+                  <span className="block text-[10px] font-extrabold uppercase text-neutral-405 tracking-wider flex items-center gap-1.5">
+                    <i className="fa-solid fa-user-pen text-accent-purple"></i>
+                    <span>Author Customization Override (Admin Only)</span>
+                  </span>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-[11px] font-bold text-neutral-500 mb-1">Author Name</label>
-                  <input
-                    type="text"
-                    value={formAuthorName}
-                    onChange={(e) => setFormAuthorName(e.target.value)}
-                    className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-850 dark:text-neutral-200"
-                  />
+                  {/* Single field per row (stacked) */}
+                  <div className="space-y-3">
+                    <div>
+                      <label className="block text-[11px] font-bold text-neutral-500 mb-1">Author Name</label>
+                      <input
+                        type="text"
+                        value={formAuthorName}
+                        onChange={(e) => setFormAuthorName(e.target.value)}
+                        className="w-full editor-component-base px-3 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none text-neutral-850 dark:text-neutral-200"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-neutral-500 mb-1">Author Role/Bio</label>
+                      <input
+                        type="text"
+                        value={formAuthorRole}
+                        onChange={(e) => setFormAuthorRole(e.target.value)}
+                        className="w-full editor-component-base px-3 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none text-neutral-855 dark:text-neutral-200"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-bold text-neutral-500 mb-1">Author Avatar URL</label>
+                    <input
+                      type="text"
+                      value={formAuthorAvatar}
+                      onChange={(e) => setFormAuthorAvatar(e.target.value)}
+                      className="w-full editor-component-base px-3 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none text-neutral-850 dark:text-neutral-200"
+                    />
+                  </div>
                 </div>
-
-                <div>
-                  <label className="block text-[11px] font-bold text-neutral-500 mb-1">Author Role/Bio</label>
-                  <input
-                    type="text"
-                    value={formAuthorRole}
-                    onChange={(e) => setFormAuthorRole(e.target.value)}
-                    className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-855 dark:text-neutral-200"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-[11px] font-bold text-neutral-500 mb-1">Author Avatar URL</label>
-                <input
-                  type="text"
-                  value={formAuthorAvatar}
-                  onChange={(e) => setFormAuthorAvatar(e.target.value)}
-                  className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none text-neutral-850 dark:text-neutral-200"
-                />
-              </div>
+              )}
             </div>
-          )}
-          </div>
           )}
         </form>
 
         {showPreview && (
-          <div className="w-1/2 bg-white dark:bg-brand-dark overflow-y-auto p-8 md:p-12 flex flex-col items-center">
+          <div className="w-full lg:w-1/2 bg-white dark:bg-brand-dark overflow-y-auto p-6 md:p-12 flex flex-col items-center border-t-[0.5px] lg:border-t-0 border-neutral-200 dark:border-neutral-850">
             <div className="w-full max-w-xl text-left space-y-6">
               <div className="flex items-center justify-between border-b-[0.5px] border-neutral-200 dark:border-neutral-855 pb-3 mb-2 select-none">
-                <span className="text-[9px] font-extrabold uppercase bg-neutral-100 dark:bg-neutral-850 text-neutral-500 dark:text-neutral-400 px-2 py-0.5 rounded-md tracking-wider animate-pulse">
+                <span className="text-[9px] font-extrabold uppercase bg-neutral-100 dark:bg-neutral-855 text-neutral-500 dark:text-neutral-400 px-2 py-0.5 rounded-md tracking-wider animate-pulse">
                   Live Markdown Preview
                 </span>
                 <span className="text-[9px] text-neutral-400 dark:text-neutral-550 italic">
@@ -644,13 +674,16 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                 </div>
               )}
 
-              <div className="pt-4 border-t-[0.5px] border-neutral-100 dark:border-neutral-850">
+              <div className="pt-4 border-t-[0.5px] border-neutral-100 dark:border-neutral-855">
                 {formContent ? (
                   <Markdown content={formContent} />
                 ) : (
-                  <p className="text-xs italic text-neutral-400 dark:text-neutral-500">
-                    Write body content in the markdown editor on the left pane to render the preview.
-                  </p>
+                  <div className="space-y-4">
+                    <p className="text-xs italic text-neutral-400 dark:text-neutral-500">
+                      Write body content in the markdown editor on the left pane to render the preview.
+                    </p>
+                    <Skeleton active paragraph={{ rows: 12 }} />
+                  </div>
                 )}
               </div>
             </div>
