@@ -298,3 +298,19 @@ input, textarea, select, [data-slot="input"], [data-slot="textarea"], [data-slot
   --sidebar-border: oklch(1 0 0 / 10%);
   --sidebar-ring: oklch(0.556 0 0);
 }
+
+/* Single class for all dropdowns, inputs, buttons, and text fields in editor */
+.editor-component-base {
+  height: 42px;
+  border-radius: 10px !important;
+  font-size: 12px !important;
+  font-family: "Poppins", sans-serif !important;
+  transition: all 0.2s ease-in-out;
+}
+.editor-component-base::placeholder {
+  font-size: 10px !important;
+}
+textarea.editor-component-base {
+  height: auto !important;
+  min-height: 42px;
+}
