@@ -43,6 +43,7 @@ export const CrmDashboard: React.FC = () => {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showPreview, setShowPreview] = useState(true);
   const [editingArticle, setEditingArticle] = useState<Article | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [formId, setFormId] = useState("");
   const [formTitle, setFormTitle] = useState("");
@@ -130,6 +131,9 @@ export const CrmDashboard: React.FC = () => {
       if (result.video) {
         setFormVideoSrc(result.video.src || "");
         setFormVideoPoster(result.video.poster || "");
+        if (result.video.poster) {
+          setFormImage(result.video.poster);
+        }
       } else {
         setFormVideoSrc("");
         setFormVideoPoster("");
@@ -505,6 +509,7 @@ export const CrmDashboard: React.FC = () => {
       status: editingArticle ? editingArticle.status : (currentUser.role === "SUPER_ADMIN" ? "approved" : "pending")
     };
 
+    setIsSaving(true);
     try {
       if (editingArticle) {
         await updateArticle(editingArticle.id, payload);
@@ -513,6 +518,7 @@ export const CrmDashboard: React.FC = () => {
         const exists = articles.some((a) => a.id === payload.id);
         if (exists) {
           setErrorMsg(`An article with slug ID "${payload.id}" already exists. Please choose a different slug.`);
+          setIsSaving(false);
           return;
         }
         await createArticle(payload);
@@ -523,6 +529,8 @@ export const CrmDashboard: React.FC = () => {
     } catch (err: any) {
       console.error(err);
       setErrorMsg(`Failed to save article: ${err.message}`);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -610,6 +618,9 @@ export const CrmDashboard: React.FC = () => {
       </div>
 
       <ArticleFormDrawer
+        isSaving={isSaving}
+        aiIncludeVideo={aiIncludeVideo}
+        setAiIncludeVideo={setAiIncludeVideo}
         isDrawerOpen={isDrawerOpen}
         setIsDrawerOpen={setIsDrawerOpen}
         editingArticle={editingArticle}
@@ -664,8 +675,6 @@ export const CrmDashboard: React.FC = () => {
         aiError={aiError}
         aiSuccess={aiSuccess}
         handleRunAiWriter={handleRunAiWriter}
-        aiIncludeVideo={aiIncludeVideo}
-        setAiIncludeVideo={setAiIncludeVideo}
       />
 
       <AiRulesModal
