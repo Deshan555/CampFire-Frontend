@@ -60,7 +60,7 @@ export const ARTICLES: Article[] = [
     date: "November 12, 2024",
     readingTime: "8 min read",
     author: AUTHORS.esther,
-    image: "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=1200&h=600&q=80",
+    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&h=600&q=80",
     featured: true,
     likes: 124,
     content: [
@@ -77,7 +77,7 @@ export const ARTICLES: Article[] = [
     date: "September 18, 2024",
     readingTime: "6 min read",
     author: AUTHORS.margareth,
-    image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=400&h=400&q=80",
+    image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&h=600&q=80",
     trending: true,
     likes: 92,
     content: [
@@ -94,7 +94,7 @@ export const ARTICLES: Article[] = [
     date: "November 7, 2024",
     readingTime: "10 min read",
     author: AUTHORS.esther,
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&h=400&q=80",
+    image: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=600&h=600&q=80",
     trending: true,
     likes: 147,
     content: [
@@ -111,7 +111,7 @@ export const ARTICLES: Article[] = [
     date: "November 10, 2024",
     readingTime: "14 min read",
     author: AUTHORS.robert,
-    image: "https://images.unsplash.com/photo-1503095391758-11200cf53674?auto=format&fit=crop&w=400&h=300&q=80",
+    image: "https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?auto=format&fit=crop&w=600&h=450&q=80",
     likes: 85,
     content: [
       "Get ready for an unforgettable cultural experience. From performance art to physical theater and experimental visual projections, here is our handpicked list of shows you cannot miss this autumn.",
@@ -126,7 +126,7 @@ export const ARTICLES: Article[] = [
     date: "November 10, 2024",
     readingTime: "10 min read",
     author: AUTHORS.devon,
-    image: "https://images.unsplash.com/photo-1492037766660-2a56f9eb3fcb?auto=format&fit=crop&w=400&h=300&q=80",
+    image: "https://images.unsplash.com/photo-1507679799987-c73779587ccf?auto=format&fit=crop&w=600&h=450&q=80",
     likes: 67,
     content: [
       "Discover the beauty of art off the beaten path. We tour five boutique galleries and independent artist collectives showing remarkable installations that bypass mainstream gallery attention.",
@@ -141,7 +141,7 @@ export const ARTICLES: Article[] = [
     date: "November 8, 2024",
     readingTime: "5 min read",
     author: AUTHORS.margareth,
-    image: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=400&h=300&q=80",
+    image: "https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=600&h=450&q=80",
     likes: 112,
     content: [
       "From organic sculpture forms in urban parks to architectural concrete structures and historical graphic design, discover where leading modern designers turn to recharge their creative batteries.",
@@ -159,7 +159,7 @@ export const ARTICLES: Article[] = [
     video: {
       src: "https://vjs.zencdn.net/v/oceans.mp4",
       type: "video/mp4",
-      poster: "https://images.unsplash.com/photo-1516280440614-37939bbacd6a?auto=format&fit=crop&w=400&h=400&q=80"
+      poster: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&h=600&q=80"
     },
     likes: 245,
     content: [

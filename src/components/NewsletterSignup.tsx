@@ -37,10 +37,10 @@ export const NewsletterSignup: React.FC = () => {
           {/* Option 1: Weekly Highlights */}
           <button
             onClick={() => setWeeklySelected(!weeklySelected)}
-            className={`flex-1 p-5 rounded-xl border-[1.5px] transition-all duration-200 text-left flex flex-col justify-between items-start gap-6 cursor-pointer select-none ${
+            className={`flex-1 p-5 rounded-3xl border transition-all duration-300 text-left flex flex-col justify-between items-start gap-6 cursor-pointer select-none ${
               weeklySelected
-                ? "bg-white border-brand-dark shadow-[3px_3px_0px_0px_#111]"
-                : "bg-neutral-50/50 border-neutral-300 dark:border-neutral-800 text-neutral-450 hover:bg-neutral-50"
+                ? "bg-[var(--color-sage-light)] border-[var(--color-sage-dark)] text-[var(--color-sage-dark)] shadow-sm"
+                : "bg-white border-neutral-200 dark:border-neutral-800 text-neutral-500 hover:bg-neutral-50"
             }`}
           >
             <div>
@@ -50,7 +50,7 @@ export const NewsletterSignup: React.FC = () => {
                 </span>
                 
                 {/* Custom Checkbox */}
-                <div className={`w-5 h-5 rounded border flex items-center justify-center ${weeklySelected ? "bg-accent-coral border-brand-dark text-white" : "border-neutral-300 bg-white"}`}>
+                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${weeklySelected ? "bg-[var(--color-sage-dark)] border-[var(--color-sage-dark)] text-white" : "border-neutral-300 bg-white"}`}>
                   {weeklySelected && <i className="fa-solid fa-check text-[10px]"></i>}
                 </div>
               </div>
@@ -71,10 +71,10 @@ export const NewsletterSignup: React.FC = () => {
           {/* Option 2: Monthly Digest */}
           <button
             onClick={() => setMonthlySelected(!monthlySelected)}
-            className={`flex-1 p-5 rounded-xl border-[1.5px] transition-all duration-200 text-left flex flex-col justify-between items-start gap-6 cursor-pointer select-none ${
+            className={`flex-1 p-5 rounded-3xl border transition-all duration-300 text-left flex flex-col justify-between items-start gap-6 cursor-pointer select-none ${
               monthlySelected
-                ? "bg-white border-brand-dark shadow-[3px_3px_0px_0px_#111]"
-                : "bg-neutral-50/50 border-neutral-300 dark:border-neutral-800 text-neutral-450 hover:bg-neutral-50"
+                ? "bg-[var(--color-sage-light)] border-[var(--color-sage-dark)] text-[var(--color-sage-dark)] shadow-sm"
+                : "bg-white border-neutral-200 dark:border-neutral-800 text-neutral-500 hover:bg-neutral-50"
             }`}
           >
             <div>
@@ -84,7 +84,7 @@ export const NewsletterSignup: React.FC = () => {
                 </span>
                 
                 {/* Custom Checkbox */}
-                <div className={`w-5 h-5 rounded border flex items-center justify-center ${monthlySelected ? "bg-accent-coral border-brand-dark text-white" : "border-neutral-300 bg-white"}`}>
+                <div className={`w-5 h-5 rounded-md border flex items-center justify-center transition-all ${monthlySelected ? "bg-[var(--color-sage-dark)] border-[var(--color-sage-dark)] text-white" : "border-neutral-300 bg-white"}`}>
                   {monthlySelected && <i className="fa-solid fa-check text-[10px]"></i>}
                 </div>
               </div>
@@ -125,12 +125,12 @@ export const NewsletterSignup: React.FC = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 disabled={loading}
-                className="flex-1 px-4 py-3 bg-white border-[1.5px] border-brand-dark focus:outline-none focus:ring-1 focus:ring-accent-coral focus:border-accent-coral text-sm rounded-md font-sans placeholder-neutral-400 text-neutral-900"
+                className="flex-1 px-4 py-3 bg-[var(--color-warm-surface)] border border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-sage focus:border-sage text-sm rounded-2xl font-sans placeholder-neutral-400 text-neutral-900"
               />
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full sm:w-auto py-3 px-8 bg-accent-coral hover:bg-accent-coral-dark text-white font-extrabold uppercase tracking-widest text-xs font-display rounded-md cursor-pointer border-[1.5px] border-brand-dark shadow-[2px_2px_0px_0px_#000] flex items-center justify-center gap-1.5 transition-all active:translate-x-[1px] active:translate-y-[1px] active:shadow-[1px_1px_0px_0px_#000]"
+                className="editorial-btn w-full sm:w-auto py-3 px-8 cursor-pointer flex items-center justify-center gap-1.5"
               >
                 {loading ? "Subscribing..." : "Sign Up"}
               </button>

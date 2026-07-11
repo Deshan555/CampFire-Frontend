@@ -35,9 +35,9 @@ export const PodcastWidget: React.FC = () => {
         <div className="w-full lg:w-[500px] shrink-0">
           <div className="editorial-card p-6 rounded-xl flex flex-col md:flex-row lg:flex-col gap-6">
             {/* Podcast Cover Art */}
-            <div className="w-full md:w-48 lg:w-full aspect-square border-[1.5px] border-brand-dark rounded-lg overflow-hidden shrink-0 relative bg-neutral-900 group">
+            <div className="w-full md:w-48 lg:w-full aspect-square bg-neutral-900 rounded-3xl overflow-hidden shrink-0 relative group">
               <img
-                src="https://images.unsplash.com/photo-1516280440614-37939bbacd6a?auto=format&fit=crop&w=400&h=400&q=80"
+                src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&h=600&q=80"
                 alt="The Creative Pulse Podcast Cover"
                 className="w-full h-full object-cover opacity-85 group-hover:scale-102 transition-transform duration-700"
               />
@@ -63,7 +63,7 @@ export const PodcastWidget: React.FC = () => {
                     <button
                       key={track.id}
                       onClick={() => handleTrackClick(index)}
-                      className={`w-full p-2.5 rounded-lg border border-transparent transition-all flex items-center justify-between text-xs font-semibold text-left group cursor-pointer ${
+                      className={`w-full p-2.5 rounded-2xl border border-transparent transition-all flex items-center justify-between text-xs font-semibold text-left group cursor-pointer ${
                         isCurrent
                           ? "bg-accent-coral/10 border-accent-coral text-accent-coral"
                           : "hover:bg-neutral-100 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200"
@@ -128,7 +128,7 @@ export const PodcastWidget: React.FC = () => {
                 setIsPlaying(!isPlaying);
               }
             }}
-            className="editorial-btn px-8 py-3.5 bg-accent-coral hover:bg-accent-coral-dark text-white font-extrabold uppercase tracking-widest text-xs font-display rounded-md cursor-pointer flex items-center gap-2"
+            className="editorial-btn px-8 py-3.5 cursor-pointer flex items-center justify-center gap-2"
           >
             <i className={`fa-solid ${isPlaying ? "fa-pause" : "fa-play"}`}></i>
             <span>{isPlaying ? "Pause Playlist" : "Listen to Playlist"}</span>

@@ -12,7 +12,7 @@ export const FeaturedArticle: React.FC<FeaturedArticleProps> = ({ article }) => 
   return (
     <div className="w-full px-6 py-8 md:py-12 bg-brand-charcoal text-white transition-colors duration-300">
       <div className="max-w-[1400px] mx-auto">
-        <article className="bg-[#EAEAEA] text-neutral-900 border-[1.5px] border-neutral-900 p-6 md:p-8 flex flex-col md:flex-row gap-8 items-stretch rounded-xl shadow-[4px_4px_0px_0px_#000] hover:translate-x-[-2px] hover:translate-y-[-2px] hover:shadow-[6px_6px_0px_0px_#000] transition-all duration-300">
+        <article className="editorial-card text-neutral-900 p-6 md:p-8 flex flex-col md:flex-row gap-8 items-stretch">
           
           {/* Left Text details */}
           <div className="flex-1 flex flex-col justify-between text-left gap-6">
@@ -56,7 +56,7 @@ export const FeaturedArticle: React.FC<FeaturedArticleProps> = ({ article }) => 
                 {["Trends", "Photography", "Film"].map((tag) => (
                   <span
                     key={tag}
-                    className="px-3 py-1 bg-neutral-900 text-white rounded-full text-[9px] uppercase font-extrabold tracking-wider font-display"
+                    className="editorial-tag"
                   >
                     {tag}
                   </span>
@@ -68,7 +68,7 @@ export const FeaturedArticle: React.FC<FeaturedArticleProps> = ({ article }) => 
           {/* Right Image */}
           <Link
             to={`/article/${article.id}`}
-            className="flex-1 aspect-[16/10] md:aspect-auto md:w-1/2 bg-neutral-200 border-[1.5px] border-neutral-900 rounded-lg overflow-hidden group cursor-pointer block"
+            className="flex-1 aspect-[16/10] md:aspect-auto md:w-1/2 bg-neutral-200 rounded-3xl overflow-hidden group cursor-pointer block"
           >
             <img
               src={article.image || "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80"}

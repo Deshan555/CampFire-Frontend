@@ -4,7 +4,7 @@ import { fetchArticleDetails, likeArticle, fetchArticleSuggestions } from "../ap
 import type { Article } from "../data/articles";
 import VideoPlayer from "../components/VideoPlayer";
 import Markdown from "../components/Markdown";
-import { LoadingSpinner, AnimatedButton } from "../components/canves-animations";
+import { LoadingSpinner } from "../components/canves-animations";
 
 interface WordPosition {
   word: string;

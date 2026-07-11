@@ -222,9 +222,7 @@ export const WaveEffect: React.FC<{
   text: string;
   theme?: ThemeMode;
   className?: string;
-}> = ({ text, theme: forcedTheme, className = '' }) => {
-  const theme = useTheme(forcedTheme);
-  const colors = getThemeColor(theme);
+}> = ({ text, className = '' }) => {
 
   return (
     <div className={`inline-flex ${className}`}>
@@ -384,7 +382,9 @@ export const AnimatedButton: React.FC<{
   theme?: ThemeMode;
   variant?: 'primary' | 'secondary';
   className?: string;
-}> = ({ children, onClick, theme: forcedTheme, variant = 'primary', className = '' }) => {
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+}> = ({ children, onClick, theme: forcedTheme, variant = 'primary', className = '', type = 'button', disabled = false }) => {
   const theme = useTheme(forcedTheme);
   const colors = getThemeColor(theme);
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
@@ -408,6 +408,8 @@ export const AnimatedButton: React.FC<{
 
   return (
     <button
+      type={type}
+      disabled={disabled}
       onClick={handleClick}
       className={`relative overflow-hidden rounded-lg px-6 py-2 font-medium transition-all hover:scale-105 ${className}`}
       style={{
@@ -759,8 +761,7 @@ export const GlowingFluidOrb: React.FC<{
   theme?: ThemeMode;
   size?: 'sm' | 'md' | 'lg';
   message?: string;
-}> = ({ theme: forcedTheme, size = 'md', message = 'AI is processing...' }) => {
-  const theme = useTheme(forcedTheme);
+}> = ({ size = 'md', message = 'AI is processing...' }) => {
 
   const sizeClasses = {
     sm: 'w-32 h-32',

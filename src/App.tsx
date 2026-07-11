@@ -16,6 +16,7 @@ import ArtistSpotlight from "./components/ArtistSpotlight";
 import NewsletterSignup from "./components/NewsletterSignup";
 import MustSeeMoments from "./components/MustSeeMoments";
 import Footer from "./components/Footer";
+import FloatingBottomNav from "./components/FloatingBottomNav";
 import { fetchArticles } from "./api";
 import type { Article } from "./data/articles";
 
@@ -117,7 +118,7 @@ function App() {
   const showLayout = location.pathname !== "/ai-writer" && location.pathname !== "/editor";
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-brand-dark transition-colors duration-300">
+    <div className={`min-h-screen flex flex-col bg-white dark:bg-brand-dark transition-colors duration-300 ${showLayout ? "pb-24" : ""}`}>
       {/* 1. Global Banner */}
       {showLayout && <Banner />}
 
@@ -293,6 +294,9 @@ function App() {
 
       {/* 4. Global Footer */}
       {showLayout && <Footer />}
+
+      {/* 5. Floating Bottom Nav */}
+      {showLayout && <FloatingBottomNav />}
     </div>
   );
 }

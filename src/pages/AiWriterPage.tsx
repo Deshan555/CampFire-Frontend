@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { generateAiArticle } from "../api";
 import Markdown from "../components/Markdown";
-import { AnimatedButton, ThinkingIndicator, ShimmerEffect, ParticleGlobe, GlowingFluidOrb } from "../components/canves-animations";
+import { AnimatedButton, ShimmerEffect, GlowingFluidOrb } from "../components/canves-animations";
 
 export const AiWriterPage: React.FC = () => {
   const [model, setModel] = useState("gemma3:1b");

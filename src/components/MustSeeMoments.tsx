@@ -83,7 +83,7 @@ export const MustSeeMoments: React.FC<MustSeeMomentsProps> = ({ articles }) => {
                 {/* Rectangular Image */}
                 <Link
                   to={`/article/${article.id}`}
-                  className="aspect-[4/3] border-[1.5px] border-brand-dark bg-neutral-200 rounded-lg overflow-hidden block relative group"
+                  className="aspect-[4/3] bg-neutral-200 rounded-3xl overflow-hidden block relative group"
                 >
                   <img
                     src={article.image}
@@ -95,7 +95,7 @@ export const MustSeeMoments: React.FC<MustSeeMomentsProps> = ({ articles }) => {
                 {/* Tags block */}
                 <div className="flex gap-1.5 flex-wrap">
                   {getTagsForArticle(article.id).map((t) => (
-                    <span key={t} className="px-2.5 py-0.5 bg-neutral-900 text-white dark:bg-neutral-800 rounded-full text-[8px] uppercase font-extrabold tracking-widest">
+                    <span key={t} className="editorial-tag">
                       {t}
                     </span>
                   ))}

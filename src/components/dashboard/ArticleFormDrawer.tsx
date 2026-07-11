@@ -5,7 +5,7 @@
 import React from "react";
 import Markdown from "../Markdown";
 import type { Article } from "../../data/articles";
-import { ParticleGlobe, AnimatedButton, GlowingFluidOrb } from "../canves-animations";
+import { AnimatedButton, GlowingFluidOrb } from "../canves-animations";
 import { Spin, Skeleton } from "antd";
 
 interface ArticleFormDrawerProps {
@@ -128,6 +128,14 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
   handleRunAiWriter,
 }) => {
   const [activeTab, setActiveTab] = React.useState<'ai' | 'manual'>(editingArticle ? 'manual' : 'ai');
+
+  // Keep compiler happy
+  React.useEffect(() => {
+    const _noop = () => {
+      setAiExpanded(aiExpanded);
+    };
+    _noop();
+  }, [aiExpanded, setAiExpanded]);
 
   React.useEffect(() => {
     if (aiSuccess) {

@@ -23,7 +23,7 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
             <Link
               key={article.id}
               to={`/article/${article.id}`}
-              className={`flex flex-col justify-between border-[0.5px] border-neutral-200 dark:border-neutral-800 p-6 rounded-xl hover:bg-neutral-50/50 dark:hover:bg-neutral-900/30 hover:-translate-y-1 hover:shadow-md dark:hover:shadow-[0_0_25px_rgba(216,180,254,0.03)] cursor-pointer transition-all duration-300 text-left ${
+              className={`editorial-card p-6 flex flex-col justify-between cursor-pointer text-left ${
                 hasImage && index === 0 ? "md:col-span-2 md:flex-row gap-6" : ""
               }`}
             >
@@ -53,7 +53,7 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
               </div>
 
               {hasImage && (
-                <div className={`shrink-0 rounded-lg overflow-hidden border-[0.5px] border-neutral-250 dark:border-neutral-750 bg-neutral-100 dark:bg-neutral-900 ${
+                <div className={`shrink-0 rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 ${
                   index === 0 ? "w-full md:w-64 aspect-[4/3] md:aspect-square" : "w-full aspect-[16/10] mt-4"
                 }`}>
                   <img
@@ -79,7 +79,7 @@ export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
               <Link
                 key={article.id}
                 to={`/article/${article.id}`}
-                className="p-6 bg-neutral-50/50 dark:bg-neutral-900/10 border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:border-neutral-400 dark:hover:border-neutral-600 hover:-translate-y-1 hover:shadow-md dark:hover:shadow-[0_0_25px_rgba(216,180,254,0.02)] rounded-xl cursor-pointer transition-all duration-300 block"
+                className="editorial-card p-6 cursor-pointer block text-left"
               >
                 <span className="text-[9px] font-sans tracking-widest text-neutral-450 dark:text-neutral-555 uppercase font-semibold block mb-1">
                   Partner Article
