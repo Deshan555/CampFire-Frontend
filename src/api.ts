@@ -2,9 +2,6 @@ import type { Article } from "./data/articles";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5092/api";
 
-/**
- * Helper to build request headers, appending the Bearer token if present.
- */
 function getHeaders(extraHeaders: Record<string, string> = {}): Record<string, string> {
   const token = localStorage.getItem("authToken");
   const headers: Record<string, string> = {
@@ -14,6 +11,25 @@ function getHeaders(extraHeaders: Record<string, string> = {}): Record<string, s
     headers["Authorization"] = `Bearer ${token}`;
   }
   return headers;
+}
+
+async function handleResponse(response: Response) {
+  let json;
+  try {
+    json = await response.json();
+  } catch (e) {
+    throw new Error("Invalid JSON response from server");
+  }
+  
+  if (!response.ok || json.success === false) {
+    if (json.errors && json.errors.length > 0) {
+      throw new Error(json.errors[0].message);
+    }
+    throw new Error(json.error || "An error occurred");
+  }
+  
+  // Return the data directly based on the new backend standard structure
+  return json.data;
 }
 
 export async function fetchArticles(
@@ -46,10 +62,7 @@ export async function fetchArticles(
   const response = await fetch(url.toString(), {
     headers: getHeaders()
   });
-  if (!response.ok) {
-    throw new Error("Failed to fetch articles from backend");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function fetchArticleDetails(
@@ -75,10 +88,7 @@ export async function fetchArticleDetails(
   const response = await fetch(url.toString(), {
     headers: getHeaders()
   });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch article details for ID ${id}`);
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function likeArticle(id: string): Promise<{ success: boolean; likes: number }> {
@@ -86,10 +96,7 @@ export async function likeArticle(id: string): Promise<{ success: boolean; likes
     method: "POST",
     headers: getHeaders()
   });
-  if (!response.ok) {
-    throw new Error(`Failed to submit like for article ID ${id}`);
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function subscribeNewsletter(email: string): Promise<{ success: boolean; message?: string }> {
@@ -100,10 +107,7 @@ export async function subscribeNewsletter(email: string): Promise<{ success: boo
     }),
     body: JSON.stringify({ email })
   });
-  if (!response.ok) {
-    throw new Error("Failed to subscribe to newsletter");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function createArticle(
@@ -120,10 +124,7 @@ export async function createArticle(
     }),
     body: JSON.stringify(article)
   });
-  if (!response.ok) {
-    throw new Error("Failed to create article");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function updateArticle(
@@ -137,10 +138,7 @@ export async function updateArticle(
     }),
     body: JSON.stringify(article)
   });
-  if (!response.ok) {
-    throw new Error(`Failed to update article ID ${id}`);
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function deleteArticle(
@@ -167,10 +165,7 @@ export async function deleteArticle(
     method: "DELETE",
     headers: getHeaders()
   });
-  if (!response.ok) {
-    throw new Error(`Failed to delete article ID ${id}`);
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function approveArticle(
@@ -184,10 +179,7 @@ export async function approveArticle(
     }),
     body: JSON.stringify({ role })
   });
-  if (!response.ok) {
-    throw new Error("Failed to approve article");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function rejectArticle(
@@ -202,10 +194,7 @@ export async function rejectArticle(
     }),
     body: JSON.stringify({ role, reason })
   });
-  if (!response.ok) {
-    throw new Error("Failed to reject article");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function registerReader(
@@ -218,11 +207,7 @@ export async function registerReader(
     },
     body: JSON.stringify(payload)
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to register user");
-  }
-  return data;
+  return handleResponse(response);
 }
 
 export async function registerAdmin(
@@ -235,11 +220,7 @@ export async function registerAdmin(
     },
     body: JSON.stringify(payload)
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to register admin");
-  }
-  return data;
+  return handleResponse(response);
 }
 
 export async function generateAiArticle(payload: {
@@ -256,21 +237,14 @@ export async function generateAiArticle(payload: {
     }),
     body: JSON.stringify(payload)
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to generate article using AI");
-  }
-  return data;
+  return handleResponse(response);
 }
 
 export async function fetchArticleSuggestions(id: string): Promise<Article[]> {
   const response = await fetch(`${API_BASE_URL}/articles/${id}/suggestions`, {
     headers: getHeaders()
   });
-  if (!response.ok) {
-    throw new Error(`Failed to fetch suggestions for article ID ${id}`);
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 /**
@@ -282,16 +256,11 @@ export async function uploadFile(file: File): Promise<{ success: boolean; url: s
 
   const response = await fetch(`${API_BASE_URL}/upload`, {
     method: "POST",
-    headers: getHeaders(), // Browser automatically sets Content-Type with boundary for FormData
+    headers: getHeaders(),
     body: formData
   });
 
-  if (!response.ok) {
-    const errData = await response.json().catch(() => ({}));
-    throw new Error(errData.error || "File upload failed");
-  }
-
-  return response.json();
+  return handleResponse(response);
 }
 
 export interface ReviewRule {
@@ -308,10 +277,7 @@ export async function fetchRules(blogSiteId: string): Promise<ReviewRule[]> {
   const response = await fetch(`${API_BASE_URL}/ai/rules?blogSiteId=${blogSiteId}`, {
     headers: getHeaders()
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to fetch AI review rules");
-  }
+  const data = await handleResponse(response);
   return data.rules || [];
 }
 
@@ -323,10 +289,7 @@ export async function createRule(payload: { blogSiteId: string; name: string; cr
     }),
     body: JSON.stringify(payload)
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to create AI review rule");
-  }
+  const data = await handleResponse(response);
   return data.rule;
 }
 
@@ -338,10 +301,7 @@ export async function updateRule(id: string, payload: { name: string; criteria: 
     }),
     body: JSON.stringify(payload)
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to update AI review rule");
-  }
+  const data = await handleResponse(response);
   return data.rule;
 }
 
@@ -350,11 +310,8 @@ export async function deleteRule(id: string): Promise<boolean> {
     method: "DELETE",
     headers: getHeaders()
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "Failed to delete AI review rule");
-  }
-  return data.success;
+  await handleResponse(response);
+  return true;
 }
 
 export async function reviewArticleWithAi(
@@ -370,11 +327,8 @@ export async function reviewArticleWithAi(
     }),
     body: JSON.stringify({ model, selectedRuleIds, addedRules })
   });
-  const data = await response.json();
-  if (!response.ok) {
-    throw new Error(data.error || "AI Article review failed");
-  }
-  return data;
+  const data = await handleResponse(response);
+  return { success: true, ...data };
 }
 
 // Admin / User Management endpoints (Placeholder / Future Implementation)
@@ -382,20 +336,14 @@ export async function fetchUsers(): Promise<any[]> {
   const response = await fetch(`${API_BASE_URL}/admin/users`, {
     headers: getHeaders()
   });
-  if (!response.ok) {
-    throw new Error("Failed to fetch users");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function fetchCategories(): Promise<any[]> {
   const response = await fetch(`${API_BASE_URL}/admin/categories`, {
     headers: getHeaders()
   });
-  if (!response.ok) {
-    throw new Error("Failed to fetch categories");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function createCategory(payload: { name: string; slug?: string; status: string }): Promise<any> {
@@ -404,10 +352,7 @@ export async function createCategory(payload: { name: string; slug?: string; sta
     headers: getHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(payload)
   });
-  if (!response.ok) {
-    throw new Error("Failed to create category");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function updateCategory(id: string, payload: { name: string; slug: string; status: string }): Promise<any> {
@@ -416,10 +361,7 @@ export async function updateCategory(id: string, payload: { name: string; slug: 
     headers: getHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(payload)
   });
-  if (!response.ok) {
-    throw new Error("Failed to update category");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function deleteCategory(id: string): Promise<any> {
@@ -427,20 +369,14 @@ export async function deleteCategory(id: string): Promise<any> {
     method: "DELETE",
     headers: getHeaders()
   });
-  if (!response.ok) {
-    throw new Error("Failed to delete category");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function fetchSubcategories(): Promise<any[]> {
   const response = await fetch(`${API_BASE_URL}/admin/subcategories`, {
     headers: getHeaders()
   });
-  if (!response.ok) {
-    throw new Error("Failed to fetch subcategories");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function createSubcategory(payload: { name: string; parentName: string; slug?: string; status: string }): Promise<any> {
@@ -449,10 +385,7 @@ export async function createSubcategory(payload: { name: string; parentName: str
     headers: getHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(payload)
   });
-  if (!response.ok) {
-    throw new Error("Failed to create subcategory");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function updateSubcategory(id: string, payload: { name: string; parentName: string; slug: string; status: string }): Promise<any> {
@@ -461,10 +394,7 @@ export async function updateSubcategory(id: string, payload: { name: string; par
     headers: getHeaders({ "Content-Type": "application/json" }),
     body: JSON.stringify(payload)
   });
-  if (!response.ok) {
-    throw new Error("Failed to update subcategory");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function deleteSubcategory(id: string): Promise<any> {
@@ -472,19 +402,12 @@ export async function deleteSubcategory(id: string): Promise<any> {
     method: "DELETE",
     headers: getHeaders()
   });
-  if (!response.ok) {
-    throw new Error("Failed to delete subcategory");
-  }
-  return response.json();
+  return handleResponse(response);
 }
 
 export async function fetchTags(): Promise<any[]> {
   const response = await fetch(`${API_BASE_URL}/admin/tags`, {
     headers: getHeaders()
   });
-  if (!response.ok) {
-    throw new Error("Failed to fetch tags");
-  }
-  return response.json();
+  return handleResponse(response);
 }
-
