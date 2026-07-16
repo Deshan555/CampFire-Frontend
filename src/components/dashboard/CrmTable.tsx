@@ -93,13 +93,25 @@ export const CrmTable: React.FC<CrmTableProps> = ({
                   <div className="min-w-0">
                     <Link
                       to={`/article/${art.id}`}
-                      className="font-bold text-neutral-850 dark:text-neutral-55 hover:text-accent-purple dark:hover:text-purple-400 block truncate max-w-sm sm:max-w-md md:max-w-lg text-left"
+                      className="font-bold text-neutral-855 dark:text-neutral-50 hover:text-accent-purple dark:hover:text-purple-400 block truncate max-w-sm sm:max-w-md md:max-w-lg text-left"
                     >
                       {art.title}
                     </Link>
                     <span className="text-[10px] text-neutral-450 dark:text-neutral-500 font-medium block mt-1 text-left">
                       Slug: {art.id} • Written by {art.author?.name || "Editorial"} • {art.date}
                     </span>
+                    {art.hashtags && art.hashtags.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-1.5 justify-start">
+                        {art.hashtags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="text-[9px] text-accent-purple dark:text-purple-400 font-bold bg-accent-purple/5 dark:bg-purple-950/20 border border-accent-purple/20 px-2 py-0.5 rounded-full"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                     {art.reviewFeedback && (art.status === "rejected" || art.status === "pending") && (
                       <div className="mt-2 text-left bg-red-500/5 dark:bg-red-950/10 border-[0.5px] border-red-200 dark:border-red-950/30 p-3 rounded-lg text-xs leading-relaxed max-w-xl whitespace-normal">
                         <div className="flex items-center gap-1.5 font-bold text-red-750 dark:text-red-400 mb-1">
@@ -116,9 +128,16 @@ export const CrmTable: React.FC<CrmTableProps> = ({
               </td>
 
               <td className="py-4 px-6 whitespace-nowrap">
-                <span className="text-[10px] bg-neutral-100 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
-                  {art.category}
-                </span>
+                <div className="flex flex-col gap-1 align-baseline items-start">
+                  <span className="text-[10px] bg-neutral-100 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-300 px-2.5 py-1 rounded-full font-bold uppercase tracking-wider">
+                    {art.category}
+                  </span>
+                  {art.subcategory && (
+                    <span className="text-[9px] text-neutral-400 dark:text-neutral-500 font-bold pl-1 uppercase tracking-wide">
+                      ↳ {art.subcategory}
+                    </span>
+                  )}
+                </div>
               </td>
 
               <td className="py-4 px-6 whitespace-nowrap">
@@ -150,6 +169,15 @@ export const CrmTable: React.FC<CrmTableProps> = ({
                       </span>
                     )}
                   </div>
+                  {art.targetCountries && art.targetCountries.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mt-1.5">
+                      {art.targetCountries.map((c) => (
+                        <span key={c} className="text-[8px] bg-sky-500/10 dark:bg-sky-950/20 text-sky-600 dark:text-sky-400 border-[0.5px] border-sky-500/30 dark:border-sky-900 px-1.5 py-0.5 rounded font-bold uppercase tracking-wider">
+                          📍 {c}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </td>
 

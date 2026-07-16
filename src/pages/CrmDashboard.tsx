@@ -18,6 +18,8 @@ import {
   updateRule,
   deleteRule,
   reviewArticleWithAi,
+  fetchCategories,
+  fetchSubcategories,
   type ReviewRule
 } from "../api";
 import type { Article } from "../data/articles";
@@ -49,6 +51,11 @@ export const CrmDashboard: React.FC = () => {
   const [formTitle, setFormTitle] = useState("");
   const [formSummary, setFormSummary] = useState("");
   const [formCategory, setFormCategory] = useState("Tech");
+  const [categoriesList, setCategoriesList] = useState<any[]>([]);
+  const [subcategoriesList, setSubcategoriesList] = useState<any[]>([]);
+  const [formSubcategory, setFormSubcategory] = useState("");
+  const [formHashtags, setFormHashtags] = useState<string[]>([]);
+  const [formTargetCountries, setFormTargetCountries] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<'approved' | 'pending' | 'rejected'>('approved');
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
@@ -94,6 +101,7 @@ export const CrmDashboard: React.FC = () => {
   const [aiIncludeVideo, setAiIncludeVideo] = useState(true);
   const [aiError, setAiError] = useState("");
   const [aiSuccess, setAiSuccess] = useState("");
+  const [aiImagePrompts, setAiImagePrompts] = useState<string[]>([]);
 
   const triggerSuccess = (msg: string) => {
     setSuccessMsg(msg);
@@ -128,6 +136,12 @@ export const CrmDashboard: React.FC = () => {
       setFormSummary(result.summary);
       setFormContent(result.content.join("\n\n"));
       
+      if (result.category) setFormCategory(result.category);
+      if (result.subcategory) setFormSubcategory(result.subcategory);
+      if (result.hashtags && result.hashtags.length > 0) setFormHashtags(result.hashtags);
+      if (result.targetCountries && result.targetCountries.length > 0) setFormTargetCountries(result.targetCountries);
+      if (result.imagePrompts && result.imagePrompts.length > 0) setAiImagePrompts(result.imagePrompts);
+
       if (result.video) {
         setFormVideoSrc(result.video.src || "");
         setFormVideoPoster(result.video.poster || "");
@@ -183,6 +197,15 @@ export const CrmDashboard: React.FC = () => {
       const user = JSON.parse(stored);
       setCurrentUser(user);
       loadArticles(user);
+
+      // Load taxonomy lists dynamically
+      fetchCategories()
+        .then((data: any[]) => setCategoriesList(data))
+        .catch((err: any) => console.error("Failed to load categories:", err));
+      fetchSubcategories()
+        .then((data: any[]) => setSubcategoriesList(data))
+        .catch((err: any) => console.error("Failed to load subcategories:", err));
+
       if (user.role === "SUPER_ADMIN" || user.role === "EDITOR") {
         fetchRules(BLOG_SITE_ID)
           .then((data) => setRules(data))
@@ -202,6 +225,9 @@ export const CrmDashboard: React.FC = () => {
     setFormTitle("");
     setFormSummary("");
     setFormCategory("Tech");
+    setFormSubcategory("");
+    setFormHashtags([]);
+    setFormTargetCountries([]);
     setFormImage("");
     setFormImageUrls([]);
     setFormVideoSrc("");
@@ -231,6 +257,7 @@ export const CrmDashboard: React.FC = () => {
     setAiError("");
     setAiSuccess("");
     setAiGenerating(false);
+    setAiImagePrompts([]);
 
     setErrorMsg("");
     setIsDrawerOpen(true);
@@ -325,12 +352,15 @@ export const CrmDashboard: React.FC = () => {
     setIsReviewModalOpen(true);
   };
 
-  const handleRunAiReview = async () => {
+  const handleRunAiReview = async (
+    selectedRuleIds: string[],
+    addedRules: { name: string; criteria: string }[]
+  ) => {
     if (!reviewArticleId) return;
     setIsReviewing(true);
     setReviewResult(null);
     try {
-      const res = await reviewArticleWithAi(reviewArticleId, reviewModel);
+      const res = await reviewArticleWithAi(reviewArticleId, reviewModel, selectedRuleIds, addedRules);
       setReviewResult({
         approved: res.approved,
         feedback: res.feedback
@@ -351,6 +381,9 @@ export const CrmDashboard: React.FC = () => {
     setFormTitle(art.title);
     setFormSummary(art.summary);
     setFormCategory(art.category);
+    setFormSubcategory(art.subcategory || "");
+    setFormHashtags(art.hashtags || []);
+    setFormTargetCountries(art.targetCountries || []);
     setFormImage(art.image || "");
     setFormImageUrls(art.imageUrls || []);
     setFormVideoSrc(art.video?.src || "");
@@ -373,6 +406,7 @@ export const CrmDashboard: React.FC = () => {
     setAiError("");
     setAiSuccess("");
     setAiGenerating(false);
+    setAiImagePrompts([]);
 
     setErrorMsg("");
     setIsDrawerOpen(true);
@@ -476,6 +510,22 @@ export const CrmDashboard: React.FC = () => {
       setErrorMsg("Article body content is required.");
       return;
     }
+    if (!formCategory || !formCategory.trim()) {
+      setErrorMsg("Category is required.");
+      return;
+    }
+    if (!formSubcategory || !formSubcategory.trim()) {
+      setErrorMsg("Subcategory is required.");
+      return;
+    }
+    if (!formHashtags || formHashtags.length === 0) {
+      setErrorMsg("At least one hashtag is required.");
+      return;
+    }
+    if (!formTargetCountries || formTargetCountries.length === 0) {
+      setErrorMsg("At least one target country is required.");
+      return;
+    }
 
     const contentParagraphs = formContent
       .split(/\n\n+/)
@@ -496,6 +546,9 @@ export const CrmDashboard: React.FC = () => {
       summary: formSummary.trim(),
       content: contentParagraphs,
       category: formCategory,
+      subcategory: formSubcategory,
+      hashtags: formHashtags,
+      targetCountries: formTargetCountries,
       image: formImage.trim() || undefined,
       imageUrls: formImageUrls,
       video: videoObj,
@@ -632,6 +685,14 @@ export const CrmDashboard: React.FC = () => {
         setFormSummary={setFormSummary}
         formCategory={formCategory}
         setFormCategory={setFormCategory}
+        categoriesList={categoriesList}
+        subcategoriesList={subcategoriesList}
+        formSubcategory={formSubcategory}
+        setFormSubcategory={setFormSubcategory}
+        formHashtags={formHashtags}
+        setFormHashtags={setFormHashtags}
+        formTargetCountries={formTargetCountries}
+        setFormTargetCountries={setFormTargetCountries}
         formImage={formImage}
         setFormImage={setFormImage}
         formImageUrls={formImageUrls}
@@ -674,6 +735,7 @@ export const CrmDashboard: React.FC = () => {
         setAiInstructions={setAiInstructions}
         aiError={aiError}
         aiSuccess={aiSuccess}
+        aiImagePrompts={aiImagePrompts}
         handleRunAiWriter={handleRunAiWriter}
       />
 
@@ -708,6 +770,7 @@ export const CrmDashboard: React.FC = () => {
         reviewArticleId={reviewArticleId}
         articles={articles}
         handleOpenEdit={handleOpenEdit}
+        rules={rules}
       />
     </div>
   );

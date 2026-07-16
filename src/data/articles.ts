@@ -26,6 +26,10 @@ export interface Article {
   likes?: number;
   status?: 'approved' | 'pending' | 'rejected' | 'draft';
   authorUsername?: string;
+  hashtags?: string[];
+  subcategory?: string;
+  subcategoryId?: string;
+  targetCountries?: string[];
 }
 
 export const AUTHORS: Record<string, Author> = {
@@ -53,14 +57,14 @@ export const AUTHORS: Record<string, Author> = {
 
 export const ARTICLES: Article[] = [
   {
-    id: "film-photography",
-    title: "The Timeless Allure of Film Photography",
-    summary: "In the digital age, where cameras are in everyone's pocket, the resurgence of film photography might seem surprising. Yet, it has evolved from a medium of necessity to a cherished art form. What makes film photography so enduringly relevant in a world dominated by pixels?",
-    category: "Art",
+    id: "japan-travel",
+    title: "10 Hidden Gems in Kyoto, Japan",
+    summary: "Discover the serene temples, traditional teahouses, and quiet bamboo forests that most tourists miss when visiting Japan's ancient capital.",
+    category: "Destinations",
     date: "November 12, 2024",
     readingTime: "8 min read",
     author: AUTHORS.esther,
-    image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1200&h=600&q=80",
+    image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=1200&h=675&q=80",
     featured: true,
     likes: 124,
     content: [
@@ -70,14 +74,14 @@ export const ARTICLES: Article[] = [
     ]
   },
   {
-    id: "leo-hart-interview",
-    title: "Soundscapes of the City: An Interview with Leo Hart",
-    summary: "Explore the world of sound artist Leo Hart, who transforms urban noise into captivating musical compositions. In this detailed interview, we discuss the borders between acoustic clutter and auditory art.",
-    category: "Music",
+    id: "alps-hiking",
+    title: "Hiking the Swiss Alps: A Beginner's Guide",
+    summary: "Everything you need to know before tackling the majestic trails of the Swiss Alps, from gear recommendations to the best scenic routes.",
+    category: "Guides",
     date: "September 18, 2024",
     readingTime: "6 min read",
     author: AUTHORS.margareth,
-    image: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?auto=format&fit=crop&w=600&h=600&q=80",
+    image: "https://images.unsplash.com/photo-1530122037265-a5f1f91d3b99?auto=format&fit=crop&w=800&h=450&q=80",
     trending: true,
     likes: 92,
     content: [
@@ -87,14 +91,14 @@ export const ARTICLES: Article[] = [
     ]
   },
   {
-    id: "eva-martinez-visionary",
-    title: "Eva Martinez: The Visionary Behind the Canves",
-    summary: "Discover the creative journey of Eva Martinez, a self-taught painter whose bold use of color and texture redefines modern art. We step inside her bright Madrid studio to discuss her latest abstract exhibits.",
-    category: "Art",
+    id: "street-food-bangkok",
+    title: "The Ultimate Bangkok Street Food Tour",
+    summary: "Dive into the vibrant culinary scene of Thailand's capital. We explore the bustling night markets and hidden alleys to find the best Pad Thai and Mango Sticky Rice.",
+    category: "Experiences",
     date: "November 7, 2024",
     readingTime: "10 min read",
     author: AUTHORS.esther,
-    image: "https://images.unsplash.com/photo-1460661419201-fd4cecdf8a8b?auto=format&fit=crop&w=600&h=600&q=80",
+    image: "https://images.unsplash.com/photo-1504280654497-6a568b20cb37?auto=format&fit=crop&w=800&h=450&q=80",
     trending: true,
     likes: 147,
     content: [

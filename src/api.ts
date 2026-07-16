@@ -357,18 +357,134 @@ export async function deleteRule(id: string): Promise<boolean> {
   return data.success;
 }
 
-export async function reviewArticleWithAi(id: string, model: string): Promise<{ success: boolean; approved: boolean; feedback: string }> {
+export async function reviewArticleWithAi(
+  id: string,
+  model: string,
+  selectedRuleIds?: string[],
+  addedRules?: { name: string; criteria: string }[]
+): Promise<{ success: boolean; approved: boolean; feedback: string }> {
   const response = await fetch(`${API_BASE_URL}/ai/review/${id}`, {
     method: "POST",
     headers: getHeaders({
       "Content-Type": "application/json"
     }),
-    body: JSON.stringify({ model })
+    body: JSON.stringify({ model, selectedRuleIds, addedRules })
   });
   const data = await response.json();
   if (!response.ok) {
     throw new Error(data.error || "AI Article review failed");
   }
   return data;
+}
+
+// Admin / User Management endpoints (Placeholder / Future Implementation)
+export async function fetchUsers(): Promise<any[]> {
+  const response = await fetch(`${API_BASE_URL}/admin/users`, {
+    headers: getHeaders()
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch users");
+  }
+  return response.json();
+}
+
+export async function fetchCategories(): Promise<any[]> {
+  const response = await fetch(`${API_BASE_URL}/admin/categories`, {
+    headers: getHeaders()
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch categories");
+  }
+  return response.json();
+}
+
+export async function createCategory(payload: { name: string; slug?: string; status: string }): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/admin/categories`, {
+    method: "POST",
+    headers: getHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) {
+    throw new Error("Failed to create category");
+  }
+  return response.json();
+}
+
+export async function updateCategory(id: string, payload: { name: string; slug: string; status: string }): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
+    method: "PUT",
+    headers: getHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) {
+    throw new Error("Failed to update category");
+  }
+  return response.json();
+}
+
+export async function deleteCategory(id: string): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
+    method: "DELETE",
+    headers: getHeaders()
+  });
+  if (!response.ok) {
+    throw new Error("Failed to delete category");
+  }
+  return response.json();
+}
+
+export async function fetchSubcategories(): Promise<any[]> {
+  const response = await fetch(`${API_BASE_URL}/admin/subcategories`, {
+    headers: getHeaders()
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch subcategories");
+  }
+  return response.json();
+}
+
+export async function createSubcategory(payload: { name: string; parentName: string; slug?: string; status: string }): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/admin/subcategories`, {
+    method: "POST",
+    headers: getHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) {
+    throw new Error("Failed to create subcategory");
+  }
+  return response.json();
+}
+
+export async function updateSubcategory(id: string, payload: { name: string; parentName: string; slug: string; status: string }): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/admin/subcategories/${id}`, {
+    method: "PUT",
+    headers: getHeaders({ "Content-Type": "application/json" }),
+    body: JSON.stringify(payload)
+  });
+  if (!response.ok) {
+    throw new Error("Failed to update subcategory");
+  }
+  return response.json();
+}
+
+export async function deleteSubcategory(id: string): Promise<any> {
+  const response = await fetch(`${API_BASE_URL}/admin/subcategories/${id}`, {
+    method: "DELETE",
+    headers: getHeaders()
+  });
+  if (!response.ok) {
+    throw new Error("Failed to delete subcategory");
+  }
+  return response.json();
+}
+
+export async function fetchTags(): Promise<any[]> {
+  const response = await fetch(`${API_BASE_URL}/admin/tags`, {
+    headers: getHeaders()
+  });
+  if (!response.ok) {
+    throw new Error("Failed to fetch tags");
+  }
+  return response.json();
 }
 

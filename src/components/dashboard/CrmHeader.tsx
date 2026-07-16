@@ -1,8 +1,4 @@
-/**
- * Author: Deshan Jayashanka
- */
-
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 
 interface CrmHeaderProps {
@@ -16,6 +12,23 @@ export const CrmHeader: React.FC<CrmHeaderProps> = ({
   handleOpenRules,
   handleOpenCreate,
 }) => {
+  const [locationDetails, setLocationDetails] = useState<any>(null);
+
+  useEffect(() => {
+    fetch("https://ipapi.co/json/")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.country_name) {
+          setLocationDetails({
+            country: data.country_name,
+            city: data.city,
+            ip: data.ip
+          });
+        }
+      })
+      .catch((e) => console.error("Failed to fetch location info:", e));
+  }, []);
+
   return (
     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
       <div>
@@ -31,10 +44,18 @@ export const CrmHeader: React.FC<CrmHeaderProps> = ({
         <h1 className="font-serif text-3xl font-black text-neutral-900 dark:text-neutral-55">
           CRM Editorial Board
         </h1>
-        <p className="text-xs text-neutral-400 dark:text-neutral-550 mt-1 font-medium">
-          {currentUser?.role === "SUPER_ADMIN"
-            ? "Super Admin Dashboard - Oversee all submissions, review draft requests, and publish editorial features."
-            : `Author Panel - Hello, ${currentUser?.name}. Manage your contributions and draft write-ups.`}
+        <p className="text-xs text-neutral-400 dark:text-neutral-550 mt-1 font-medium flex items-center gap-3 flex-wrap">
+          <span>
+            {currentUser?.role === "SUPER_ADMIN"
+              ? "Super Admin Dashboard - Oversee all submissions, review draft requests, and publish editorial features."
+              : `Author Panel - Hello, ${currentUser?.name}. Manage your contributions and draft write-ups.`}
+          </span>
+          {locationDetails && (
+            <span className="inline-flex items-center gap-1 bg-emerald-50 dark:bg-emerald-950/20 px-2 py-0.5 rounded-full border border-emerald-250 dark:border-emerald-900 text-emerald-850 dark:text-emerald-400 text-[10px] font-bold">
+              <i className="fa-solid fa-location-dot text-[9px]"></i>
+              <span>Session: {locationDetails.city}, {locationDetails.country}</span>
+            </span>
+          )}
         </p>
       </div>
 

@@ -6,18 +6,21 @@
   font-weight: 400;
   font-style: normal;
 }
+
 @font-face {
   font-family: 'SF Pro Text';
   src: url('./assets/fonts/SF-Pro-Text-Medium.otf') format('opentype');
   font-weight: 500;
   font-style: normal;
 }
+
 @font-face {
   font-family: 'SF Pro Text';
   src: url('./assets/fonts/SF-Pro-Text-Semibold.otf') format('opentype');
   font-weight: 600;
   font-style: normal;
 }
+
 @font-face {
   font-family: 'SF Pro Text';
   src: url('./assets/fonts/SF-Pro-Text-Bold.otf') format('opentype');
@@ -31,18 +34,21 @@
   font-weight: 400;
   font-style: normal;
 }
+
 @font-face {
   font-family: 'SF Pro Display';
   src: url('./assets/fonts/SF-Pro-Display-Medium.otf') format('opentype');
   font-weight: 500;
   font-style: normal;
 }
+
 @font-face {
   font-family: 'SF Pro Display';
   src: url('./assets/fonts/SF-Pro-Display-Semibold.otf') format('opentype');
   font-weight: 600;
   font-style: normal;
 }
+
 @font-face {
   font-family: 'SF Pro Display';
   src: url('./assets/fonts/SF-Pro-Display-Bold.otf') format('opentype');
@@ -61,10 +67,11 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-serif: "Manrope", "SF Pro Display", "Inter", sans-serif;
-  --font-display: "Inter", "SF Pro Display", "Manrope", sans-serif;
-  --font-sans: "Inter", "SF Pro Text", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Poppins", "SF Pro Display", "Inter", sans-serif;
+  --font-display: "Poppins", "SF Pro Display", "Manrope", sans-serif;
+  --font-sans: "Manrope", "SF Pro Text", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
+  /* Old colors kept for compatibility with editor/auth routes */
   --color-sage: #8A9A86;
   --color-sage-light: #F0F3EF;
   --color-sage-dark: #5A6857;
@@ -73,7 +80,6 @@
   --color-warm-surface-dark: #1E221C;
   --color-beige: #F2EEE7;
   --color-charcoal: #232622;
-
   --color-accent-purple: #D8B4FE;
   --color-accent-green: #D9F99D;
   --color-accent-coral: #E76F51;
@@ -83,42 +89,87 @@
   --color-brand-charcoal: #1F1F1F;
   --color-brand-light: #F4F4F3;
   --color-brand-cream: #FCFCFB;
+
+  /* New Travel Blog Variables */
+  --color-page-background: #E9E9E9;
+  --color-surface-primary: #FFFFFF;
+  --color-surface-secondary: #F7F7F7;
+  --color-text-primary: #171717;
+  --color-text-secondary: #686868;
+  --color-text-muted: #8A8A8A;
+  --color-border-light: #E7E7E7;
+  --color-dark-surface: #080808;
+  --color-dark-surface-secondary: #202020;
+
+  --radius-small: 6px;
+  --radius-medium: 10px;
+  --radius-large: 14px;
+  --radius-pill: 999px;
+
+  --shadow-subtle: 0 8px 24px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 12px 30px rgba(0, 0, 0, 0.10);
 }
 
 /* Redesign Form Inputs & Text Fields globally */
-input, textarea, select, [data-slot="input"], [data-slot="textarea"], [data-slot="select"] {
+input,
+textarea,
+select,
+[data-slot="input"],
+[data-slot="textarea"],
+[data-slot="select"] {
   font-family: "Inter", sans-serif !important;
-  border-radius: 16px !important;
+  border-radius: 12px !important;
   border: 1px solid var(--border) !important;
   background-color: var(--color-warm-surface) !important;
   color: var(--color-brand-charcoal) !important;
   padding: 0.625rem 1rem !important;
 }
 
-.dark input, .dark textarea, .dark select, .dark [data-slot="input"], .dark [data-slot="textarea"], .dark [data-slot="select"] {
+.dark input,
+.dark textarea,
+.dark select,
+.dark [data-slot="input"],
+.dark [data-slot="textarea"],
+.dark [data-slot="select"] {
   background-color: var(--color-warm-surface-dark) !important;
   color: #f3f4f6 !important;
   border-color: rgba(255, 255, 255, 0.1) !important;
 }
 
 /* Global Heading Overrides for Calm & Spacious Aesthetics */
-h1, h2, h3, h4, h5, h6, .font-serif, .font-display {
-  font-weight: 550 !important; /* medium/semi-bold */
-  line-height: 1.45 !important; /* generous line height */
-  letter-spacing: 0.015em !important; /* subtle letter spacing */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.font-serif,
+.font-display {
+  font-weight: 550 !important;
+  /* medium/semi-bold */
+  line-height: 1.45 !important;
+  /* generous line height */
+  letter-spacing: 0.015em !important;
+  /* subtle letter spacing */
 }
 
 /* Thin-line Icons styling */
-svg.lucide, .lucide {
+svg.lucide,
+.lucide {
   stroke-width: 1.5px !important;
   stroke: var(--color-charcoal) !important;
 }
-.dark svg.lucide, .dark .lucide {
+
+.dark svg.lucide,
+.dark .lucide {
   stroke: var(--color-sage-light) !important;
 }
 
 /* Tags & Chips Override */
-.editorial-tag, .chip, [data-slot="badge"], .tag {
+.editorial-tag,
+.chip,
+[data-slot="badge"],
+.tag {
   border-radius: 9999px !important;
   font-size: 0.7rem !important;
   font-weight: 600 !important;
@@ -133,7 +184,8 @@ svg.lucide, .lucide {
   gap: 0.25rem;
 }
 
-.editorial-tag-sage, .tag-sage {
+.editorial-tag-sage,
+.tag-sage {
   background-color: var(--color-sage-light) !important;
   color: var(--color-sage-dark) !important;
 }
@@ -141,9 +193,11 @@ svg.lucide, .lucide {
 /* Peaceful Editorial Images */
 img {
   border-radius: 20px;
-  filter: sepia(0.08) contrast(0.95) brightness(1.02); /* Warm, peaceful editorial filter */
+  filter: sepia(0.08) contrast(0.95) brightness(1.02);
+  /* Warm, peaceful editorial filter */
   transition: filter 0.3s ease, transform 0.3s ease;
 }
+
 img:hover {
   filter: sepia(0) contrast(1) brightness(1);
 }
@@ -152,17 +206,20 @@ img:hover {
   body {
     @apply antialiased selection:bg-accent-coral/20 bg-background text-foreground;
     font-family: var(--font-sans);
-    background-color: var(--color-brand-light);
-    color: var(--color-brand-dark);
+    background-color: var(--color-page-background);
+    /* Updated for redesign */
+    color: var(--color-text-primary);
   }
 
   .dark body {
     background-color: var(--color-brand-dark);
     color: #F3F4F6;
   }
+
   * {
     @apply border-border outline-ring/50;
   }
+
   html {
     @apply font-sans;
   }
@@ -176,6 +233,7 @@ img:hover {
   border: 1px solid rgba(0, 0, 0, 0.03) !important;
   transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .editorial-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06) !important;
@@ -196,11 +254,13 @@ img:hover {
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
   transition: all 0.2s ease-in-out;
 }
+
 .editorial-btn:hover {
   background-color: var(--color-sage-dark) !important;
   color: #ffffff !important;
   transform: translateY(-1px);
 }
+
 .editorial-btn:active {
   transform: translateY(1px);
 }
@@ -215,13 +275,16 @@ img:hover {
   width: 4px;
   height: 4px;
 }
+
 .thin-scrollbar::-webkit-scrollbar-track {
   background: transparent;
 }
+
 .thin-scrollbar::-webkit-scrollbar-thumb {
   background: #E5E7EB;
   border-radius: 9999px;
 }
+
 .dark .thin-scrollbar::-webkit-scrollbar-thumb {
   background: #374151;
 }
@@ -233,6 +296,7 @@ img:hover {
   font-size: 1.125rem;
   color: #374151;
 }
+
 .dark .editorial-prose p {
   color: #D1D5DB;
 }
@@ -247,6 +311,7 @@ img:hover {
   margin: 2rem 0;
   color: var(--color-brand-dark);
 }
+
 .dark .editorial-prose blockquote {
   border-left-color: #F3F4F6;
   color: #F3F4F6;
@@ -372,10 +437,336 @@ img:hover {
   font-family: "Poppins", sans-serif !important;
   transition: all 0.2s ease-in-out;
 }
+
 .editor-component-base::placeholder {
   font-size: 10px !important;
 }
+
 textarea.editor-component-base {
   height: auto !important;
   min-height: 42px;
+}
+
+/* Sidebar dark panel Lucide icons color/width override */
+aside svg.lucide,
+aside .lucide {
+  stroke: currentColor !important;
+  stroke-width: inherit !important;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   PREMIUM CUSTOM DESIGN SYSTEM (FROM STYLE REF)
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --primary: #111111;
+  --primary-hover: #1f1f1f;
+  --primary-light: #F3F4F6;
+  --primary-ring: rgba(17, 17, 17, 0.08);
+
+  --purple: #6011E8;
+  --purple-hover: #4e0cc4;
+  --purple-light: #F0E8FF;
+  --purple-ring: rgba(96, 17, 232, 0.12);
+
+  --teal: #3B82F6;
+  --teal-hover: #2563EB;
+  --teal-light: #e6f7f6;
+  --teal-ring: rgba(59, 130, 246, 0.12);
+
+  --navy: #2563EB;
+  --navy-mid: #3B82F6;
+
+  --sidebar-bg: #0e1520;
+  --sidebar-unselected-text: #94a3b8;
+  --sidebar-selected-bg: #ffffff;
+  --sidebar-selected-text: #0e1520;
+
+  --bg-page: #f4f6f9;
+  --bg-card: #ffffff;
+  --bg-input: #f8fafd;
+  --bg-hover: #f0f4fa;
+
+  --border: #e4e4e7;
+  --border-strong: #b0bdd0;
+
+  --text-primary: #0d1b2e;
+  --text-secondary: #5a6e88;
+  --text-muted: #9aaabb;
+  --text-label: #3d5270;
+
+  --success: #22C55E;
+  --success-light: #f0fdf4;
+  --warning: #F59E0B;
+  --warning-light: #fffbeb;
+  --danger: #EF4444;
+  --danger-light: #fef2f2;
+
+  --radius-sm: 8px;
+  --radius: 10px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
+
+  --shadow-xs: 0 1px 3px rgba(13, 27, 46, 0.06);
+  --shadow-sm: 0 2px 8px rgba(13, 27, 46, 0.08);
+  --shadow-md: 0 4px 16px rgba(13, 27, 46, 0.10);
+  --shadow-lg: 0 8px 28px rgba(13, 27, 46, 0.12);
+}
+
+.inputField-custom {
+  height: 42px !important;
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  padding: 0 14px !important;
+  font-size: 12.5px !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 450;
+  color: var(--text-primary) !important;
+  background-color: var(--bg-input) !important;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease !important;
+  box-shadow: var(--shadow-xs) !important;
+  line-height: 1.5;
+}
+
+.inputField-custom:hover {
+  border-color: var(--border-strong) !important;
+  background-color: #ffffff !important;
+}
+
+.inputField-custom:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-ring) !important;
+  background-color: #ffffff !important;
+  outline: none !important;
+}
+
+.inputField-custom::placeholder {
+  color: var(--text-muted) !important;
+  font-weight: 400 !important;
+}
+
+.textareaField-custom {
+  border: 1.5px solid var(--border) !important;
+  border-radius: var(--radius) !important;
+  padding: 10px 14px !important;
+  font-size: 12.5px !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-weight: 450;
+  color: var(--text-primary) !important;
+  background: var(--bg-input) !important;
+  min-height: 80px !important;
+  resize: vertical !important;
+  width: 100% !important;
+  transition: border-color 0.2s, box-shadow 0.2s, background 0.2s !important;
+  box-shadow: var(--shadow-xs) !important;
+  line-height: 1.6 !important;
+}
+
+.textareaField-custom:hover {
+  border-color: var(--border-strong) !important;
+  background: #fff !important;
+}
+
+.textareaField-custom:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-ring) !important;
+  background: #fff !important;
+  outline: none !important;
+}
+
+.textareaField-custom::placeholder {
+  color: var(--text-muted) !important;
+  font-weight: 400 !important;
+}
+
+.selectField-custom,
+.customDropdown,
+.borderedSelect {
+  border-radius: var(--radius) !important;
+  background-color: var(--bg-input) !important;
+  border: 1.5px solid var(--border) !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 12.5px !important;
+  font-weight: 450 !important;
+  height: 42px !important;
+  padding: 0 10px !important;
+  transition: border-color 0.2s, box-shadow 0.2s !important;
+  color: var(--text-primary) !important;
+}
+
+.selectField-custom:hover,
+.customDropdown:hover,
+.borderedSelect:hover {
+  border-color: var(--border-strong) !important;
+}
+
+.selectField-custom:focus,
+.customDropdown:focus,
+.borderedSelect:focus {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-ring) !important;
+  outline: none !important;
+}
+
+.main-button {
+  height: 40px !important;
+  padding: 0 20px !important;
+  border-radius: var(--radius) !important;
+  background: linear-gradient(135deg, var(--primary) 0%, #000000 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.15) !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+}
+
+.main-button:hover {
+  background: linear-gradient(135deg, var(--primary-hover) 0%, #111111 100%) !important;
+  box-shadow: 0 5px 16px rgba(0, 0, 0, 0.25) !important;
+  transform: translateY(-1px) !important;
+}
+
+.main-button:active {
+  transform: translateY(0) !important;
+}
+
+.secondary-button {
+  height: 40px !important;
+  padding: 0 20px !important;
+  border-radius: var(--radius) !important;
+  background: #ffffff !important;
+  border: 1.5px solid var(--border) !important;
+  color: var(--text-secondary) !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+}
+
+.secondary-button:hover {
+  background: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: var(--text-primary) !important;
+  transform: translateY(-1px) !important;
+}
+
+.danger-button {
+  height: 40px !important;
+  padding: 0 20px !important;
+  border-radius: var(--radius) !important;
+  background: linear-gradient(135deg, #dc3545 0%, #e05565 100%) !important;
+  border: none !important;
+  color: #ffffff !important;
+  font-family: 'Poppins', sans-serif !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  box-shadow: 0 3px 10px rgba(220, 53, 69, 0.25) !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+}
+
+.danger-button:hover {
+  box-shadow: 0 5px 16px rgba(220, 53, 69, 0.38) !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Premium Modals */
+.custom-modal-content {
+  border-radius: 16px !important;
+  overflow: hidden !important;
+  background: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+.custom-modal-header {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  padding: 15px 20px !important;
+  margin: 0px !important;
+  background: linear-gradient(180deg, var(--primary) 0%, #000000 100%) !important;
+  border-bottom: 1px solid var(--border) !important;
+  border-radius: 16px 16px 0 0 !important;
+  overflow: hidden !important;
+}
+
+.custom-modal-title-area {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 2px !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.custom-modal-title-area h2 {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: "Poppins", sans-serif !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #ffffff !important;
+  line-height: 1.2 !important;
+  letter-spacing: 0.5px !important;
+  text-transform: uppercase !important;
+}
+
+.custom-modal-title-area p {
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: "Poppins", sans-serif !important;
+  font-size: 11px !important;
+  color: #e3e3e3 !important;
+  text-transform: capitalize !important;
+  letter-spacing: 0.5px !important;
+  font-weight: 400 !important;
+}
+
+.custom-modal-close {
+  width: 28px !important;
+  height: 28px !important;
+  border: none !important;
+  border-radius: 8px !important;
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 11px !important;
+  transition: all 0.2s !important;
+}
+
+.custom-modal-close:hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #ffffff !important;
+}
+
+/* Button Lucide icons color/width override */
+.main-button svg.lucide,
+.main-button .lucide,
+.danger-button svg.lucide,
+.danger-button .lucide,
+.second-main-button svg.lucide,
+.second-main-button .lucide,
+.secondary-button svg.lucide,
+.secondary-button .lucide {
+  stroke: currentColor !important;
+  stroke-width: 2px !important;
 }

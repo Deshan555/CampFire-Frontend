@@ -5,6 +5,7 @@
 import React from "react";
 import Markdown from "../Markdown";
 import type { Article } from "../../data/articles";
+import type { ReviewRule } from "../../api";
 
 interface AiReviewModalProps {
   isReviewModalOpen: boolean;
@@ -13,12 +14,16 @@ interface AiReviewModalProps {
   reviewArticleTitle: string;
   reviewModel: string;
   setReviewModel: (val: string) => void;
-  handleRunAiReview: () => void;
+  handleRunAiReview: (
+    selectedRuleIds: string[],
+    addedRules: { name: string; criteria: string }[]
+  ) => void;
   reviewResult: { approved: boolean; feedback: string } | null;
   setReviewResult: (val: any) => void;
   reviewArticleId: string | null;
   articles: Article[];
   handleOpenEdit: (art: Article) => void;
+  rules: ReviewRule[];
 }
 
 export const AiReviewModal: React.FC<AiReviewModalProps> = ({
@@ -34,8 +39,31 @@ export const AiReviewModal: React.FC<AiReviewModalProps> = ({
   reviewArticleId,
   articles,
   handleOpenEdit,
+  rules,
 }) => {
+  const [selectedRuleIds, setSelectedRuleIds] = React.useState<string[]>([]);
+  const [addedRules, setAddedRules] = React.useState<{ name: string; criteria: string }[]>([]);
+  const [newRuleName, setNewRuleName] = React.useState("");
+  const [newRuleCriteria, setNewRuleCriteria] = React.useState("");
+
+  // Initialize and reset selections when modal opens
+  React.useEffect(() => {
+    if (isReviewModalOpen && rules) {
+      // Pre-select rules that are active by default
+      setSelectedRuleIds(
+        rules.filter((r) => r.is_active && r.id).map((r) => r.id as string)
+      );
+      setAddedRules([]);
+      setNewRuleName("");
+      setNewRuleCriteria("");
+    }
+  }, [isReviewModalOpen, rules]);
+
   if (!isReviewModalOpen) return null;
+
+  const handleStartReview = () => {
+    handleRunAiReview(selectedRuleIds, addedRules);
+  };
 
   return (
     <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4 select-none animate-fade-in backdrop-blur-sm">
@@ -50,7 +78,7 @@ export const AiReviewModal: React.FC<AiReviewModalProps> = ({
           <button
             disabled={isReviewing}
             onClick={() => setIsReviewModalOpen(false)}
-            className="w-8 h-8 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center justify-center transition-colors cursor-pointer border-none text-neutral-505 disabled:opacity-30"
+            className="w-8 h-8 rounded-full hover:bg-neutral-100 dark:hover:bg-neutral-800 flex items-center justify-center transition-colors cursor-pointer border-none text-neutral-500 disabled:opacity-30"
           >
             <i className="fa-solid fa-xmark text-sm"></i>
           </button>
@@ -75,7 +103,7 @@ export const AiReviewModal: React.FC<AiReviewModalProps> = ({
                 <select
                   value={reviewModel}
                   onChange={(e) => setReviewModel(e.target.value)}
-                  className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                  className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
                 >
                   <option value="gemma3:1b">Gemma 3 1B (Lightweight & Quick)</option>
                   <option value="llama3.2:latest">Llama 3.2 3B (Precise Reasoning)</option>
@@ -84,16 +112,137 @@ export const AiReviewModal: React.FC<AiReviewModalProps> = ({
                 </select>
               </div>
 
+              {/* Rules selection checklist */}
+              <div className="space-y-2">
+                <label className="block text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+                  Select Editorial Rules to Apply
+                </label>
+                <div className="space-y-2 max-h-[160px] overflow-y-auto border border-neutral-200 dark:border-neutral-800 rounded-xl p-3 bg-neutral-50/50 dark:bg-neutral-900/10">
+                  {rules && rules.length > 0 ? (
+                    rules.map((rule) => (
+                      <label
+                        key={rule.id}
+                        className="flex items-start gap-2.5 p-2 rounded-lg hover:bg-neutral-150 dark:hover:bg-neutral-800 cursor-pointer select-none"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedRuleIds.includes(rule.id as string)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedRuleIds([...selectedRuleIds, rule.id as string]);
+                            } else {
+                              setSelectedRuleIds(
+                                selectedRuleIds.filter((id) => id !== rule.id)
+                              );
+                            }
+                          }}
+                          className="mt-0.5 cursor-pointer accent-accent-purple"
+                        />
+                        <div className="text-xs">
+                          <span className="font-bold text-neutral-800 dark:text-neutral-200 block">
+                            {rule.name} {!rule.is_active && (
+                              <span className="text-[10px] bg-neutral-200 dark:bg-neutral-850 px-1 py-0.5 rounded text-neutral-550 font-normal ml-1">Inactive</span>
+                            )}
+                          </span>
+                          <span className="text-neutral-500 text-[11px] block mt-0.5">
+                            {rule.criteria}
+                          </span>
+                        </div>
+                      </label>
+                    ))
+                  ) : (
+                    <p className="text-neutral-500 italic text-[11px] text-center py-2">
+                      No review rules configured in database.
+                    </p>
+                  )}
+                </div>
+              </div>
+
+              {/* Add temporary rule */}
+              <div className="space-y-3 pt-3 border-t border-neutral-100 dark:border-neutral-800">
+                <label className="block text-[11px] font-bold text-neutral-500 uppercase tracking-wider">
+                  Add Custom Temporary Rule for this Review
+                </label>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input
+                    type="text"
+                    placeholder="Rule Name (e.g. Tone Check)"
+                    value={newRuleName}
+                    onChange={(e) => setNewRuleName(e.target.value)}
+                    className="px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Criteria (e.g. Must be conversational)"
+                    value={newRuleCriteria}
+                    onChange={(e) => setNewRuleCriteria(e.target.value)}
+                    className="px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (newRuleName.trim() && newRuleCriteria.trim()) {
+                      setAddedRules([
+                        ...addedRules,
+                        { name: newRuleName.trim(), criteria: newRuleCriteria.trim() },
+                      ]);
+                      setNewRuleName("");
+                      setNewRuleCriteria("");
+                    }
+                  }}
+                  className="py-1.5 px-4 bg-accent-purple/10 text-accent-purple hover:bg-accent-purple/20 text-[11px] font-bold rounded-lg border-none cursor-pointer transition-colors text-left inline-block"
+                >
+                  + Add Temporary Rule
+                </button>
+
+                {addedRules.length > 0 && (
+                  <div className="space-y-1.5 mt-2">
+                    <span className="block text-[10px] font-bold text-neutral-500 uppercase tracking-wider">
+                      Temporary Rules to Apply:
+                    </span>
+                    <div className="space-y-1 bg-purple-50/20 dark:bg-purple-950/10 p-2.5 border border-accent-purple/20 rounded-xl">
+                      {addedRules.map((rule, idx) => (
+                        <div
+                          key={idx}
+                          className="flex items-center justify-between text-xs py-1.5 border-b border-neutral-100/50 dark:border-neutral-800/30 last:border-0"
+                        >
+                          <div>
+                            <span className="font-bold text-neutral-800 dark:text-neutral-200">
+                              {rule.name}:{" "}
+                            </span>
+                            <span className="text-neutral-500 dark:text-neutral-400">
+                              {rule.criteria}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setAddedRules(addedRules.filter((_, i) => i !== idx))
+                            }
+                            className="text-red-500 hover:text-red-700 bg-transparent border-none cursor-pointer text-xs"
+                          >
+                            <i className="fa-solid fa-trash-can"></i>
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <div className="bg-neutral-50/50 dark:bg-neutral-900/10 p-4 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl space-y-1 text-neutral-500">
-                <p className="text-[10px] uppercase font-bold tracking-wide">About Agentic Review:</p>
+                <p className="text-[10px] uppercase font-bold tracking-wide">
+                  About Agentic Review:
+                </p>
                 <p className="text-[11px] leading-relaxed">
-                  The AI agent will analyze the article content against all active review rules set in your configurations. If the article passes, it will be automatically published. If it fails, the AI will document rule violations in detail.
+                  The AI agent will analyze the article content against the selected and temporary rules. If the article passes, it will be automatically published. If it fails, the AI will document rule violations in detail.
                 </p>
               </div>
 
               <button
                 disabled={isReviewing}
-                onClick={handleRunAiReview}
+                onClick={handleStartReview}
                 className="w-full py-3 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-bold rounded-full hover:opacity-90 disabled:opacity-60 transition-all flex items-center justify-center gap-2 cursor-pointer border-none"
               >
                 {isReviewing ? (

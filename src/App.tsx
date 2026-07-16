@@ -1,22 +1,23 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
-import Banner from "./components/Banner";
-import Navbar from "./components/Navbar";
-import FeaturedArticle from "./components/FeaturedArticle";
+import HeroSection from "./components/HeroSection";
+import HeroNavigation from "./components/HeroNavigation";
+import BlogToolbar from "./components/BlogToolbar";
 import ArticleGrid from "./components/ArticleGrid";
+import Pagination from "./components/Pagination";
+import PromotionalSection from "./components/PromotionalSection";
+import Footer from "./components/Footer";
+
+// Existing pages
 import ArticlePage from "./pages/ArticlePage";
 import CrmDashboard from "./pages/CrmDashboard";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminRegisterPage from "./pages/AdminRegisterPage";
+import AdminDashboard from "./pages/AdminDashboard";
 import AiWriterPage from "./pages/AiWriterPage";
 import CanvesAnimationShowcase from "./components/canves-animations";
-import PodcastWidget from "./components/PodcastWidget";
-import ArtistSpotlight from "./components/ArtistSpotlight";
-import NewsletterSignup from "./components/NewsletterSignup";
-import MustSeeMoments from "./components/MustSeeMoments";
-import Footer from "./components/Footer";
-import FloatingBottomNav from "./components/FloatingBottomNav";
+
 import { fetchArticles } from "./api";
 import type { Article } from "./data/articles";
 
@@ -25,28 +26,15 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
-  const [darkMode, setDarkMode] = useState(false);
-
-  // Load theme from localStorage or system preference
-  useEffect(() => {
-    const savedTheme = localStorage.getItem("theme");
-    const systemPrefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    
-    if (savedTheme === "dark" || (!savedTheme && systemPrefersDark)) {
-      setDarkMode(true);
-      document.documentElement.classList.add("dark");
-    } else {
-      setDarkMode(false);
-      document.documentElement.classList.remove("dark");
-    }
-  }, []);
+  const [currentPage, setCurrentPage] = useState(1);
+  const user = null; // Placeholder for auth state
 
   const location = useLocation();
 
-  // Fetch articles from Express backend on mount or when navigating to home
+  // Fetch articles from Express backend on mount
   useEffect(() => {
     let active = true;
-    if (location.pathname === "/") {
+    if (articles.length === 0) {
       setLoading(true);
       fetchArticles()
         .then((data) => {
@@ -56,247 +44,132 @@ function App() {
           }
         })
         .catch((err) => {
-          console.error("⚠️ Error loading articles from server:", err);
-          if (active) {
-            setLoading(false);
-          }
+          console.error("⚠️ Error loading articles:", err);
+          if (active) setLoading(false);
         });
-    } else {
-      if (articles.length === 0) {
-        fetchArticles()
-          .then((data) => {
-            if (active) {
-              setArticles(data);
-              setLoading(false);
-            }
-          })
-          .catch((err) => {
-            console.error("⚠️ Error loading articles from server:", err);
-            if (active) {
-              setLoading(false);
-            }
-          });
-      } else {
-        setLoading(false);
-      }
     }
     return () => {
       active = false;
     };
-  }, [location.pathname]);
+  }, [articles.length]);
 
-  const handleToggleDarkMode = () => {
-    if (darkMode) {
-      document.documentElement.classList.remove("dark");
-      localStorage.setItem("theme", "light");
-      setDarkMode(false);
-    } else {
-      document.documentElement.classList.add("dark");
-      localStorage.setItem("theme", "dark");
-      setDarkMode(true);
-    }
-  };
+  // Find featured articles for hero carousel
+  const featuredArticles = articles.filter(a => a.featured).slice(0, 4);
+  const heroArticles = featuredArticles.length > 0 ? featuredArticles : articles.slice(0, 4);
 
-  // Find the featured article from dynamic dataset
-  const featuredArticle = articles.find((a) => a.featured) || articles[0];
+  // Derive categories
+  const categories = ["All", "Destinations", "Guides", "Experiences", "Art", "Design"];
 
   // Filtering logic
   const filteredArticles = articles.filter((article) => {
-    const matchesCategory =
-      selectedCategory === "All" ||
-      (selectedCategory === "Trending" ? article.trending : article.category === selectedCategory);
-
+    const matchesCategory = selectedCategory === "All" || article.category === selectedCategory;
     const matchesSearch =
       article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
       article.author.name.toLowerCase().includes(searchQuery.toLowerCase());
-
     return matchesCategory && matchesSearch;
   });
 
-  const showLayout = location.pathname !== "/ai-writer" && location.pathname !== "/editor";
+  // Pagination logic
+  const itemsPerPage = 6;
+  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage) || 1;
+  const paginatedArticles = filteredArticles.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const showLayout = location.pathname !== "/ai-writer" && location.pathname !== "/editor" && location.pathname !== "/login" && location.pathname !== "/register" && location.pathname !== "/admin/register" && !location.pathname.startsWith("/admin");
+  const isHome = location.pathname === "/";
 
   return (
-    <div className={`min-h-screen flex flex-col bg-white dark:bg-brand-dark transition-colors duration-300 ${showLayout ? "pb-24" : ""}`}>
-      {/* 1. Global Banner */}
-      {showLayout && <Banner />}
-
-      {/* 2. Top Header Navbar */}
-      {showLayout && (
-        <Navbar
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          darkMode={darkMode}
-          onToggleDarkMode={handleToggleDarkMode}
-          selectedCategory={selectedCategory}
-          onSelectCategory={setSelectedCategory}
-        />
+    <div className={`min-h-screen flex flex-col w-full bg-white transition-colors duration-300 font-sans`}>
+      
+      {/* If it's not the home page, but we want the layout, show a standalone navigation */}
+      {showLayout && !isHome && (
+        <div className="w-full bg-[#111] mb-6">
+          <HeroNavigation 
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            user={user}
+          />
+        </div>
       )}
 
-      {/* 3. Routing Layer */}
-      <Routes>
-        {/* Home Feed Route */}
-        <Route
-          path="/"
-          element={
-            <div className="flex-1 w-full bg-brand-light dark:bg-brand-dark flex flex-col">
-              {loading ? (
-                <div className="py-48 text-center flex flex-col items-center justify-center flex-grow">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-neutral-900 dark:border-white mb-4"></div>
-                  <p className="font-serif italic text-xs text-neutral-500 uppercase tracking-widest">
-                    Loading CANVES Edition...
-                  </p>
-                </div>
-              ) : searchQuery !== "" || (selectedCategory !== "All" && selectedCategory !== "Trending") ? (
-                /* Dynamic filtered search / category list */
-                <main className="max-w-[1400px] w-full mx-auto p-6 md:p-8 flex flex-col gap-6 flex-grow">
-                  <div className="text-left border-b-[1.5px] border-brand-dark pb-4 mb-4 mt-6">
-                    <span className="text-[10px] text-accent-coral uppercase tracking-widest font-extrabold font-display block mb-1">
-                      Category Feed
-                    </span>
-                    <h2 className="font-serif font-black text-3xl leading-tight text-neutral-900 dark:text-white uppercase tracking-tight">
-                      {searchQuery !== "" ? `Search results for "${searchQuery}"` : `${selectedCategory} Articles`}
-                    </h2>
-                  </div>
-
-                  {filteredArticles.length === 0 ? (
-                    <div className="py-24 text-center border-[1.5px] border-brand-dark rounded-xl bg-brand-cream dark:bg-brand-charcoal text-neutral-500 dark:text-neutral-400 p-8 shadow-[3px_3px_0px_0px_#111]">
-                      <p className="font-serif text-lg italic">No articles found matching your criteria.</p>
-                      <button
-                        onClick={() => { setSearchQuery(""); setSelectedCategory("All"); }}
-                        className="mt-6 px-6 py-2.5 bg-neutral-900 dark:bg-white text-white dark:text-neutral-950 text-xs font-semibold rounded-md border border-neutral-900 hover:opacity-90 cursor-pointer"
-                      >
-                        Reset Filters
-                      </button>
+      {showLayout ? (
+        <div className="w-full bg-white overflow-hidden flex flex-col min-h-screen">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <div className="flex flex-col flex-1">
+                  {loading ? (
+                    <div className="py-48 flex justify-center items-center flex-grow">
+                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
                     </div>
                   ) : (
-                    <ArticleGrid articles={filteredArticles} />
-                  )}
-                </main>
-              ) : (
-                /* Editorial inspired print layout */
-                <>
-                  {/* Big homepage title brand banner */}
-                  <div className="w-full bg-brand-charcoal text-white pt-10 pb-6 px-6 select-none border-b border-neutral-900">
-                    <div className="max-w-[1400px] mx-auto flex flex-col md:flex-row justify-between items-start md:items-end gap-6 border-b border-neutral-800 pb-8">
-                      <div className="text-left">
-                        <h1 className="font-display font-black text-6xl sm:text-7xl md:text-8xl lg:text-10xl leading-[0.85] tracking-tighter uppercase">
-                          THE CANVES
-                        </h1>
-                        <p className="text-xs text-accent-coral uppercase tracking-widest font-extrabold font-display mt-3.5 pl-1.5">
-                          Blog about art music design.
-                        </p>
-                      </div>
+                    <>
+                      <HeroSection 
+                        articles={heroArticles} 
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        user={user}
+                      />
                       
-                      {/* Social Audio buttons */}
-                      <div className="flex gap-3 shrink-0 mb-1">
-                        <button className="w-9 h-9 rounded-full bg-accent-coral hover:bg-accent-coral-dark text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-md" title="Soundcloud">
-                          <i className="fa-brands fa-soundcloud text-base"></i>
-                        </button>
-                        <button className="w-9 h-9 rounded-full bg-accent-coral hover:bg-accent-coral-dark text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 shadow-md" title="Spotify">
-                          <i className="fa-brands fa-spotify text-base"></i>
-                        </button>
+                      <div className="px-6 md:px-12 flex-1 flex flex-col max-w-[1400px] mx-auto w-full">
+                        <div className="mb-6 mt-4">
+                          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-2">Blog</h2>
+                          <p className="text-gray-500 text-sm">Here, we share travel tips, destination guides, and stories that inspire your next adventure.</p>
+                        </div>
+                        <BlogToolbar 
+                          categories={categories}
+                          selectedCategory={selectedCategory}
+                          onSelectCategory={(cat) => {
+                            setSelectedCategory(cat);
+                            setCurrentPage(1); // Reset to page 1 on filter
+                          }}
+                        />
+                        
+                        {paginatedArticles.length === 0 ? (
+                          <div className="py-24 text-center text-gray-500 font-medium">
+                            No articles found matching your criteria.
+                          </div>
+                        ) : (
+                          <ArticleGrid articles={paginatedArticles} />
+                        )}
+                        
+                        {filteredArticles.length > 0 && (
+                           <Pagination 
+                             currentPage={currentPage}
+                             totalPages={totalPages}
+                             onPageChange={setCurrentPage}
+                           />
+                        )}
+
+                        <PromotionalSection />
                       </div>
-                    </div>
-                  </div>
+                    </>
+                  )}
+                </div>
+              }
+            />
+            <Route path="/article/:id" element={<ArticlePage />} />
+            <Route path="/animation-showcase" element={<CanvesAnimationShowcase />} />
+          </Routes>
+          
+          <Footer />
+        </div>
+      ) : (
+        <Routes>
+          <Route path="/admin/*" element={<AdminDashboard />} />
+          <Route path="/editor" element={<CrmDashboard />} />
+          <Route path="/ai-writer" element={<AiWriterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/admin/register" element={<AdminRegisterPage />} />
+        </Routes>
+      )}
 
-                  {/* Horizontal featured article block */}
-                  <FeaturedArticle article={featuredArticle} />
-
-                  {/* Podcast block */}
-                  <PodcastWidget />
-
-                  {/* Artist Spotlight block */}
-                  <ArtistSpotlight articles={articles} />
-
-                  {/* Newsletter block */}
-                  <NewsletterSignup />
-
-                  {/* Must-See Moments bottom block */}
-                  <MustSeeMoments articles={articles} />
-                </>
-              )}
-            </div>
-          }
-        />
-
-        {/* Dedicated Full Page Article View */}
-        <Route
-          path="/article/:id"
-          element={
-            <div className="flex-1 bg-white dark:bg-brand-dark">
-              <ArticlePage />
-            </div>
-          }
-        />
-
-        {/* CRM Dashboard Route */}
-        <Route
-          path="/editor"
-          element={
-            <div className="flex-1 bg-white dark:bg-brand-dark">
-              <CrmDashboard />
-            </div>
-          }
-        />
-
-        {/* Public AI Writer Playground Route */}
-        <Route
-          path="/ai-writer"
-          element={
-            <div className="flex-1 bg-white dark:bg-brand-dark">
-              <AiWriterPage />
-            </div>
-          }
-        />
-
-        {/* Editor Login Route */}
-        <Route
-          path="/login"
-          element={
-            <div className="flex-1 bg-white dark:bg-brand-dark">
-              <LoginPage />
-            </div>
-          }
-        />
-
-        {/* Reader Register Route */}
-        <Route
-          path="/register"
-          element={
-            <div className="flex-1 bg-white dark:bg-brand-dark">
-              <RegisterPage />
-            </div>
-          }
-        />
-
-        {/* Admin Register Route */}
-        <Route
-          path="/admin/register"
-          element={
-            <div className="flex-1 bg-white dark:bg-brand-dark">
-              <AdminRegisterPage />
-            </div>
-          }
-        />
-
-        {/* Animation Showcase Route */}
-        <Route
-          path="/animation-showcase"
-          element={
-            <div className="flex-1">
-              <CanvesAnimationShowcase />
-            </div>
-          }
-        />
-      </Routes>
-
-      {/* 4. Global Footer */}
-      {showLayout && <Footer />}
-
-      {/* 5. Floating Bottom Nav */}
-      {showLayout && <FloatingBottomNav />}
     </div>
   );
 }

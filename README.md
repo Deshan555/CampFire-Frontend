@@ -462,12 +462,15 @@ export async function generateAiArticle(payload: {
 
 // AI review an article against editorial rules
 export async function reviewArticleWithAi(
-  id: string, model: string
+  id: string,
+  model: string,
+  selectedRuleIds?: string[],
+  addedRules?: { name: string; criteria: string }[]
 ): Promise<{ success: boolean; approved: boolean; feedback: string }> {
   const response = await fetch(`${API_BASE_URL}/ai/review/${id}`, {
     method: "POST",
     headers: getHeaders({ "Content-Type": "application/json" }),
-    body: JSON.stringify({ model })
+    body: JSON.stringify({ model, selectedRuleIds, addedRules })
   });
   return response.json();
 }

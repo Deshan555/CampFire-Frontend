@@ -23,6 +23,14 @@ interface ArticleFormDrawerProps {
   setFormSummary: (summary: string) => void;
   formCategory: string;
   setFormCategory: (category: string) => void;
+  categoriesList: any[];
+  subcategoriesList: any[];
+  formSubcategory: string;
+  setFormSubcategory: (val: string) => void;
+  formHashtags: string[];
+  setFormHashtags: React.Dispatch<React.SetStateAction<string[]>>;
+  formTargetCountries: string[];
+  setFormTargetCountries: React.Dispatch<React.SetStateAction<string[]>>;
   formImage: string;
   setFormImage: (image: string) => void;
   formImageUrls: string[];
@@ -66,6 +74,7 @@ interface ArticleFormDrawerProps {
   setAiInstructions: (instr: string) => void;
   aiError: string;
   aiSuccess: string;
+  aiImagePrompts?: string[];
   handleRunAiWriter: () => void;
 }
 
@@ -84,6 +93,14 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
   setFormSummary,
   formCategory,
   setFormCategory,
+  categoriesList,
+  subcategoriesList,
+  formSubcategory,
+  setFormSubcategory,
+  formHashtags,
+  setFormHashtags,
+  formTargetCountries,
+  setFormTargetCountries,
   formImage,
   setFormImage,
   formImageUrls,
@@ -125,9 +142,49 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
   setAiInstructions,
   aiError,
   aiSuccess,
+  aiImagePrompts,
   handleRunAiWriter,
 }) => {
   const [activeTab, setActiveTab] = React.useState<'ai' | 'manual'>(editingArticle ? 'manual' : 'ai');
+
+  const [newHashtag, setNewHashtag] = React.useState("");
+
+  const handleAddHashtag = (e: React.KeyboardEvent | React.MouseEvent) => {
+    if (e.type === 'keydown' && (e as React.KeyboardEvent).key !== 'Enter') return;
+    e.preventDefault();
+    
+    let tag = newHashtag.trim();
+    if (!tag) return;
+    if (!tag.startsWith("#")) tag = "#" + tag;
+    
+    if (!formHashtags.includes(tag)) {
+      setFormHashtags([...formHashtags, tag]);
+    }
+    setNewHashtag("");
+  };
+
+  const handleRemoveHashtag = (tagToRemove: string) => {
+    setFormHashtags(formHashtags.filter(t => t !== tagToRemove));
+  };
+
+  const handleToggleCountry = (code: string) => {
+    if (formTargetCountries.includes(code)) {
+      setFormTargetCountries(formTargetCountries.filter(c => c !== code));
+    } else {
+      setFormTargetCountries([...formTargetCountries, code]);
+    }
+  };
+
+  const COUNTRIES = [
+    { code: "US", name: "United States" },
+    { code: "CA", name: "Canada" },
+    { code: "GB", name: "United Kingdom" },
+    { code: "DE", name: "Germany" },
+    { code: "FR", name: "France" },
+    { code: "IN", name: "India" },
+    { code: "JP", name: "Japan" },
+    { code: "AU", name: "Australia" }
+  ];
 
   // Keep compiler happy
   React.useEffect(() => {
@@ -378,16 +435,114 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                 </label>
                 <select
                   value={formCategory}
-                  onChange={(e) => setFormCategory(e.target.value)}
-                  className="w-full editor-component-base px-4 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
+                  onChange={(e) => {
+                    setFormCategory(e.target.value);
+                    setFormSubcategory("");
+                  }}
+                  className="w-full editor-component-base px-4 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 cursor-pointer"
                 >
-                  <option value="Tech">Tech</option>
-                  <option value="Art">Art</option>
-                  <option value="Design">Design</option>
-                  <option value="Music">Music</option>
-                  <option value="Trends">Trends</option>
-                  <option value="Podcast">Podcast</option>
+                  {categoriesList && categoriesList.length > 0 ? (
+                    categoriesList.map((cat: any) => (
+                      <option key={cat.id} value={cat.name}>{cat.name}</option>
+                    ))
+                  ) : (
+                    <>
+                      <option value="Tech">Tech</option>
+                      <option value="Art">Art</option>
+                      <option value="Design">Design</option>
+                      <option value="Music">Music</option>
+                      <option value="Trends">Trends</option>
+                      <option value="Podcast">Podcast</option>
+                    </>
+                  )}
                 </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                  Sub Category (Optional)
+                </label>
+                <select
+                  value={formSubcategory}
+                  onChange={(e) => setFormSubcategory(e.target.value)}
+                  className="w-full editor-component-base px-4 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100 cursor-pointer"
+                >
+                  <option value="">No Subcategory</option>
+                  {subcategoriesList && subcategoriesList
+                    .filter((sub: any) => !formCategory || sub.parentName === formCategory)
+                    .map((sub: any) => (
+                      <option key={sub.id} value={sub.name}>{sub.name}</option>
+                    ))
+                  }
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                  Hashtags
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    placeholder="e.g. ai, react (Press Enter to add)"
+                    value={newHashtag}
+                    onChange={(e) => setNewHashtag(e.target.value.toLowerCase().replace(/[^a-z0-9_#]+/g, ""))}
+                    onKeyDown={handleAddHashtag}
+                    className="flex-1 editor-component-base px-4 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleAddHashtag}
+                    className="px-4 border border-neutral-200 dark:border-neutral-800 rounded-xl hover:bg-neutral-50 dark:hover:bg-neutral-900 transition-colors text-xs font-semibold cursor-pointer text-neutral-800 dark:text-neutral-200"
+                  >
+                    Add
+                  </button>
+                </div>
+                {formHashtags.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 mt-2">
+                    {formHashtags.map((tag) => (
+                      <span
+                        key={tag}
+                        className="inline-flex items-center gap-1 py-1 px-2.5 bg-neutral-100 dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 text-xs font-medium rounded-full border border-neutral-200/50 dark:border-neutral-700/50 shadow-sm animate-fade-in"
+                      >
+                        <span>{tag}</span>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveHashtag(tag)}
+                          className="w-3.5 h-3.5 inline-flex items-center justify-center rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 text-[10px] text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 cursor-pointer"
+                        >
+                          <i className="fa-solid fa-times"></i>
+                        </button>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
+                  Target Countries for Prioritization
+                </label>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                  {COUNTRIES.map((country) => {
+                    const isSelected = formTargetCountries.includes(country.code);
+                    return (
+                      <button
+                        key={country.code}
+                        type="button"
+                        onClick={() => handleToggleCountry(country.code)}
+                        className={`flex items-center justify-center gap-1.5 py-2 px-3 border rounded-xl text-xs font-semibold transition-all duration-300 cursor-pointer select-none ${
+                          isSelected
+                            ? "bg-accent-purple/10 border-accent-purple text-accent-purple dark:text-accent-purple-light shadow-[0_0_12px_rgba(139,92,246,0.15)] scale-[1.02]"
+                            : "bg-neutral-50 dark:bg-neutral-900/50 border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-900"
+                        }`}
+                      >
+                        {isSelected && <i className="fa-solid fa-check text-[10px]"></i>}
+                        <span>{country.name} ({country.code})</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
 
               <div>
@@ -421,6 +576,21 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                     />
                   </label>
                 </div>
+                {aiImagePrompts && aiImagePrompts.length > 0 && (
+                  <div className="mt-3 p-4 bg-violet-50 dark:bg-violet-900/20 border border-violet-100 dark:border-violet-900 rounded-xl">
+                    <p className="text-xs font-bold text-violet-800 dark:text-violet-300 mb-2">
+                      <i className="fa-solid fa-wand-magic-sparkles mr-1.5"></i>
+                      AI Generated Image Prompts
+                    </p>
+                    <ul className="list-disc pl-5 space-y-1.5">
+                      {aiImagePrompts.map((prompt, idx) => (
+                        <li key={idx} className="text-[11px] text-violet-700 dark:text-violet-400 font-medium leading-relaxed">
+                          {prompt}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
               </div>
 
               <div>

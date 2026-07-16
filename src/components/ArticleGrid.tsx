@@ -7,105 +7,66 @@ interface ArticleGridProps {
 }
 
 export const ArticleGrid: React.FC<ArticleGridProps> = ({ articles }) => {
-  // Separate partners' news from regular feed
-  const partnerArticles = articles.filter((a) => a.isPartner);
-  const regularArticles = articles.filter((a) => !a.isPartner && !a.featured && !a.trending);
-
   return (
-    <section className="py-8 flex flex-col gap-8 transition-colors duration-300">
+    <section className="w-full pb-12 transition-colors duration-300">
       
       {/* Primary Grid Feed */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-        {regularArticles.map((article, index) => {
-          const hasImage = !!article.image;
-          
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-12">
+        {articles.map((article) => {
           return (
             <Link
               key={article.id}
               to={`/article/${article.id}`}
-              className={`editorial-card p-6 flex flex-col justify-between cursor-pointer text-left ${
-                hasImage && index === 0 ? "md:col-span-2 md:flex-row gap-6" : ""
-              }`}
+              className="flex flex-col group cursor-pointer text-left"
             >
-              <div className="flex-1 flex flex-col justify-between">
-                <div>
-                  <span className="text-[11px] font-sans font-bold uppercase tracking-widest text-accent-purple dark:text-purple-400 mb-2 block">
+              {/* Image with floating badge */}
+              <div className="relative w-full aspect-[16/10] rounded-2xl overflow-hidden mb-5 bg-gray-100">
+                <img
+                  src={article.image || "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80"}
+                  alt={article.title}
+                  className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700 ease-out"
+                />
+                <div className="absolute top-4 left-4">
+                  <span className="px-3 py-1 text-[10px] font-medium tracking-wide capitalize bg-black/40 backdrop-blur-sm rounded-full text-white/90">
                     {article.category}
                   </span>
-                  <h3 className="font-serif text-lg sm:text-xl font-bold text-neutral-900 dark:text-neutral-50 mb-3 leading-snug hover:underline">
-                    {article.title}
-                  </h3>
-                  <p className="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-3 leading-relaxed mb-4">
-                    {article.summary}
-                  </p>
-                </div>
-                
-                <div className="flex items-center gap-2 mt-4 pt-4 border-t-[0.5px] border-neutral-150 dark:border-neutral-850">
-                  <img
-                    src={article.author.avatar}
-                    alt={article.author.name}
-                    className="w-6 h-6 rounded-full object-cover border-[0.5px] border-neutral-200 dark:border-neutral-800"
-                  />
-                  <div className="text-[11px] font-medium text-neutral-600 dark:text-neutral-400">
-                    <span className="font-bold">{article.author.name}</span> • {article.date} • {article.readingTime}
-                  </div>
                 </div>
               </div>
 
-              {hasImage && (
-                <div className={`shrink-0 rounded-2xl overflow-hidden bg-neutral-100 dark:bg-neutral-900 ${
-                  index === 0 ? "w-full md:w-64 aspect-[4/3] md:aspect-square" : "w-full aspect-[16/10] mt-4"
-                }`}>
-                  <img
-                    src={article.image}
-                    alt={article.title}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-              )}
+              {/* Meta data */}
+              <div className="flex items-center gap-2 text-xs font-semibold text-gray-500 mb-3 tracking-wide">
+                <span>{article.date}</span>
+                <span>•</span>
+                <span>{article.readingTime}</span>
+              </div>
+
+              {/* Title & Summary */}
+              <div className="flex-1">
+                <h3 className="font-serif text-lg font-bold text-gray-900 mb-2 leading-tight group-hover:text-black transition-colors line-clamp-2">
+                  {article.title}
+                </h3>
+                <p className="text-[13px] text-gray-500 line-clamp-2 leading-relaxed mb-4 font-normal">
+                  {article.summary}
+                </p>
+              </div>
+              
+              {/* Author */}
+              <div className="flex items-center gap-2 mt-auto">
+                <img
+                  src={article.author.avatar}
+                  alt={article.author.name}
+                  className="w-6 h-6 rounded-full object-cover"
+                />
+                <span className="text-[11px] font-bold text-gray-900">
+                  {article.author.name}
+                </span>
+              </div>
             </Link>
           );
         })}
       </div>
-
-      {/* Partners News Section */}
-      {partnerArticles.length > 0 && (
-        <div className="border-t-[0.5px] border-neutral-200 dark:border-neutral-800 pt-8 mt-4 text-left">
-          <h3 className="text-xs font-sans font-extrabold uppercase tracking-widest text-neutral-400 dark:text-neutral-500 mb-4">
-            Our Partners' News
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {partnerArticles.map((article) => (
-              <Link
-                key={article.id}
-                to={`/article/${article.id}`}
-                className="editorial-card p-6 cursor-pointer block text-left"
-              >
-                <span className="text-[9px] font-sans tracking-widest text-neutral-450 dark:text-neutral-555 uppercase font-semibold block mb-1">
-                  Partner Article
-                </span>
-                <h4 className="font-serif text-base font-bold text-neutral-900 dark:text-neutral-100 hover:underline mb-2">
-                  {article.title}
-                </h4>
-                <p className="text-xs text-neutral-500 dark:text-neutral-400 line-clamp-2 leading-relaxed mb-4">
-                  {article.summary}
-                </p>
-                <div className="flex items-center gap-2">
-                  <img
-                    src={article.author.avatar}
-                    alt={article.author.name}
-                    className="w-5 h-5 rounded-full object-cover"
-                  />
-                  <span className="text-[10px] text-neutral-400 dark:text-neutral-500 font-medium">
-                    By {article.author.name} • {article.readingTime}
-                  </span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </div>
-      )}
     </section>
   );
 };
+
 export default ArticleGrid;

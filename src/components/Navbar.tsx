@@ -22,7 +22,24 @@ export const Navbar: React.FC<NavbarProps> = ({
   const location = useLocation();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
+  const [locationDetails, setLocationDetails] = useState<any>(null);
   const dropdownRef = React.useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch("https://ipapi.co/json/")
+      .then((res) => res.json())
+      .then((data) => {
+        if (data && data.country_name) {
+          setLocationDetails({
+            country: data.country_name,
+            city: data.city,
+            region: data.region,
+            ip: data.ip
+          });
+        }
+      })
+      .catch((e) => console.error("Failed to fetch location info:", e));
+  }, []);
 
   useEffect(() => {
     const checkUser = () => {
@@ -165,10 +182,27 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
             {profileDropdownOpen && (
               <div className="absolute right-0 mt-2.5 w-48 bg-white dark:bg-brand-charcoal border-[1.5px] border-brand-dark rounded-xl shadow-[4px_4px_0px_0px_#000] py-2 z-50 animate-fade-in text-left">
-                <div className="px-4 py-1.5 border-b-[0.5px] border-neutral-200 dark:border-neutral-800 lg:hidden">
+                <div className="px-4 py-1.5 border-b-[0.5px] border-neutral-200 dark:border-neutral-800">
                   <p className="text-xs font-bold text-neutral-800 dark:text-neutral-205 truncate">{currentUser.name}</p>
                   <p className="text-[9px] text-neutral-400 dark:text-neutral-500 uppercase tracking-wider">{currentUser.role === "SUPER_ADMIN" ? "Admin" : "Author"}</p>
                 </div>
+                
+                {/* Location details */}
+                <div className="px-4 py-2 border-b-[0.5px] border-neutral-200 dark:border-neutral-800 text-[10px] text-neutral-500 dark:text-neutral-400 font-medium">
+                  <div className="flex items-center gap-1.5 mb-1 text-[9px] uppercase tracking-wider text-accent-coral font-bold">
+                    <i className="fa-solid fa-location-dot"></i>
+                    <span>Login Session</span>
+                  </div>
+                  {locationDetails ? (
+                    <div>
+                      <p>{locationDetails.city}, {locationDetails.country}</p>
+                      <p className="font-mono mt-0.5 opacity-85">{locationDetails.ip}</p>
+                    </div>
+                  ) : (
+                    <p>Detecting location...</p>
+                  )}
+                </div>
+
                 <button
                   onClick={() => {
                     setProfileDropdownOpen(false);
