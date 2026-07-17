@@ -5,7 +5,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import type { Article } from "../../data/articles";
-import { LoadingSpinner } from "../canves-animations";
+import { LoadingScreen } from "../common/LoadingScreen";
+import { NoDataScreen } from "../common/NoDataScreen";
 
 interface CrmTableProps {
   currentUser: any;
@@ -34,17 +35,14 @@ export const CrmTable: React.FC<CrmTableProps> = ({
 }) => {
   if (loading) {
     return (
-      <div className="py-24 text-center">
-        <LoadingSpinner message="Syncing with Supabase Ledger..." size="md" />
-      </div>
+      <LoadingScreen message="Syncing with Supabase Ledger..." />
     );
   }
 
   if (sortedArticles.length === 0) {
     return (
-      <div className="py-20 text-center text-neutral-505">
-        <i className="fa-solid fa-box-open text-3xl mb-4 text-neutral-300 dark:text-neutral-700"></i>
-        <p className="font-serif text-lg italic">No articles found matching this view.</p>
+      <div className="py-20 flex flex-col items-center text-center text-neutral-505">
+        <NoDataScreen message="No articles found matching this view." />
         <button
           onClick={handleOpenCreate}
           className="mt-4 px-5 py-2 bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 text-xs font-semibold rounded-full hover:opacity-90 cursor-pointer"

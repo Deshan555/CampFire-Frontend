@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Users, FileText, CheckCircle, TrendingUp, Tags, RefreshCw } from "lucide-react";
+import { Users, FileText, CheckCircle, TrendingUp, Tags, RefreshCw, LayoutDashboard } from "lucide-react";
 import { Pagination } from "../common/Pagination";
+import { AdminHeader } from "./AdminHeader";
 
 interface AuditLog {
   id: string;
@@ -36,15 +37,14 @@ const AdminOverview: React.FC = () => {
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-white">
 
         {/* Sub-Header */}
-        <div className="p-6 border-b border-gray-200 shrink-0 bg-white">
-          <h2 className="text-xl font-bold tracking-tight text-gray-900">System Dashboard</h2>
-          <p className="text-xs text-gray-500 mt-1">Overall statistics and audit logs for the editorial portal.</p>
-        </div>
+        <AdminHeader 
+          title="System Dashboard"
+          icon={LayoutDashboard}
+          description="Overall statistics and audit logs for the editorial portal."
+        />
 
-        {/* Outer content container */}
-        <div className="flex-1 overflow-auto p-6 space-y-6">
-
-          {/* Stats Grid */}
+        {/* Stats Grid */}
+        <div className="px-6 py-6 border-b border-gray-200 shrink-0 bg-white">
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
 
             <div className="p-5 bg-gray-50/50 border border-gray-200 rounded-2xl flex flex-col justify-between h-28 shadow-sm">
@@ -92,59 +92,57 @@ const AdminOverview: React.FC = () => {
             </div>
 
           </div>
-
-          {/* Audit Logs section */}
-          <div className="border border-gray-200 rounded-2xl overflow-hidden bg-white shadow-sm flex flex-col">
-            <div className="p-5 border-b border-gray-150 bg-gray-50/30 flex items-center justify-between">
-              <h3 className="font-bold text-gray-800">Recent Security & Audit Logs</h3>
-              <button className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-black font-semibold">
-                <RefreshCw size={12} /> Refresh
-              </button>
-            </div>
-
-            <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse min-w-[500px]">
-                <thead>
-                  <tr className="border-b border-gray-150 text-[10px] uppercase font-bold tracking-wider text-gray-400 select-none">
-                    <th className="px-5 py-3">Log ID</th>
-                    <th className="px-5 py-3">User</th>
-                    <th className="px-5 py-3">Action</th>
-                    <th className="px-5 py-3">Time</th>
-                    <th className="px-5 py-3">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-100 text-xs text-gray-700">
-                  {currentLogs.map((log) => (
-                    <tr key={log.id} className="hover:bg-gray-50/30 transition-colors">
-                      <td className="px-5 py-3.5 font-mono text-[10px] text-gray-400">#{log.id}</td>
-                      <td className="px-5 py-3.5 font-semibold text-gray-800">{log.user}</td>
-                      <td className="px-5 py-3.5 text-gray-600">{log.action}</td>
-                      <td className="px-5 py-3.5 text-gray-500">{log.timestamp}</td>
-                      <td className="px-5 py-3.5">
-                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold border ${log.status === "Success" ? "bg-green-50 text-green-700 border-green-200" :
-                          log.status === "Warning" ? "bg-yellow-50 text-yellow-700 border-yellow-200" :
-                            "bg-red-50 text-red-700 border-red-200"
-                          }`}>
-                          {log.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            )}
-          </div>
-
         </div>
+
+        {/* Audit Logs Header */}
+        <div className="px-6 py-3.5 border-b border-gray-200 shrink-0 bg-gray-50 flex items-center justify-between">
+          <h3 className="font-bold text-gray-800">Recent Security & Audit Logs</h3>
+          <button className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-black font-semibold">
+            <RefreshCw size={12} /> Refresh
+          </button>
+        </div>
+
+        {/* Table Content */}
+        <div className="flex-grow overflow-auto">
+          <table className="w-full text-left border-collapse min-w-[500px]">
+            <thead>
+              <tr className="bg-white border-b border-gray-150 text-[10px] uppercase font-bold tracking-wider text-gray-500 select-none">
+                <th className="px-6 py-3.5">Log ID</th>
+                <th className="px-6 py-3.5">User</th>
+                <th className="px-6 py-3.5">Action</th>
+                <th className="px-6 py-3.5">Time</th>
+                <th className="px-6 py-3.5">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100 text-xs text-gray-700">
+              {currentLogs.map((log) => (
+                <tr key={log.id} className="hover:bg-gray-50/50 transition-colors">
+                  <td className="px-6 py-4 font-mono text-[11px] text-gray-500">#{log.id}</td>
+                  <td className="px-6 py-4 font-semibold text-gray-900">{log.user}</td>
+                  <td className="px-6 py-4 text-gray-600">{log.action}</td>
+                  <td className="px-6 py-4 text-gray-500">{log.timestamp}</td>
+                  <td className="px-6 py-4">
+                    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9px] font-bold border ${log.status === "Success" ? "bg-green-50 text-green-700 border-green-200" :
+                      log.status === "Warning" ? "bg-yellow-50 text-yellow-700 border-yellow-200" :
+                        "bg-red-50 text-red-700 border-red-200"
+                      }`}>
+                      {log.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
 
     </div>

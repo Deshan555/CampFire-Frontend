@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { UserPlus, Search, Edit2, Trash2, Shield, Trash, CheckSquare } from "lucide-react";
+import { UserPlus, Search, Edit2, Trash2, Shield, Trash, CheckSquare, Users } from "lucide-react";
 import { fetchUsers, registerAdmin } from "../../api";
+import { AdminHeader } from "./AdminHeader";
 import { Pagination } from "../common/Pagination";
+import { LoadingScreen } from "../common/LoadingScreen";
+import { NoDataScreen } from "../common/NoDataScreen";
 
 interface AdminUser {
   id: string;
@@ -193,13 +196,11 @@ export const AdminUsers: React.FC = () => {
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-white">
 
         {/* Sub-Header actions */}
-        <div className="p-6 border-b border-gray-200 shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold tracking-tight text-gray-900">Administrators</h2>
-            <span className="text-xs bg-gray-100 text-gray-500 font-bold px-2 py-0.5 rounded-full">
-              {users.length} total
-            </span>
-          </div>
+        <AdminHeader
+          title="Administrators"
+          icon={Users}
+          badge={`${users.length} total`}
+        >
           <button
             onClick={() => {
               setEditingUser(null);
@@ -218,7 +219,7 @@ export const AdminUsers: React.FC = () => {
           >
             <UserPlus size={14} /> Add Administrator
           </button>
-        </div>
+        </AdminHeader>
 
         {/* Filters bar */}
         <div className="px-6 py-3.5 border-b border-gray-200 shrink-0 bg-gray-50 flex items-center justify-between gap-4 flex-wrap">
@@ -251,9 +252,7 @@ export const AdminUsers: React.FC = () => {
         {/* Table Content */}
         <div className="flex-grow overflow-auto">
           {loading ? (
-            <div className="p-12 text-center text-gray-400 text-xs">
-              Loading administrators...
-            </div>
+            <LoadingScreen message="Loading administrators..." />
           ) : (
             <>
               <table className="w-full text-left border-collapse min-w-[650px]">
@@ -339,9 +338,7 @@ export const AdminUsers: React.FC = () => {
               </table>
 
               {filteredUsers.length === 0 && (
-                <div className="p-12 text-center text-gray-400 text-xs">
-                  No users found matching filters.
-                </div>
+                <NoDataScreen message="No users found matching filters." />
               )}
             </>
           )}

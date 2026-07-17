@@ -770,3 +770,33 @@ aside .lucide {
   stroke: currentColor !important;
   stroke-width: 2px !important;
 }
+
+.admin-panel-header {
+  font-family: "Poppins", "SF Pro Display", "Inter", sans-serif !important;
+  font-style: normal !important;
+  font-weight: 450 !important;
+  color: oklch(0.205 0 0) !important;
+  font-size: 15px !important;
+  line-height: 44px !important;
+  letter-spacing: normal !important;
+}
+
+.admin-panel-header-second {
+  font-family: "Poppins", "SF Pro Display", "Inter", sans-serif !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  color: oklch(0.205 0 0) !important;
+  font-size: 15px !important;
+  line-height: 44px !important;
+  letter-spacing: normal !important;
+}
+
+.admin-panel-header-dec {
+  font-family: "Poppins", "SF Pro Display", "Inter", sans-serif !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  color: oklch(0.205 0 0) !important;
+  font-size: 12px !important;
+  line-height: 10px !important;
+  letter-spacing: normal !important;
+}

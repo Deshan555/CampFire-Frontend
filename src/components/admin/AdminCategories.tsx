@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { FolderPlus, Search, Edit2, Trash2, Download, Upload, Trash, CheckSquare } from "lucide-react";
+import { FolderPlus, Search, Edit2, Trash2, Download, Upload, Trash, CheckSquare, FolderTree } from "lucide-react";
 import { fetchCategories, createCategory, updateCategory, deleteCategory } from "../../api";
+import { AdminHeader } from "./AdminHeader";
 import { Pagination } from "../common/Pagination";
+import { LoadingScreen } from "../common/LoadingScreen";
+import { NoDataScreen } from "../common/NoDataScreen";
 
 interface Category {
   id: string;
@@ -162,29 +165,24 @@ export const AdminCategories: React.FC = () => {
       {/* Middle Pane: Categories Table */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-white">
 
-        {/* Sub-Header actions */}
-        <div className="p-6 border-b border-gray-200 shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold tracking-tight text-gray-900">Categories</h2>
-            <span className="text-xs bg-gray-100 text-gray-500 font-bold px-2 py-0.5 rounded-full">
-              {categories.length} total
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setEditingCategory(null);
-                setName("");
-                setSlug("");
-                setStatus("Active");
-                setIsModalOpen(true);
-              }}
-              className="main-button"
-            >
-              <FolderPlus size={14} /> Add Category
-            </button>
-          </div>
-        </div>
+        <AdminHeader
+          title="Categories"
+          icon={FolderTree}
+          badge={`${categories.length} total`}
+        >
+          <button
+            onClick={() => {
+              setEditingCategory(null);
+              setName("");
+              setSlug("");
+              setStatus("Active");
+              setIsModalOpen(true);
+            }}
+            className="main-button"
+          >
+            <FolderPlus size={14} /> New Category
+          </button>
+        </AdminHeader>
 
         {/* Filters bar */}
         <div className="px-6 py-3.5 border-b border-gray-200 shrink-0 bg-gray-50 flex items-center justify-between gap-4 flex-wrap">
@@ -215,9 +213,7 @@ export const AdminCategories: React.FC = () => {
         {/* Table Content */}
         <div className="flex-grow overflow-auto">
           {loading ? (
-            <div className="p-12 text-center text-gray-400 text-xs">
-              Loading categories...
-            </div>
+            <LoadingScreen message="Loading categories..." />
           ) : (
             <>
               <table className="w-full text-left border-collapse min-w-[600px]">
@@ -302,9 +298,7 @@ export const AdminCategories: React.FC = () => {
               </table>
 
               {filteredCategories.length === 0 && (
-                <div className="p-12 text-center text-gray-400 text-xs">
-                  No categories found matching filters.
-                </div>
+                <NoDataScreen message="No categories found matching filters." />
               )}
             </>
           )}

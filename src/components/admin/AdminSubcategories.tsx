@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Edit2, Trash2, Download, Upload, Trash, CheckSquare } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, Download, Upload, Trash, CheckSquare, Layers } from "lucide-react";
 import { fetchSubcategories, createSubcategory, updateSubcategory, deleteSubcategory, fetchCategories } from "../../api";
+import { AdminHeader } from "./AdminHeader";
 import { Pagination } from "../common/Pagination";
+import { LoadingScreen } from "../common/LoadingScreen";
+import { NoDataScreen } from "../common/NoDataScreen";
 
 interface Subcategory {
   id: string;
@@ -177,29 +180,25 @@ export const AdminSubcategories: React.FC = () => {
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-white">
 
         {/* Sub-Header actions */}
-        <div className="p-6 border-b border-gray-200 shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold tracking-tight text-gray-900">Subcategories</h2>
-            <span className="text-xs bg-gray-100 text-gray-500 font-bold px-2 py-0.5 rounded-full">
-              {subcategories.length} total
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setEditingSub(null);
-                setName("");
-                setParentName(parentCategories[0]);
-                setSlug("");
-                setStatus("Active");
-                setIsModalOpen(true);
-              }}
-              className="main-button"
-            >
-              <Plus size={14} /> Add Subcategory
-            </button>
-          </div>
-        </div>
+        <AdminHeader
+          title="Subcategories"
+          icon={Layers}
+          badge={`${subcategories.length} total`}
+        >
+          <button
+            onClick={() => {
+              setEditingSub(null);
+              setName("");
+              setSlug("");
+              setParentName(parentCategories[0]);
+              setStatus("Active");
+              setIsModalOpen(true);
+            }}
+            className="main-button"
+          >
+            <Plus size={14} /> Add Subcategory
+          </button>
+        </AdminHeader>
 
         {/* Filters bar */}
         <div className="px-6 py-3.5 border-b border-gray-200 shrink-0 bg-gray-50 flex items-center justify-between gap-4 flex-wrap">
@@ -241,9 +240,7 @@ export const AdminSubcategories: React.FC = () => {
         {/* Table Content */}
         <div className="flex-grow overflow-auto">
           {loading ? (
-            <div className="p-12 text-center text-gray-400 text-xs">
-              Loading subcategories...
-            </div>
+            <LoadingScreen message="Loading subcategories..." />
           ) : (
             <>
               <table className="w-full text-left border-collapse min-w-[700px]">
@@ -328,9 +325,7 @@ export const AdminSubcategories: React.FC = () => {
               </table>
 
               {filteredSubs.length === 0 && (
-                <div className="p-12 text-center text-gray-400 text-xs">
-                  No subcategories found matching filters.
-                </div>
+                <NoDataScreen message="No subcategories found matching filters." />
               )}
             </>
           )}

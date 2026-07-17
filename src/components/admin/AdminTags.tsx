@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Edit2, Trash2, Download, Upload, Trash } from "lucide-react";
+import { Plus, Search, Edit2, Trash2, Download, Upload, Trash, Hash } from "lucide-react";
 import { Pagination } from "../common/Pagination";
+import { AdminHeader } from "./AdminHeader";
+import { NoDataScreen } from "../common/NoDataScreen";
 
 interface Tag {
   id: string;
@@ -120,27 +122,23 @@ export const AdminTags: React.FC = () => {
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-white">
 
         {/* Sub-Header actions */}
-        <div className="p-6 border-b border-gray-200 shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold tracking-tight text-gray-900">Tags (Hashtags)</h2>
-            <span className="text-xs bg-gray-100 text-gray-500 font-bold px-2 py-0.5 rounded-full">
-              {tags.length} total
-            </span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => {
-                setEditingTag(null);
-                setName("");
-                setSlug("");
-                setIsModalOpen(true);
-              }}
-              className="main-button"
-            >
-              <Plus size={14} /> Add Tag
-            </button>
-          </div>
-        </div>
+        <AdminHeader
+          title="Tags (Hashtags)"
+          icon={Hash}
+          badge={`${tags.length} total`}
+        >
+          <button
+            onClick={() => {
+              setEditingTag(null);
+              setName("");
+              setSlug("");
+              setIsModalOpen(true);
+            }}
+            className="main-button"
+          >
+            <Plus size={14} /> Add Tag
+          </button>
+        </AdminHeader>
 
         {/* Filters bar */}
         <div className="px-6 py-3.5 border-b border-gray-200 shrink-0 bg-gray-50 flex items-center justify-end gap-4">
@@ -225,9 +223,7 @@ export const AdminTags: React.FC = () => {
           </table>
 
           {filteredTags.length === 0 && (
-            <div className="p-12 text-center text-gray-400 text-xs">
-              No tags found matching filters.
-            </div>
+            <NoDataScreen message="No tags found matching filters." />
           )}
         </div>
 

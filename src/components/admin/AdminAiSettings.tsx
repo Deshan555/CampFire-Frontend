@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Plus, Check, Search, Bot, Edit2, Trash2 } from "lucide-react";
 import { fetchRules, createRule, updateRule, deleteRule, type ReviewRule } from "../../api";
+import { AdminHeader } from "./AdminHeader";
+import { LoadingScreen } from "../common/LoadingScreen";
+import { NoDataScreen } from "../common/NoDataScreen";
 
 const BLOG_SITE_ID = "11111111-1111-1111-1111-111111111111";
 
@@ -106,23 +109,19 @@ const AdminAiSettings: React.FC = () => {
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-white">
 
         {/* Sub-Header actions */}
-        <div className="p-6 border-b border-gray-200 shrink-0 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white">
-          <div className="flex items-center gap-3">
-            <h2 className="text-xl font-bold tracking-tight text-gray-900 flex items-center gap-2">
-              <Bot size={20} className="text-blue-600" />
-              AI Review Rules
-            </h2>
-            <span className="text-xs bg-gray-100 text-gray-500 font-bold px-2 py-0.5 rounded-full">
-              {rules.length} total
-            </span>
-          </div>
+        <AdminHeader
+          title="AI Review Rules"
+          icon={Bot}
+          iconClassName="text-blue-600"
+          description="Manage rules used by AI to automatically review and grade articles."
+        >
           <button
             onClick={() => openModal()}
             className="main-button"
           >
             <Plus size={14} /> Add AI Rule
           </button>
-        </div>
+        </AdminHeader>
 
         {/* Filters bar */}
         <div className="px-6 py-3.5 border-b border-gray-200 shrink-0 bg-gray-50 flex items-center justify-end gap-4">
@@ -141,7 +140,7 @@ const AdminAiSettings: React.FC = () => {
         {/* Content list */}
         <div className="flex-grow overflow-auto p-6">
           {loading ? (
-            <div className="h-full flex justify-center items-center text-gray-400 text-xs">Loading rules...</div>
+            <LoadingScreen message="Loading rules..." />
           ) : (
             <div className="grid gap-4 grid-cols-1 xl:grid-cols-2 content-start">
               {filteredRules.map(rule => (
@@ -183,8 +182,8 @@ const AdminAiSettings: React.FC = () => {
               ))}
 
               {filteredRules.length === 0 && (
-                <div className="col-span-full py-12 text-center text-gray-400 text-xs border border-dashed border-gray-200 rounded-2xl">
-                  No AI rules found. Click "Add AI Rule" to create one.
+                <div className="col-span-full">
+                  <NoDataScreen message='No AI rules found. Click "Add AI Rule" to create one.' />
                 </div>
               )}
             </div>

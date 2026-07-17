@@ -4,7 +4,8 @@ import { fetchArticleDetails, likeArticle, fetchArticleSuggestions } from "../ap
 import type { Article } from "../data/articles";
 import VideoPlayer from "../components/VideoPlayer";
 import Markdown from "../components/Markdown";
-import { LoadingSpinner } from "../components/canves-animations";
+import { LoadingScreen } from "../components/common/LoadingScreen";
+import { NoDataScreen } from "../components/common/NoDataScreen";
 
 interface WordPosition {
   word: string;
@@ -374,7 +375,7 @@ export const ArticlePage: React.FC = () => {
   if (loading) {
     return (
       <div className="flex-1 py-32 text-center flex flex-col items-center justify-center bg-white dark:bg-brand-dark">
-        <LoadingSpinner message="Loading Publication Details..." size="md" />
+        <LoadingScreen message="Loading Publication Details..." />
       </div>
     );
   }
@@ -382,9 +383,7 @@ export const ArticlePage: React.FC = () => {
   if (fetchError || !article) {
     return (
       <div className="flex-1 py-20 text-center flex flex-col items-center justify-center">
-        <h2 className="font-serif text-3xl font-black text-neutral-900 dark:text-neutral-55 mb-4">
-          Article Not Found
-        </h2>
+        <NoDataScreen message="Article Not Found" />
         <p className="text-neutral-500 mb-8 max-w-sm">
           The publication you are searching for might have been archived or moved to another edition.
         </p>
