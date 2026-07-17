@@ -299,9 +299,9 @@ export const AdminUsers: React.FC = () => {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-bold border ${user.role === 'super_admin' ? 'bg-purple-50 text-purple-700 border-purple-100' :
-                              user.role === 'editor' ? 'bg-blue-50 text-blue-700 border-blue-100' :
-                                user.role === 'author' ? 'bg-green-50 text-green-700 border-green-100' :
-                                  'bg-gray-100 text-gray-700 border-gray-200'
+                            user.role === 'editor' ? 'bg-blue-50 text-blue-700 border-blue-100' :
+                              user.role === 'author' ? 'bg-green-50 text-green-700 border-green-100' :
+                                'bg-gray-100 text-gray-700 border-gray-200'
                             }`}>
                             {user.role === 'super_admin' && <Shield size={10} />}
                             {user.role.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
@@ -346,7 +346,7 @@ export const AdminUsers: React.FC = () => {
             </>
           )}
         </div>
-        
+
         {/* Pagination */}
         {!loading && totalPages > 1 && (
           <Pagination
