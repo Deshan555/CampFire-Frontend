@@ -171,12 +171,6 @@ export const AdminCategories: React.FC = () => {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="secondary-button">
-              <Upload size={14} /> Import
-            </button>
-            <button className="secondary-button">
-              <Download size={14} /> Export
-            </button>
             <button
               onClick={() => {
                 setEditingCategory(null);
@@ -276,8 +270,8 @@ export const AdminCategories: React.FC = () => {
                         </td>
                         <td className="px-6 py-4">
                           <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${cat.status === "Active"
-                              ? "bg-green-50 text-green-700 border-green-200"
-                              : "bg-gray-100 text-gray-600 border-gray-200"
+                            ? "bg-green-50 text-green-700 border-green-200"
+                            : "bg-gray-100 text-gray-600 border-gray-200"
                             }`}>
                             <span className={`w-1.5 h-1.5 rounded-full ${cat.status === "Active" ? "bg-green-500" : "bg-gray-400"}`}></span>
                             {cat.status}
@@ -315,7 +309,7 @@ export const AdminCategories: React.FC = () => {
             </>
           )}
         </div>
-        
+
         {/* Pagination */}
         {!loading && totalPages > 1 && (
           <Pagination
