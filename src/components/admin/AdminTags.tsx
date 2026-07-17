@@ -22,7 +22,7 @@ export const AdminTags: React.FC = () => {
   const [tags, setTags] = useState<Tag[]>(initialTags);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -128,12 +128,6 @@ export const AdminTags: React.FC = () => {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="secondary-button">
-              <Upload size={14} /> Import
-            </button>
-            <button className="secondary-button">
-              <Download size={14} /> Export
-            </button>
             <button
               onClick={() => {
                 setEditingTag(null);
