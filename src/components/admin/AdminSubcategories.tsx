@@ -185,12 +185,6 @@ export const AdminSubcategories: React.FC = () => {
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="secondary-button">
-              <Upload size={14} /> Import
-            </button>
-            <button className="secondary-button">
-              <Download size={14} /> Export
-            </button>
             <button
               onClick={() => {
                 setEditingSub(null);
@@ -341,7 +335,7 @@ export const AdminSubcategories: React.FC = () => {
             </>
           )}
         </div>
-        
+
         {/* Pagination */}
         {!loading && totalPages > 1 && (
           <Pagination
