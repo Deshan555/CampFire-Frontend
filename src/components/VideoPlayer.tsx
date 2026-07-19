@@ -42,7 +42,7 @@ export function VideoPlayer({ src, poster }: VideoPlayerProps) {
 
   if (youtubeId) {
     return (
-      <div className="w-full h-full min-h-[320px] md:min-h-[450px] relative overflow-hidden flex bg-black">
+      <div className="w-full h-full min-h-[220px] md:min-h-[360px] relative overflow-hidden flex bg-black">
         <iframe
           src={`https://www.youtube.com/embed/${youtubeId}?autoplay=0&rel=0`}
           title="YouTube video player"
@@ -57,7 +57,7 @@ export function VideoPlayer({ src, poster }: VideoPlayerProps) {
 
   return (
     <Player.Provider>
-      <div className="w-full h-full min-h-[320px] md:min-h-[450px] relative overflow-hidden flex">
+      <div className="w-full h-full min-h-[220px] md:min-h-[360px] relative overflow-hidden flex">
         <VideoSkin 
           poster={poster} 
           className="w-full h-full flex flex-col flex-1 [&_video]:object-cover [&_video]:w-full [&_video]:h-full [&_video]:absolute [&_video]:inset-0 [&_.vjs-tech]:w-full [&_.vjs-tech]:h-full [&_.video-js]:w-full [&_.video-js]:h-full [&_.video-js]:absolute [&_.video-js]:inset-0 [&_.vjs-poster]:bg-cover"

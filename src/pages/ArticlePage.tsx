@@ -7,6 +7,7 @@ import Markdown from "../components/Markdown";
 import { LoadingScreen } from "../components/common/LoadingScreen";
 import { NoDataScreen } from "../components/common/NoDataScreen";
 import ArticleArtwork from "../components/ArticleArtwork";
+import { ArrowLeft, Bookmark, Headphones, Heart, Pause, Share2, UserCheck, UserPlus } from "lucide-react";
 
 interface WordPosition {
   word: string;
@@ -420,30 +421,33 @@ export const ArticlePage: React.FC = () => {
     <div className="article-reading-page flex-1 font-sans">
 
       {/* Back to feed button */}
-      <div className="mb-8 flex justify-start">
+      <div className="article-back-row">
         <Link
           to="/"
-          className="group flex items-center gap-2 text-sm font-semibold text-neutral-500 hover:text-neutral-900 dark:text-neutral-455 dark:hover:text-neutral-100 transition-colors cursor-pointer"
+          className="article-back-link"
         >
-          <i className="fa-solid fa-arrow-left group-hover:-translate-x-1 transition-transform"></i>
-          <span>Back to articles</span>
+          <ArrowLeft size={16} />
+          <span>Back to today&apos;s edition</span>
         </Link>
       </div>
 
       {/* Main article content panel */}
-      <article className="text-left">
+      <article className="article-news-layout text-left">
         {/* Category */}
-        <span className="text-xs font-sans font-extrabold uppercase tracking-widest text-accent-coral dark:text-accent-coral mb-3 block">
-          {article.category}
-        </span>
+        <div className="article-section-line">
+          <span>{article.category}</span>
+          {article.subcategory && <span>{article.subcategory}</span>}
+        </div>
 
         {/* Title */}
-        <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-black text-neutral-900 dark:text-neutral-50 leading-[1.15] mb-6 select-text">
+        <h1 className="article-headline select-text">
           {article.title}
         </h1>
 
+        <p className="article-standfirst">{article.summary}</p>
+
         {/* Author details section */}
-        <div className="flex flex-wrap items-center justify-between border-y-[0.5px] border-neutral-200 dark:border-neutral-800 py-4 mb-8">
+        <div className="article-byline-bar">
           <div className="flex items-center gap-3">
             {article.author?.avatar ? (
               <img
@@ -470,38 +474,33 @@ export const ArticlePage: React.FC = () => {
             {/* Listen Button */}
             <button
               onClick={isSpeaking && !isPaused ? handlePauseSpeech : handlePlaySpeech}
-              className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider font-display transition-all cursor-pointer flex items-center gap-1.5 border-[1.5px] ${isSpeaking && !isPaused
-                  ? "bg-accent-coral text-white border-brand-dark shadow-[2px_2px_0px_0px_#111]"
-                  : "bg-white text-neutral-900 hover:bg-neutral-50 border-neutral-300 dark:bg-neutral-900 dark:text-white dark:border-neutral-800 dark:hover:bg-neutral-800"
+              className={`article-icon-action article-listen-action ${isSpeaking && !isPaused
+                  ? "is-active"
+                  : ""
                 }`}
               title={isSpeaking && !isPaused ? "Pause listening" : "Listen to article audio"}
             >
               {isSpeaking && !isPaused ? (
-                <i className="fa-solid fa-volume-high animate-pulse"></i>
+                <Pause size={15} />
               ) : (
-                <i className="fa-solid fa-headphones"></i>
+                <Headphones size={15} />
               )}
               <span>{isSpeaking && !isPaused ? "Playing" : "Listen"}</span>
             </button>
 
             <button
               onClick={() => setIsFollowing(!isFollowing)}
-              className={`px-4 py-1.5 rounded-full text-xs font-semibold transition-all cursor-pointer ${isFollowing
-                  ? "bg-neutral-105 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300"
-                  : "bg-neutral-900 text-white hover:bg-neutral-850 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-100"
-                }`}
+              className={`article-icon-action ${isFollowing ? "is-active" : ""}`}
             >
+              {isFollowing ? <UserCheck size={15} /> : <UserPlus size={15} />}
               {isFollowing ? "Following" : "Follow"}
             </button>
             <button
               onClick={() => setIsSaved(!isSaved)}
-              className={`p-2.5 rounded-full border-[0.5px] transition-all cursor-pointer ${isSaved
-                  ? "bg-neutral-900 dark:bg-white text-white dark:text-neutral-900 border-transparent"
-                  : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 text-neutral-550"
-                }`}
+              className={`article-square-action ${isSaved ? "is-active" : ""}`}
               title="Bookmark"
             >
-              <i className={`${isSaved ? "fa-solid" : "fa-regular"} fa-bookmark text-sm`}></i>
+              <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} />
             </button>
           </div>
         </div>
@@ -520,14 +519,14 @@ export const ArticlePage: React.FC = () => {
 
         {/* Hero media display */}
         {article.video ? (
-          <div className="w-full aspect-[16/10] bg-neutral-100 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden mb-8 flex">
+          <div className="article-video-frame">
             <VideoPlayer
               src={article.video.src}
               poster={article.video.poster || undefined}
             />
           </div>
         ) : (
-          <div className="w-full aspect-[16/10] bg-neutral-100 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden mb-8">
+          <div className="article-hero-frame">
             <ArticleArtwork article={article} eager />
           </div>
         )}
@@ -596,7 +595,7 @@ export const ArticlePage: React.FC = () => {
                 <div
                   key={idx}
                   onClick={() => setActiveImageIndex(idx)}
-                  className="relative group aspect-[4/3] rounded-2xl overflow-hidden border-[0.5px] border-neutral-200 dark:border-neutral-800 shadow-sm cursor-zoom-in bg-neutral-50 dark:bg-neutral-900/30"
+                  className="relative group aspect-[4/3] rounded-lg overflow-hidden border-[0.5px] border-neutral-200 dark:border-neutral-800 shadow-sm cursor-zoom-in bg-neutral-50 dark:bg-neutral-900/30"
                 >
                   <img
                     src={url}
@@ -684,16 +683,16 @@ export const ArticlePage: React.FC = () => {
           <div className="flex items-center gap-3">
             <button
               onClick={handleLike}
-              className={`flex items-center gap-2 px-5 py-2.5 rounded-full border-[0.5px] text-sm font-semibold transition-all cursor-pointer ${isLiked
+              className={`flex items-center gap-2 px-5 py-2.5 rounded-lg border-[0.5px] text-sm font-semibold transition-all cursor-pointer ${isLiked
                   ? "bg-accent-purple/10 border-accent-purple text-purple-650 dark:text-purple-400"
                   : "border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 text-neutral-650 dark:text-neutral-450"
                 }`}
             >
-              <i className={`${isLiked ? "fa-solid" : "fa-regular"} fa-heart text-base`}></i>
+              <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
               <span>{likes} Likes</span>
             </button>
-            <button className="p-2.5 rounded-full border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 text-neutral-500 cursor-pointer" title="Share nodes">
-              <i className="fa-solid fa-share-nodes text-sm"></i>
+            <button className="p-2.5 rounded-lg border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 text-neutral-500 cursor-pointer" title="Share article">
+              <Share2 size={16} />
             </button>
           </div>
 
@@ -723,45 +722,28 @@ export const ArticlePage: React.FC = () => {
 
         {/* Related / Suggested Articles Section */}
         {suggestions.length > 0 && (
-          <div className="mt-16 pt-10 border-t-[0.5px] border-neutral-200 dark:border-neutral-800 text-left animate-fade-in">
-            <h3 className="font-serif text-xl font-black text-neutral-900 dark:text-neutral-50 mb-6 tracking-tight">
-              Suggested Reads
-            </h3>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              {suggestions.map((art) => (
-                <Link
-                  key={art.id}
-                  to={`/article/${art.id}`}
-                  className="group flex flex-col gap-3 hover:opacity-95 transition-opacity cursor-pointer"
-                >
-                  {art.image ? (
-                    <div className="aspect-[16/10] bg-neutral-105 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden shadow-sm shrink-0">
-                      <img
-                        src={art.image}
-                        alt={art.title}
-                        className="w-full h-full object-cover group-hover:scale-102 transition-transform duration-300"
-                      />
-                    </div>
-                  ) : (
-                    <div className="aspect-[16/10] bg-neutral-50 dark:bg-neutral-900 border-[0.5px] border-neutral-250 dark:border-neutral-850 rounded-xl flex items-center justify-center shrink-0 text-neutral-350">
-                      <i className="fa-solid fa-newspaper text-2xl"></i>
-                    </div>
-                  )}
-                  <div>
-                    <span className="text-[10px] font-sans font-extrabold uppercase tracking-wider text-accent-coral dark:text-accent-coral">
-                      {art.category}
-                    </span>
-                    <h4 className="font-serif text-sm font-bold text-neutral-900 dark:text-neutral-100 mt-1 line-clamp-2 group-hover:underline leading-snug">
-                      {art.title}
-                    </h4>
-                    <p className="text-[11px] text-neutral-450 dark:text-neutral-500 mt-1 line-clamp-2 leading-relaxed">
-                      {art.summary}
-                    </p>
+          <section className="suggested-news-section animate-fade-in" aria-labelledby="suggested-news-heading">
+            <div className="suggested-news-heading">
+              <span>Continue reading</span>
+              <h3 id="suggested-news-heading">More from today&apos;s edition</h3>
+            </div>
+            <div className="suggested-news-list">
+              {suggestions.map((art, index) => (
+                <article key={art.id} className="suggested-news-row story-link-group">
+                  <span className="suggested-news-number">{String(index + 1).padStart(2, "0")}</span>
+                  <Link to={`/article/${art.id}`} className="suggested-news-image">
+                    <ArticleArtwork article={art} />
+                  </Link>
+                  <div className="suggested-news-copy">
+                    <p className="category-label">{art.category}</p>
+                    <Link to={`/article/${art.id}`}><h4>{art.title}</h4></Link>
+                    <p>{art.summary}</p>
+                    <span>{art.date} · {art.readingTime}</span>
                   </div>
-                </Link>
+                </article>
               ))}
             </div>
-          </div>
+          </section>
         )}
 
       </article>
