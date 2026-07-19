@@ -32,6 +32,7 @@ import { Newspaper, Plus, ShieldAlert } from "lucide-react";
 import AiRulesModal from "../components/dashboard/AiRulesModal";
 import AiReviewModal from "../components/dashboard/AiReviewModal";
 import ArticleFormDrawer from "../components/dashboard/ArticleFormDrawer";
+import { siteConfig } from "../config/site";
 
 export const CrmDashboard: React.FC = () => {
   const navigate = useNavigate();
@@ -85,13 +86,11 @@ export const CrmDashboard: React.FC = () => {
   const [reviewModel, setReviewModel] = useState("gemma3:1b");
   const [isReviewing, setIsReviewing] = useState(false);
   const [reviewResult, setReviewResult] = useState<{ approved: boolean; feedback: string } | null>(null);
-  const BLOG_SITE_ID = "11111111-1111-1111-1111-111111111111";
+  const BLOG_SITE_ID = siteConfig.blogSiteId;
 
   const [formAuthorName, setFormAuthorName] = useState("Editorial Board");
   const [formAuthorRole, setFormAuthorRole] = useState("Senior Editor");
-  const [formAuthorAvatar, setFormAuthorAvatar] = useState(
-    "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80"
-  );
+  const [formAuthorAvatar, setFormAuthorAvatar] = useState("");
 
   const [aiExpanded, setAiExpanded] = useState(false);
   const [aiGenerating, setAiGenerating] = useState(false);
@@ -247,10 +246,7 @@ export const CrmDashboard: React.FC = () => {
         ? "Associate Editor"
         : "Contributing Writer"
     );
-    setFormAuthorAvatar(
-      currentUser?.avatar ||
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80"
-    );
+    setFormAuthorAvatar(currentUser?.avatar || "");
 
     setAiExpanded(false);
     setAiTopic("");
@@ -396,10 +392,7 @@ export const CrmDashboard: React.FC = () => {
     setFormIsPartner(!!art.isPartner);
     setFormAuthorName(art.author?.name || "Editorial Board");
     setFormAuthorRole(art.author?.role || "Editor");
-    setFormAuthorAvatar(
-      art.author?.avatar ||
-        "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80"
-    );
+    setFormAuthorAvatar(art.author?.avatar || "");
 
     setAiExpanded(false);
     setAiTopic("");

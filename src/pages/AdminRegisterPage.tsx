@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerAdmin } from "../api";
-import { AnimatedButton, LoadingSpinner, MorphAnimation } from "../components/canves-animations";
+import { AnimatedButton, LoadingSpinner } from "../components/canves-animations";
+import { siteConfig } from "../config/site";
 
 export const AdminRegisterPage: React.FC = () => {
   const navigate = useNavigate();
@@ -46,22 +47,14 @@ export const AdminRegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="flex-1 min-h-[80vh] flex items-center justify-center px-6 py-16 bg-neutral-50 dark:bg-neutral-900/10 relative overflow-hidden">
-      {/* Decorative Morph background */}
-      <div className="absolute -top-20 -left-20 opacity-20 dark:opacity-10 pointer-events-none">
-        <MorphAnimation size="lg" />
-      </div>
-      <div className="absolute -bottom-20 -right-20 opacity-20 dark:opacity-10 pointer-events-none">
-        <MorphAnimation size="lg" />
-      </div>
-
-      <div className="w-full max-w-md bg-white dark:bg-brand-dark border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 shadow-xl transition-all duration-300 relative z-10">
+    <div className="auth-publication">
+      <div className="auth-panel">
         
         {/* Brand header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex flex-col items-center gap-1 hover:opacity-90 transition-opacity">
             <span className="text-2xl font-display font-black tracking-widest text-neutral-900 dark:text-white uppercase select-none">
-              THE CANVES
+              {siteConfig.name}
             </span>
           </Link>
           <h2 className="font-serif text-xl font-bold mt-4 text-neutral-850 dark:text-neutral-50">

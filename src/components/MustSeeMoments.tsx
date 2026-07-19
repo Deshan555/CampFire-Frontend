@@ -85,11 +85,17 @@ export const MustSeeMoments: React.FC<MustSeeMomentsProps> = ({ articles }) => {
                   to={`/article/${article.id}`}
                   className="aspect-[4/3] bg-neutral-200 rounded-3xl overflow-hidden block relative group"
                 >
-                  <img
-                    src={article.image}
-                    alt={article.title}
-                    className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-500 group-hover:scale-102"
-                  />
+                  {article.image ? (
+                    <img
+                      src={article.image}
+                      alt={article.title}
+                      className="w-full h-full object-cover filter grayscale hover:grayscale-0 transition-all duration-500 group-hover:scale-102"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center bg-neutral-200 text-4xl font-bold text-neutral-400">
+                      {(article.category || article.title).charAt(0)}
+                    </div>
+                  )}
                 </Link>
 
                 {/* Tags block */}

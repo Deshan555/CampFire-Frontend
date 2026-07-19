@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import { ARTICLES, AUTHORS, type Article } from "../data/articles";
+import type { Article, Author } from "../data/articles";
 import AdSensePlaceholder from "./AdSensePlaceholder";
 import { subscribeNewsletter } from "../api";
 
@@ -13,10 +13,15 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ articles = [] }) => 
   const [email, setEmail] = useState("");
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<number | null>(null);
 
-  // Filter trending articles
-  const trendingArticles = articles.length > 0
-    ? articles.filter((a) => a.trending)
-    : ARTICLES.filter((a) => a.trending);
+  const trendingArticles = articles.filter((article) => article.trending).slice(0, 4);
+  const authors = Array.from(
+    articles.reduce((map, article) => {
+      if (article.author?.name) {
+        map.set(article.author.name, article.author);
+      }
+      return map;
+    }, new Map<string, Author>()).values()
+  ).slice(0, 4);
 
   const handleSubscribe = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +62,7 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ articles = [] }) => 
         </div>
 
         <div className="flex flex-col gap-4">
-          {trendingArticles.map((article) => (
+          {trendingArticles.length > 0 ? trendingArticles.map((article) => (
             <Link
               key={article.id}
               to={`/article/${article.id}`}
@@ -70,7 +75,11 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ articles = [] }) => 
                 {article.date} • {article.readingTime}
               </span>
             </Link>
-          ))}
+          )) : (
+            <p className="text-xs text-neutral-500 dark:text-neutral-450">
+              Trending articles will appear here after editors mark them.
+            </p>
+          )}
         </div>
       </div>
 
@@ -80,13 +89,19 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ articles = [] }) => 
           Our Authors
         </h3>
         <div className="grid grid-cols-2 gap-4">
-          {Object.values(AUTHORS).map((author) => (
+          {authors.length > 0 ? authors.map((author) => (
             <div key={author.name} className="flex items-center gap-2 group">
-              <img
-                src={author.avatar}
-                alt={author.name}
-                className="w-8 h-8 rounded-full object-cover border-[0.5px] border-neutral-200 dark:border-neutral-800 shrink-0"
-              />
+              {author.avatar ? (
+                <img
+                  src={author.avatar}
+                  alt={author.name}
+                  className="w-8 h-8 rounded-full object-cover border-[0.5px] border-neutral-200 dark:border-neutral-800 shrink-0"
+                />
+              ) : (
+                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-neutral-100 text-[10px] font-bold text-neutral-500">
+                  {author.name.charAt(0)}
+                </div>
+              )}
               <div className="min-w-0">
                 <p className="text-[11px] font-bold text-neutral-800 dark:text-neutral-100 truncate">
                   {author.name}
@@ -96,7 +111,11 @@ export const RightSidebar: React.FC<RightSidebarProps> = ({ articles = [] }) => 
                 </p>
               </div>
             </div>
-          ))}
+          )) : (
+            <p className="col-span-2 text-xs text-neutral-500 dark:text-neutral-450">
+              Authors will appear when articles load.
+            </p>
+          )}
         </div>
       </div>
 

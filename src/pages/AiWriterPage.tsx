@@ -7,6 +7,7 @@ import Lottie from "lottie-react";
 const LottieComponent = (Lottie as any).default || Lottie;
 import robotWorkingAnimation from "../assets/lottie/RobotWorking.json";
 import { countries } from "countries-list";
+import { siteConfig } from "../config/site";
 
 const countryOptions = Object.values(countries).map(c => c.name).sort();
 
@@ -149,7 +150,7 @@ export const AiWriterPage: React.FC = () => {
           </Link>
           <div className="flex items-center gap-2">
             <span className="admin-panel-header uppercase select-none dark:text-white">
-              THE CANVES AI EDITOR
+              {siteConfig.name} AI Editor
             </span>
           </div>
         </div>
@@ -364,7 +365,7 @@ export const AiWriterPage: React.FC = () => {
                 <div className="flex flex-col items-center justify-center">
                   <LottieComponent animationData={robotWorkingAnimation} loop={true} style={{ height: 320 }} />
                   <p className="mt-4 text-sm font-semibold text-neutral-600 dark:text-neutral-400 font-[Poppins]">
-                    THE CANVES AI Editor is writing...
+                    {siteConfig.name} AI Editor is writing...
                   </p>
                 </div>
                 <div className="space-y-4 w-full mt-8">

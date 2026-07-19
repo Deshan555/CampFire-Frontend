@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation, Link } from "react-router-dom";
+import { siteConfig } from "../config/site";
 
 interface NavbarProps {
   searchQuery: string;
@@ -8,6 +9,7 @@ interface NavbarProps {
   onToggleDarkMode: () => void;
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
+  categories?: string[];
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -17,6 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onToggleDarkMode,
   selectedCategory,
   onSelectCategory,
+  categories = ["All"],
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -91,7 +94,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="flex items-center justify-between w-full md:w-auto gap-6 shrink-0">
         <Link to="/" className="flex items-center gap-2 hover:opacity-90 active:scale-95 transition-all duration-200 group">
           <span className="text-lg font-display font-black tracking-widest text-neutral-900 dark:text-white uppercase select-none">
-            THE CANVES
+            {siteConfig.name}
           </span>
         </Link>
         
@@ -108,14 +111,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Center Section: Editorial Categories Navigation */}
       <nav className="flex items-center gap-5 overflow-x-auto max-w-full pb-1 md:pb-0 font-display text-[10px] sm:text-xs font-extrabold uppercase tracking-widest text-neutral-500 dark:text-neutral-450 shrink-0 thin-scrollbar">
-        {[
-          { name: "Latest", value: "All" },
-          { name: "Trending", value: "Trending" },
-          { name: "Art", value: "Art" },
-          { name: "Design", value: "Design" },
-          { name: "Music", value: "Music" },
-          { name: "Podcast", value: "Podcast" }
-        ].map((item) => {
+        {categories.map((category) => ({ name: category === "All" ? "Latest" : category, value: category })).map((item) => {
           const isActive =
             item.value === "Trending"
               ? selectedCategory === "Trending"

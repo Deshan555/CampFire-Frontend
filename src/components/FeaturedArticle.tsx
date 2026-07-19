@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import type { Article } from "../data/articles";
+import ArticleArtwork from "./ArticleArtwork";
 
 interface FeaturedArticleProps {
   article: Article;
@@ -36,14 +37,20 @@ export const FeaturedArticle: React.FC<FeaturedArticleProps> = ({ article }) => 
             <div className="flex flex-col gap-4">
               {/* Author & reading time */}
               <div className="flex items-center gap-3 border-t border-neutral-300/80 pt-4">
-                <img
-                  src={article.author.avatar}
-                  alt={article.author.name}
-                  className="w-8 h-8 rounded-full object-cover border border-neutral-900"
-                />
+                {article.author?.avatar ? (
+                  <img
+                    src={article.author.avatar}
+                    alt={article.author?.name || "Article author"}
+                    className="w-8 h-8 rounded-full object-cover border border-neutral-900"
+                  />
+                ) : (
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-neutral-200 text-xs font-bold text-neutral-600">
+                    {(article.author?.name || "E").charAt(0)}
+                  </div>
+                )}
                 <div>
                   <span className="text-xs font-bold text-neutral-850 block">
-                    {article.author.name} ({article.author.role})
+                    {article.author?.name || "Editorial Team"} ({article.author?.role || "Editor"})
                   </span>
                   <span className="text-[10px] text-neutral-500 uppercase tracking-widest font-semibold font-display">
                     {article.readingTime}
@@ -53,7 +60,7 @@ export const FeaturedArticle: React.FC<FeaturedArticleProps> = ({ article }) => 
 
               {/* Tags block */}
               <div className="flex gap-2 flex-wrap">
-                {["Trends", "Photography", "Film"].map((tag) => (
+                {(article.hashtags || []).slice(0, 3).map((tag) => (
                   <span
                     key={tag}
                     className="editorial-tag"
@@ -70,12 +77,7 @@ export const FeaturedArticle: React.FC<FeaturedArticleProps> = ({ article }) => 
             to={`/article/${article.id}`}
             className="flex-1 aspect-[16/10] md:aspect-auto md:w-1/2 bg-neutral-200 rounded-3xl overflow-hidden group cursor-pointer block"
           >
-            <img
-              src={article.image || "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80"}
-              alt={article.title}
-              className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700 ease-out"
-              loading="eager"
-            />
+            <ArticleArtwork article={article} eager className="group-hover:scale-[1.02]" />
           </Link>
 
         </article>

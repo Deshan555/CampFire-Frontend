@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { AnimatedButton, LoadingSpinner, MorphAnimation } from "../components/canves-animations";
+import { AnimatedButton, LoadingSpinner } from "../components/canves-animations";
+import { siteConfig } from "../config/site";
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -61,29 +62,15 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const triggerQuickLogin = (user: string, pass: string) => {
-    setUsername(user);
-    setPassword(pass);
-    setErrorMsg("");
-  };
-
   return (
-    <div className="flex-1 min-h-[80vh] flex items-center justify-center px-6 py-16 bg-neutral-50 dark:bg-neutral-900/10 relative overflow-hidden">
-      {/* Decorative Morph background */}
-      <div className="absolute -top-20 -left-20 opacity-20 dark:opacity-10 pointer-events-none">
-        <MorphAnimation size="lg" />
-      </div>
-      <div className="absolute -bottom-20 -right-20 opacity-20 dark:opacity-10 pointer-events-none">
-        <MorphAnimation size="lg" />
-      </div>
-
-      <div className="w-full max-w-md bg-white dark:bg-brand-dark border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-3xl p-8 shadow-xl transition-all duration-300 relative z-10">
+    <div className="auth-publication">
+      <div className="auth-panel">
         
         {/* Brand header */}
         <div className="text-center mb-8">
           <Link to="/" className="inline-flex flex-col items-center gap-1 hover:opacity-90 transition-opacity">
             <span className="text-2xl font-display font-black tracking-widest text-neutral-900 dark:text-white uppercase select-none">
-              THE CANVES
+              {siteConfig.name}
             </span>
           </Link>
           <h2 className="font-serif text-xl font-bold mt-4 text-neutral-850 dark:text-neutral-50">
@@ -156,78 +143,6 @@ export const LoginPage: React.FC = () => {
             )}
           </AnimatedButton>
         </form>
-
-        {/* Quick Testing Profiles */}
-        <div className="mt-8 pt-6 border-t-[0.5px] border-neutral-250 dark:border-neutral-800">
-          <span className="block text-[10px] font-extrabold text-neutral-400 dark:text-neutral-550 uppercase tracking-wider text-center mb-4">
-            Quick Validation Profiles
-          </span>
-          <div className="space-y-2.5">
-            {/* Profile 1: Robert (Author) */}
-            <button
-              type="button"
-              onClick={() => triggerQuickLogin("robert", "password")}
-              className="w-full p-2.5 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900/40 dark:hover:bg-neutral-850 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl flex items-center justify-between transition-colors text-left cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80"
-                  alt=""
-                  className="w-7 h-7 rounded-full object-cover border-[0.5px] border-neutral-300"
-                />
-                <div>
-                  <span className="text-xs font-bold text-neutral-850 dark:text-neutral-150 block">Robert Fox</span>
-                  <span className="text-[9px] text-neutral-400 uppercase font-semibold">Author Profile</span>
-                </div>
-              </div>
-              <span className="text-[9px] bg-neutral-100 dark:bg-neutral-800 text-neutral-500 px-2 py-0.5 rounded font-mono">
-                Click to Fill
-              </span>
-            </button>
-
-            {/* Profile 2: Esther (Author) */}
-            <button
-              type="button"
-              onClick={() => triggerQuickLogin("esther", "password")}
-              className="w-full p-2.5 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900/40 dark:hover:bg-neutral-850 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl flex items-center justify-between transition-colors text-left cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <img
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&h=150&q=80"
-                  alt=""
-                  className="w-7 h-7 rounded-full object-cover border-[0.5px] border-neutral-300"
-                />
-                <div>
-                  <span className="text-xs font-bold text-neutral-855 dark:text-neutral-150 block">Esther Howard</span>
-                  <span className="text-[9px] text-neutral-400 uppercase font-semibold">Author Profile</span>
-                </div>
-              </div>
-              <span className="text-[9px] bg-neutral-100 dark:bg-neutral-800 text-neutral-500 px-2 py-0.5 rounded font-mono">
-                Click to Fill
-              </span>
-            </button>
-
-            {/* Profile 3: Admin (Super Admin) */}
-            <button
-              type="button"
-              onClick={() => triggerQuickLogin("admin", "admin123")}
-              className="w-full p-2.5 bg-neutral-50 hover:bg-neutral-100 dark:bg-neutral-900/40 dark:hover:bg-neutral-850 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl flex items-center justify-between transition-colors text-left cursor-pointer"
-            >
-              <div className="flex items-center gap-2">
-                <div className="w-7 h-7 bg-purple-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">
-                  CE
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-neutral-850 dark:text-neutral-150 block">Chief Editor</span>
-                  <span className="text-[9px] text-neutral-400 uppercase font-semibold">Super Admin Profile</span>
-                </div>
-              </div>
-              <span className="text-[9px] bg-neutral-100 dark:bg-neutral-800 text-neutral-500 px-2 py-0.5 rounded font-mono">
-                Click to Fill
-              </span>
-            </button>
-          </div>
-        </div>
 
         <div className="mt-8 text-center pt-6 border-t-[0.5px] border-neutral-250 dark:border-neutral-800">
           <p className="text-[10px] text-neutral-400 dark:text-neutral-500 mt-2">

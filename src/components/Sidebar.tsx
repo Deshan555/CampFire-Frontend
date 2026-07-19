@@ -1,15 +1,17 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { CATEGORIES } from "../data/articles";
+import { siteConfig } from "../config/site";
 
 interface SidebarProps {
   selectedCategory: string;
   onSelectCategory: (category: string) => void;
+  categories?: string[];
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({
   selectedCategory,
   onSelectCategory,
+  categories = ["All"],
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -28,7 +30,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
           Categories
         </h2>
         <nav className="flex md:flex-col gap-2 overflow-x-auto md:overflow-x-visible pb-3 md:pb-0 thin-scrollbar">
-          {CATEGORIES.map((category) => {
+          {categories.map((category) => {
             const isActive = selectedCategory === category;
             return (
               <button
@@ -49,7 +51,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="hidden md:block border-t-[0.5px] border-neutral-200 dark:border-neutral-800 pt-6 mt-8">
         <p className="text-[11px] text-neutral-400 dark:text-neutral-500 font-sans leading-relaxed">
-          © 2026 THE CANVES. Inspired by classic Swiss print design and luxury digital publishing standards.
+          © {new Date().getFullYear()} {siteConfig.name}. Independent stories for curious minds.
         </p>
       </div>
     </aside>
