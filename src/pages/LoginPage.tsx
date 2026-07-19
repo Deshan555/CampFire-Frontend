@@ -32,15 +32,21 @@ export const LoginPage: React.FC = () => {
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await response.json();
+      const responseData = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Login failed. Please verify credentials.");
+        throw new Error(responseData.error || responseData.errors?.[0]?.message || "Login failed. Please verify credentials.");
+      }
+
+      const payload = responseData.data ? responseData.data : responseData;
+
+      if (!payload.user) {
+        throw new Error("Invalid response format from server.");
       }
 
       // Store user details and JWT token in localStorage
-      localStorage.setItem("editorUser", JSON.stringify(data.user));
-      if (data.token) {
-        localStorage.setItem("authToken", data.token);
+      localStorage.setItem("editorUser", JSON.stringify(payload.user));
+      if (payload.token) {
+        localStorage.setItem("authToken", payload.token);
       }
       
       // Dispatch an event to notify Navbar and other components of auth status
