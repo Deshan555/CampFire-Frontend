@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FolderPlus, Search, Edit2, Trash2, Download, Upload, Trash, CheckSquare, FolderTree } from "lucide-react";
+import { FolderPlus, Search, PencilSparkles, Trash2, Download, Upload, Trash, CheckSquare, FolderTree } from "lucide-react";
 import { fetchCategories, createCategory, updateCategory, deleteCategory } from "../../api";
 import { AdminHeader } from "./AdminHeader";
 import { Pagination } from "../common/Pagination";
@@ -277,14 +277,14 @@ export const AdminCategories: React.FC = () => {
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => handleEdit(cat)}
-                              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                              className="admin-action-btn edit"
                               title="Edit"
                             >
-                              <Edit2 size={14} />
+                              <PencilSparkles size={14} />
                             </button>
                             <button
                               onClick={() => handleDelete(cat.id)}
-                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                              className="admin-action-btn delete"
                               title="Delete"
                             >
                               <Trash2 size={14} />
@@ -315,8 +315,6 @@ export const AdminCategories: React.FC = () => {
       </div>
 
 
-
-      {/* Floating Bottom action bar for multiple selections (Mate Style) */}
       {selectedIds.length > 0 && (
         <div className="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[#0B0D14] text-white py-3 px-6 rounded-xl flex items-center gap-6 shadow-2xl border border-[#2B384F] z-30 transition-all transform scale-100 animate-in fade-in slide-in-from-bottom-4 duration-200">
           <span className="text-xs font-semibold text-gray-300">
