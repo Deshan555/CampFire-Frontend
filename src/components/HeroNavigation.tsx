@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark, ChevronDown, Menu, Search, UserRound, X } from "lucide-react";
+import { Bookmark, ChevronDown, ChevronRight, Menu, Search, UserRound, X } from "lucide-react";
+import { fetchCategories, fetchSubcategories, type CategoryDto, type SubcategoryDto } from "../api";
 import { siteConfig } from "../config/site";
 
 type FeedFilter = "ALL" | "NEW" | "TRENDING" | "MORE";
@@ -42,6 +43,10 @@ export default function HeroNavigation({
 }: HeroNavigationProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [openCategory, setOpenCategory] = useState<string | null>(null);
+  const [apiCategories, setApiCategories] = useState<CategoryDto[]>([]);
+  const [apiSubcategories, setApiSubcategories] = useState<SubcategoryDto[]>([]);
+  const categoryLinksRef = useRef<HTMLDivElement>(null);
   const publicationDate = useMemo(
     () => new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date()),
     []
@@ -55,9 +60,96 @@ export default function HeroNavigation({
     }
   }, []);
 
+  useEffect(() => {
+    let active = true;
+
+    Promise.all([fetchCategories(), fetchSubcategories()])
+      .then(([categoryData, subcategoryData]) => {
+        if (!active) return;
+        setApiCategories(categoryData.filter((category) => category.status === "ACTIVE"));
+        setApiSubcategories(subcategoryData.filter((subcategory) => subcategory.status === "ACTIVE"));
+      })
+      .catch((error) => {
+        console.error("Failed to load publication taxonomy:", error);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!openCategory) return;
+
+    const closeCategoryMenu = (event: MouseEvent) => {
+      if (categoryLinksRef.current && !categoryLinksRef.current.contains(event.target as Node)) {
+        setOpenCategory(null);
+      }
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpenCategory(null);
+    };
+
+    document.addEventListener("mousedown", closeCategoryMenu);
+    document.addEventListener("keydown", closeOnEscape);
+    return () => {
+      document.removeEventListener("mousedown", closeCategoryMenu);
+      document.removeEventListener("keydown", closeOnEscape);
+    };
+  }, [openCategory]);
+
+  const categoryGroups = useMemo(() => {
+    if (apiCategories.length > 0) {
+      return [...apiCategories]
+        .sort((left, right) => right.count - left.count || left.name.localeCompare(right.name))
+        .map((category) => ({
+          id: category.id,
+          name: category.name,
+          count: category.count,
+          subcategories: apiSubcategories
+            .filter((subcategory) =>
+              subcategory.categoryId === category.id || subcategory.parentName === category.name
+            )
+            .sort((left, right) => left.name.localeCompare(right.name))
+        }));
+    }
+
+    return categories
+      .filter((category) => category !== "All")
+      .map((category) => ({
+        id: category,
+        name: category,
+        count: 0,
+        subcategories: category === selectedCategory
+          ? subcategories
+              .filter((subcategory) => subcategory !== "All")
+              .map((subcategory) => ({
+                id: `${category}-${subcategory}`,
+                name: subcategory,
+                parentName: category,
+                categoryId: category,
+                count: 0,
+                status: "ACTIVE" as const
+              }))
+          : []
+      }));
+  }, [apiCategories, apiSubcategories, categories, selectedCategory, subcategories]);
+
+  const activeCategoryGroup = categoryGroups.find((category) => category.id === openCategory)
+    || categoryGroups.find((category) => category.name === selectedCategory)
+    || categoryGroups[0];
+
   const chooseCategory = (category: string) => {
     onSelectCategory?.(category);
     setMenuOpen(false);
+    setOpenCategory(null);
+  };
+
+  const chooseSubcategory = (category: string, subcategory: string) => {
+    onSelectCategory?.(category);
+    onSelectSubcategory?.(subcategory);
+    setMenuOpen(false);
+    setOpenCategory(null);
   };
 
   return (
@@ -107,19 +199,79 @@ export default function HeroNavigation({
       <div className="nav-frame">
         <nav className="category-nav editorial-shell" aria-label="Primary navigation">
           <button type="button" className="mobile-menu-button" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen}>
-            {menuOpen ? <X size={18} /> : <Menu size={18} />} Sections
+            {menuOpen ? <X size={18} /> : <Menu size={18} />} Menu
           </button>
-          <div className={`category-links ${menuOpen ? "is-open" : ""}`}>
-            {categories.map((category) => (
-              <button
-                type="button"
-                key={category}
-                onClick={() => chooseCategory(category)}
-                className={selectedCategory === category && feedFilter === "ALL" ? "is-active" : ""}
-              >
-                {category === "All" ? "Home" : category}
-              </button>
-            ))}
+          <div ref={categoryLinksRef} className={`category-links ${menuOpen ? "is-open" : ""}`}>
+            <button
+              type="button"
+              onClick={() => chooseCategory("All")}
+              className={selectedCategory === "All" && feedFilter === "ALL" ? "is-active" : ""}
+            >
+              Home
+            </button>
+            {categoryGroups.length > 0 && (
+              <div className={`category-menu taxonomy-menu ${openCategory ? "is-open" : ""}`}>
+                <button
+                  type="button"
+                  className={`category-menu__trigger ${selectedCategory !== "All" && feedFilter === "ALL" ? "is-active" : ""}`}
+                  onClick={() => setOpenCategory(openCategory ? null : activeCategoryGroup?.id || categoryGroups[0].id)}
+                  aria-haspopup="menu"
+                  aria-expanded={Boolean(openCategory)}
+                >
+                  Sections
+                  <ChevronDown size={13} aria-hidden="true" />
+                </button>
+
+                <div className="category-submenu taxonomy-dropdown" role="menu" aria-label="Publication sections">
+                  <div className="taxonomy-category-list" aria-label="Categories">
+                    {categoryGroups.map((category) => (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        key={category.id}
+                        className={activeCategoryGroup?.id === category.id ? "is-active" : ""}
+                        onMouseEnter={() => setOpenCategory(category.id)}
+                        onFocus={() => setOpenCategory(category.id)}
+                        onClick={() => setOpenCategory(category.id)}
+                      >
+                        <span>{category.name}</span>
+                        <ChevronRight size={13} aria-hidden="true" />
+                      </button>
+                    ))}
+                  </div>
+
+                  {activeCategoryGroup && (
+                    <div className="taxonomy-topic-list" aria-label={`${activeCategoryGroup.name} subcategories`}>
+                      <div className="taxonomy-topic-heading">
+                        <strong>{activeCategoryGroup.name}</strong>
+                        <span>{activeCategoryGroup.subcategories.length} topics</span>
+                      </div>
+                      <button
+                        type="button"
+                        role="menuitem"
+                        className={selectedCategory === activeCategoryGroup.name && selectedSubcategory === "All" ? "is-active" : ""}
+                        onClick={() => chooseSubcategory(activeCategoryGroup.name, "All")}
+                      >
+                        <span>All {activeCategoryGroup.name}</span>
+                        <span>{activeCategoryGroup.count}</span>
+                      </button>
+                      {activeCategoryGroup.subcategories.map((subcategory) => (
+                        <button
+                          type="button"
+                          role="menuitem"
+                          key={subcategory.id}
+                          className={selectedCategory === activeCategoryGroup.name && selectedSubcategory === subcategory.name ? "is-active" : ""}
+                          onClick={() => chooseSubcategory(activeCategoryGroup.name, subcategory.name)}
+                        >
+                          <span>{subcategory.name}</span>
+                          <span>{subcategory.count}</span>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
             {feedFilters.map((filter) => (
               <button
                 type="button"
@@ -131,17 +283,6 @@ export default function HeroNavigation({
               </button>
             ))}
           </div>
-          {subcategories.length > 1 && (
-            <label className="subcategory-select">
-              <span className="sr-only">Subcategory</span>
-              <select value={selectedSubcategory} onChange={(event) => onSelectSubcategory?.(event.target.value)}>
-                {subcategories.map((subcategory) => (
-                  <option key={subcategory} value={subcategory}>{subcategory === "All" ? "All topics" : subcategory}</option>
-                ))}
-              </select>
-              <ChevronDown size={14} aria-hidden="true" />
-            </label>
-          )}
         </nav>
       </div>
     </header>

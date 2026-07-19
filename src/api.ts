@@ -323,7 +323,25 @@ export async function fetchUsers(): Promise<any[]> {
   return handleResponse(response);
 }
 
-export async function fetchCategories(): Promise<any[]> {
+export interface CategoryDto {
+  id: string;
+  name: string;
+  slug: string;
+  count: number;
+  status: TaxonomyStatus;
+}
+
+export interface SubcategoryDto {
+  id: string;
+  name: string;
+  parentName: string;
+  categoryId: string;
+  slug: string;
+  count: number;
+  status: TaxonomyStatus;
+}
+
+export async function fetchCategories(): Promise<CategoryDto[]> {
   const response = await fetch(`${API_BASE_URL}/admin/categories`, {
     headers: getHeaders()
   });
@@ -358,7 +376,7 @@ export async function deleteCategory(id: string): Promise<any> {
   return handleResponse(response);
 }
 
-export async function fetchSubcategories(): Promise<any[]> {
+export async function fetchSubcategories(): Promise<SubcategoryDto[]> {
   const response = await fetch(`${API_BASE_URL}/admin/subcategories`, {
     headers: getHeaders()
   });
