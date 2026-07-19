@@ -15,6 +15,11 @@ interface WordPosition {
   end: number;
 }
 
+interface ArticleImagePlacement {
+  imageIndex: number;
+  url: string;
+}
+
 const getWordPositions = (text: string): WordPosition[] => {
   const words: WordPosition[] = [];
   const wordRegex = /\S+/g;
@@ -27,6 +32,36 @@ const getWordPositions = (text: string): WordPosition[] => {
     });
   }
   return words;
+};
+
+const distributeArticleImages = (
+  articleId: string,
+  paragraphCount: number,
+  imageUrls: string[] = []
+): Map<number, ArticleImagePlacement[]> => {
+  const placements = new Map<number, ArticleImagePlacement[]>();
+  if (paragraphCount === 0 || imageUrls.length === 0) return placements;
+
+  const paragraphSlots = Array.from({ length: paragraphCount }, (_, index) => index);
+  let seed = Array.from(articleId).reduce(
+    (hash, character) => Math.imul(hash ^ character.charCodeAt(0), 16777619) >>> 0,
+    2166136261
+  );
+
+  for (let index = paragraphSlots.length - 1; index > 0; index -= 1) {
+    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    const swapIndex = seed % (index + 1);
+    [paragraphSlots[index], paragraphSlots[swapIndex]] = [paragraphSlots[swapIndex], paragraphSlots[index]];
+  }
+
+  imageUrls.forEach((url, imageIndex) => {
+    const paragraphIndex = paragraphSlots[imageIndex % paragraphSlots.length];
+    const paragraphImages = placements.get(paragraphIndex) || [];
+    paragraphImages.push({ imageIndex, url });
+    placements.set(paragraphIndex, paragraphImages);
+  });
+
+  return placements;
 };
 
 export const ArticlePage: React.FC = () => {
@@ -45,7 +80,7 @@ export const ArticlePage: React.FC = () => {
   // Emojis feedback state
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<number | null>(null);
 
-  // Lightbox active gallery image state
+  // Lightbox state for images placed inside the article body
   const [activeImageIndex, setActiveImageIndex] = useState<number | null>(null);
 
   // Text-To-Speech (TTS) states
@@ -417,6 +452,12 @@ export const ArticlePage: React.FC = () => {
     { label: "Loved it", symbol: "🤩", iconClass: "fa-solid fa-face-grin-stars text-accent-coral" },
   ];
 
+  const inlineImagesByParagraph = distributeArticleImages(
+    article.id,
+    article.content.length,
+    article.imageUrls
+  );
+
   return (
     <div className="article-reading-page flex-1 font-sans">
 
@@ -517,19 +558,10 @@ export const ArticlePage: React.FC = () => {
           </aside>
         )}
 
-        {/* Hero media display */}
-        {article.video ? (
-          <div className="article-video-frame">
-            <VideoPlayer
-              src={article.video.src}
-              poster={article.video.poster || undefined}
-            />
-          </div>
-        ) : (
-          <div className="article-hero-frame">
-            <ArticleArtwork article={article} eager />
-          </div>
-        )}
+        {/* Hero artwork */}
+        <div className="article-hero-frame">
+          <ArticleArtwork article={article} eager />
+        </div>
 
         {/* Editorial body rendering Markdown (README) format */}
         <div className="editorial-prose text-neutral-850 dark:text-neutral-200 mb-12 max-w-3xl mx-auto select-text text-justify flex flex-col gap-6">
@@ -542,74 +574,70 @@ export const ArticlePage: React.FC = () => {
               .trim();
 
             return (
-              <div
-                key={index}
-                className={`transition-all duration-300 ${isCurrent
-                    ? "bg-accent-coral/10 border-l-[3.5px] border-accent-coral pl-4 pr-2 py-3 rounded-r-lg"
-                    : ""
-                  }`}
-              >
-                {isCurrent ? (
-                  <p className="font-serif text-sm sm:text-base md:text-lg leading-relaxed text-neutral-850 dark:text-neutral-200 select-text text-justify">
-                    {getWordPositions(rawText).map((wp, i, arr) => {
-                      const isWordActive =
-                        currentCharIndex !== null &&
-                        wp.start <= currentCharIndex &&
-                        currentCharIndex < wp.end;
-                      return (
-                        <React.Fragment key={i}>
-                          <span
-                            className={
-                              isWordActive
-                                ? "bg-accent-coral text-white px-1 py-0.5 rounded font-semibold shadow-sm transition-colors duration-100"
-                                : "transition-colors duration-300"
-                            }
-                          >
-                            {wp.word}
-                          </span>
-                          {i < arr.length - 1 ? " " : ""}
-                        </React.Fragment>
-                      );
-                    })}
-                  </p>
-                ) : (
-                  <Markdown content={paragraph} />
-                )}
-              </div>
+              <React.Fragment key={index}>
+                <div
+                  className={`transition-all duration-300 ${isCurrent
+                      ? "bg-accent-coral/10 border-l-[3.5px] border-accent-coral pl-4 pr-2 py-3 rounded-r-lg"
+                      : ""
+                    }`}
+                >
+                  {isCurrent ? (
+                    <p className="font-serif text-sm sm:text-base md:text-lg leading-relaxed text-neutral-850 dark:text-neutral-200 select-text text-justify">
+                      {getWordPositions(rawText).map((wp, i, arr) => {
+                        const isWordActive =
+                          currentCharIndex !== null &&
+                          wp.start <= currentCharIndex &&
+                          currentCharIndex < wp.end;
+                        return (
+                          <React.Fragment key={i}>
+                            <span
+                              className={
+                                isWordActive
+                                  ? "bg-accent-coral text-white px-1 py-0.5 rounded font-semibold shadow-sm transition-colors duration-100"
+                                  : "transition-colors duration-300"
+                              }
+                            >
+                              {wp.word}
+                            </span>
+                            {i < arr.length - 1 ? " " : ""}
+                          </React.Fragment>
+                        );
+                      })}
+                    </p>
+                  ) : (
+                    <Markdown content={paragraph} />
+                  )}
+                </div>
+
+                {(inlineImagesByParagraph.get(index) || []).map(({ imageIndex, url }) => (
+                  <figure key={`${url}-${imageIndex}`} className="article-inline-figure">
+                    <button
+                      type="button"
+                      className="article-inline-image"
+                      onClick={() => setActiveImageIndex(imageIndex)}
+                      aria-label={`Open image ${imageIndex + 1} from ${article.title}`}
+                    >
+                      <img
+                        src={url}
+                        alt={`${article.title}, image ${imageIndex + 1}`}
+                        loading="lazy"
+                      />
+                    </button>
+                  </figure>
+                ))}
+              </React.Fragment>
             );
           })}
         </div>
 
-        {/* Article Gallery Section */}
-        {article.imageUrls && article.imageUrls.length > 0 && (
-          <div className="mt-12 border-t-[0.5px] border-neutral-200 dark:border-neutral-800 pt-10 max-w-3xl mx-auto">
-            <span className="block text-[10px] font-extrabold uppercase text-accent-purple tracking-widest mb-1.5 font-sans">
-              Visual Insights
-            </span>
-            <h3 className="font-serif text-2xl font-black text-neutral-900 dark:text-white leading-tight mb-6">
-              Featured Gallery
-            </h3>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {article.imageUrls.map((url, idx) => (
-                <div
-                  key={idx}
-                  onClick={() => setActiveImageIndex(idx)}
-                  className="relative group aspect-[4/3] rounded-lg overflow-hidden border-[0.5px] border-neutral-200 dark:border-neutral-800 shadow-sm cursor-zoom-in bg-neutral-50 dark:bg-neutral-900/30"
-                >
-                  <img
-                    src={url}
-                    alt={`Gallery ${idx + 1}`}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03] select-none"
-                    loading="lazy"
-                  />
-                  <div className="absolute inset-0 bg-neutral-950/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <div className="w-9 h-9 rounded-full bg-white/90 dark:bg-neutral-900/90 flex items-center justify-center shadow-md scale-90 group-hover:scale-100 transition-all duration-300">
-                      <i className="fa-solid fa-magnifying-glass-plus text-neutral-800 dark:text-white text-xs"></i>
-                    </div>
-                  </div>
-                </div>
-              ))}
+        {/* Video follows the written article */}
+        {article.video && (
+          <div className="article-video-section">
+            <div className="article-video-frame">
+              <VideoPlayer
+                src={article.video.src}
+                poster={article.video.poster || undefined}
+              />
             </div>
           </div>
         )}
