@@ -766,7 +766,9 @@ aside .lucide {
 .second-main-button svg.lucide,
 .second-main-button .lucide,
 .secondary-button svg.lucide,
-.secondary-button .lucide {
+.secondary-button .lucide,
+.admin-action-btn svg.lucide,
+.admin-action-btn .lucide {
   stroke: currentColor !important;
   stroke-width: 2px !important;
 }
@@ -799,4 +801,89 @@ aside .lucide {
   font-size: 12px !important;
   line-height: 10px !important;
   letter-spacing: normal !important;
+}
+
+/* Admin Table Action Buttons (Square with 8px border radius) */
+.admin-action-btn {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 32px !important;
+  height: 32px !important;
+  border-radius: 8px !important;
+  background-color: #ffffff !important;
+  border: 1px solid var(--border) !important;
+  color: var(--text-secondary) !important;
+  transition: all 0.2s ease !important;
+  cursor: pointer !important;
+}
+
+.admin-action-btn:hover {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  color: var(--text-primary) !important;
+  transform: translateY(-1px) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.admin-action-btn.edit {
+  background-color: #0b0e15 !important;
+  border-color: #0b0e15 !important;
+  color: #ffffff !important;
+}
+
+.admin-action-btn.edit:hover {
+  background-color: #353638 !important;
+  border-color: #353638 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2) !important;
+}
+
+.admin-action-btn.delete {
+  background-color: #c34141 !important;
+  border-color: #c34141 !important;
+  color: #ffffff !important;
+}
+
+.admin-action-btn.delete:hover {
+  background-color: #842020 !important;
+  border-color: #b53737 !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2) !important;
+}
+
+/* Primary Color Variants */
+.admin-action-btn.primary {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+.admin-action-btn.primary:hover {
+  background-color: var(--primary-hover) !important;
+  border-color: var(--primary-hover) !important;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px var(--primary-ring) !important;
+}
+
+.admin-action-btn.primary-light {
+  background-color: var(--primary-light) !important;
+  border-color: var(--border) !important;
+  color: var(--primary) !important;
+}
+
+.admin-action-btn.primary-light:hover {
+  background-color: var(--primary) !important;
+  border-color: var(--primary) !important;
+  color: #ffffff !important;
+}
+
+/* Enforce Poppins font for all tables */
+table,
+table th,
+table td,
+table tr {
+  font-family: "Poppins", sans-serif !important;
+  font-size: 12px !important;
+  font-weight: 500 !important;
 }

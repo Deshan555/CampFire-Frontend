@@ -4,7 +4,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import type { Article } from "../../data/articles";
+import { ArticleStatus, type Article } from "../../data/articles";
 import { LoadingScreen } from "../common/LoadingScreen";
 import { NoDataScreen } from "../common/NoDataScreen";
 import { Bot, Check, X, PencilSparkles, Trash2, Video, FileText } from "lucide-react";
@@ -111,7 +111,7 @@ export const CrmTable: React.FC<CrmTableProps> = ({
                         ))}
                       </div>
                     )}
-                    {art.reviewFeedback && (art.status === "rejected" || art.status === "pending") && (
+                    {art.reviewFeedback && (art.status === ArticleStatus.REJECTED || art.status === ArticleStatus.PENDING_REVIEW) && (
                       <div className="mt-2 text-left bg-red-500/5 dark:bg-red-950/10 border-[0.5px] border-red-200 dark:border-red-950/30 p-3 rounded-lg text-xs leading-relaxed max-w-xl whitespace-normal">
                         <div className="flex items-center gap-1.5 font-bold text-red-750 dark:text-red-400 mb-1">
                           <i className="fa-solid fa-circle-exclamation text-xs"></i>
@@ -142,11 +142,11 @@ export const CrmTable: React.FC<CrmTableProps> = ({
               <td className="py-4 px-6 whitespace-nowrap">
                 <div className="flex flex-col gap-1.5 justify-center">
                   <div>
-                    {art.status === "approved" ? (
+                    {art.status === ArticleStatus.APPROVED ? (
                       <span className="text-[9px] bg-emerald-500/10 border-[0.5px] border-emerald-500/30 text-emerald-600 dark:text-emerald-400 px-2.5 py-0.5 rounded font-extrabold uppercase tracking-wider">
                         Approved
                       </span>
-                    ) : art.status === "rejected" ? (
+                    ) : art.status === ArticleStatus.REJECTED ? (
                       <span className="text-[9px] bg-red-500/10 border-[0.5px] border-red-500/30 text-red-650 dark:text-red-400 px-2.5 py-0.5 rounded font-extrabold uppercase tracking-wider">
                         Rejected
                       </span>
@@ -194,7 +194,7 @@ export const CrmTable: React.FC<CrmTableProps> = ({
               <td className="py-4 px-6 whitespace-nowrap text-right text-xs">
                 <div className="flex items-center justify-end gap-1.5">
                   {(currentUser?.role === "SUPER_ADMIN" || currentUser?.role === "EDITOR") &&
-                    art.status === "pending" && (
+                    art.status === ArticleStatus.PENDING_REVIEW && (
                       <>
                         <button
                           onClick={() => handleOpenReview(art)}

@@ -4,6 +4,9 @@
 
 import React from "react";
 import Markdown from "../Markdown";
+import Lottie from "lottie-react";
+const LottieComponent = (Lottie as any).default || Lottie;
+import robotWorkingAnimation from "../../assets/lottie/RobotWorking.json";
 import type { Article } from "../../data/articles";
 import type { ReviewRule } from "../../api";
 
@@ -85,7 +88,14 @@ export const AiReviewModal: React.FC<AiReviewModalProps> = ({
         </div>
 
         <div className="flex-1 overflow-y-auto p-6 space-y-6 text-left">
-          {!reviewResult ? (
+          {isReviewing ? (
+            <div className="flex-1 flex flex-col items-center justify-center py-16 text-center w-full">
+              <LottieComponent animationData={robotWorkingAnimation} loop={true} style={{ height: 320 }} />
+              <p className="mt-4 text-sm font-semibold text-neutral-600 dark:text-neutral-400 font-[Poppins]">
+                Evaluating submission...
+              </p>
+            </div>
+          ) : !reviewResult ? (
             <div className="space-y-4">
               <div className="p-4 bg-neutral-50 dark:bg-neutral-900/10 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl space-y-1.5 animate-fade-in">
                 <span className="block text-[10px] font-extrabold uppercase text-neutral-404 tracking-wider">

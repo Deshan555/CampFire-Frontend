@@ -5,8 +5,14 @@
 import React from "react";
 import Markdown from "../Markdown";
 import type { Article } from "../../data/articles";
-import { AnimatedButton, GlowingFluidOrb } from "../canves-animations";
+import { AnimatedButton } from "../canves-animations";
+import Lottie from "lottie-react";
+const LottieComponent = (Lottie as any).default || Lottie;
+import robotWorkingAnimation from "../../assets/lottie/RobotWorking.json";
 import { Spin, Skeleton } from "antd";
+import { countries } from "countries-list";
+
+const countryOptions = Object.values(countries).map(c => c.name).sort();
 
 interface ArticleFormDrawerProps {
   isSaving: boolean;
@@ -75,6 +81,8 @@ interface ArticleFormDrawerProps {
   aiError: string;
   aiSuccess: string;
   aiImagePrompts?: string[];
+  aiTargetCountries?: string[];
+  setAiTargetCountries?: (countries: string[]) => void;
   handleRunAiWriter: () => void;
 }
 
@@ -143,8 +151,12 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
   aiError,
   aiSuccess,
   aiImagePrompts,
+  aiTargetCountries = [],
+  setAiTargetCountries,
   handleRunAiWriter,
 }) => {
+  const [countriesDropdownOpen, setCountriesDropdownOpen] = React.useState(false);
+  const [manualCountriesDropdownOpen, setManualCountriesDropdownOpen] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<'ai' | 'manual'>(editingArticle ? 'manual' : 'ai');
 
   const [newHashtag, setNewHashtag] = React.useState("");
@@ -166,25 +178,6 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
   const handleRemoveHashtag = (tagToRemove: string) => {
     setFormHashtags(formHashtags.filter(t => t !== tagToRemove));
   };
-
-  const handleToggleCountry = (code: string) => {
-    if (formTargetCountries.includes(code)) {
-      setFormTargetCountries(formTargetCountries.filter(c => c !== code));
-    } else {
-      setFormTargetCountries([...formTargetCountries, code]);
-    }
-  };
-
-  const COUNTRIES = [
-    { code: "US", name: "United States" },
-    { code: "CA", name: "Canada" },
-    { code: "GB", name: "United Kingdom" },
-    { code: "DE", name: "Germany" },
-    { code: "FR", name: "France" },
-    { code: "IN", name: "India" },
-    { code: "JP", name: "Japan" },
-    { code: "AU", name: "Australia" }
-  ];
 
   // Keep compiler happy
   React.useEffect(() => {
@@ -314,8 +307,10 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
 
                 {aiGenerating ? (
                   <div className="py-8 flex flex-col items-center justify-center space-y-4">
-                    <Spin size="large" tip="AI Composer is writing content..." />
-                    <GlowingFluidOrb message="Copilot generating draft structure..." size="md" />
+                    <LottieComponent animationData={robotWorkingAnimation} loop={true} style={{ height: 320 }} />
+                    <p className="mt-4 text-sm font-semibold text-neutral-600 dark:text-neutral-400 font-[Poppins]">
+                      Copilot generating draft structure...
+                    </p>
                   </div>
                 ) : (
                   <>
@@ -361,6 +356,60 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                           rows={3}
                           className="w-full editor-component-base p-4 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200 resize-y"
                         />
+                      </div>
+
+                      <div className="relative">
+                        <label className="block text-[10px] font-bold uppercase tracking-wider text-neutral-500 mb-1.5">
+                          Target Countries for Prioritization
+                        </label>
+                        <div 
+                          className="w-full editor-component-base p-4 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 flex items-center justify-between cursor-pointer"
+                          onClick={() => setCountriesDropdownOpen(!countriesDropdownOpen)}
+                        >
+                          <div className="flex flex-wrap gap-1 overflow-hidden h-5 max-w-[90%]">
+                            {aiTargetCountries.length === 0 ? (
+                              <span className="text-neutral-400 text-sm">Select countries...</span>
+                            ) : (
+                              aiTargetCountries.map(tc => (
+                                <span key={tc} className="text-[10px] font-bold bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 px-1.5 rounded">
+                                  {tc}
+                                </span>
+                              ))
+                            )}
+                          </div>
+                          <i className={`fa-solid fa-chevron-down text-xs transition-transform ${countriesDropdownOpen ? "rotate-180" : ""}`}></i>
+                        </div>
+                        
+                        {countriesDropdownOpen && (
+                          <div className="absolute z-50 mt-1 w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                            {countryOptions.map(country => {
+                              const isSelected = aiTargetCountries.includes(country);
+                              return (
+                                <div 
+                                  key={country}
+                                  className="flex items-center px-3 py-2 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 cursor-pointer"
+                                  onClick={() => {
+                                    if (setAiTargetCountries) {
+                                      if (isSelected) {
+                                        setAiTargetCountries(aiTargetCountries.filter(c => c !== country));
+                                      } else {
+                                        setAiTargetCountries([...aiTargetCountries, country]);
+                                      }
+                                    }
+                                  }}
+                                >
+                                  <input 
+                                    type="checkbox"
+                                    checked={isSelected}
+                                    readOnly
+                                    className="rounded border-gray-300 text-violet-600 focus:ring-violet-500 h-3 w-3 mr-2"
+                                  />
+                                  <span className="text-xs text-neutral-700 dark:text-neutral-300">{country}</span>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex items-center justify-between border-[0.5px] border-neutral-200 dark:border-neutral-800 p-4 rounded-xl bg-white dark:bg-neutral-900">
@@ -519,30 +568,56 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                 )}
               </div>
 
-              <div>
+              <div className="relative">
                 <label className="block text-xs font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-2">
                   Target Countries for Prioritization
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {COUNTRIES.map((country) => {
-                    const isSelected = formTargetCountries.includes(country.code);
-                    return (
-                      <button
-                        key={country.code}
-                        type="button"
-                        onClick={() => handleToggleCountry(country.code)}
-                        className={`flex items-center justify-center gap-1.5 py-2 px-3 border rounded-xl text-xs font-semibold transition-all duration-300 cursor-pointer select-none ${
-                          isSelected
-                            ? "bg-accent-purple/10 border-accent-purple text-accent-purple dark:text-accent-purple-light shadow-[0_0_12px_rgba(139,92,246,0.15)] scale-[1.02]"
-                            : "bg-neutral-50 dark:bg-neutral-900/50 border-neutral-200 dark:border-neutral-800 text-neutral-600 dark:text-neutral-400 hover:border-neutral-300 dark:hover:border-neutral-700 hover:bg-neutral-100 dark:hover:bg-neutral-900"
-                        }`}
-                      >
-                        {isSelected && <i className="fa-solid fa-check text-[10px]"></i>}
-                        <span>{country.name} ({country.code})</span>
-                      </button>
-                    );
-                  })}
+                <div 
+                  className="inputField-custom w-full flex items-center justify-between cursor-pointer"
+                  onClick={() => setManualCountriesDropdownOpen(!manualCountriesDropdownOpen)}
+                >
+                  <div className="flex flex-wrap gap-1 overflow-hidden h-5 max-w-[90%]">
+                    {formTargetCountries.length === 0 ? (
+                      <span className="text-neutral-400 text-sm">Select countries...</span>
+                    ) : (
+                      formTargetCountries.map(tc => (
+                        <span key={tc} className="text-[10px] font-bold bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 px-1.5 rounded">
+                          {tc}
+                        </span>
+                      ))
+                    )}
+                  </div>
+                  <i className={`fa-solid fa-chevron-down text-xs transition-transform ${manualCountriesDropdownOpen ? "rotate-180" : ""}`}></i>
                 </div>
+                
+                {manualCountriesDropdownOpen && (
+                  <div className="absolute z-50 mt-1 w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    {countryOptions.map(country => {
+                      const isSelected = formTargetCountries.includes(country);
+                      return (
+                        <div 
+                          key={country}
+                          className="flex items-center px-3 py-2 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 cursor-pointer"
+                          onClick={() => {
+                            if (isSelected) {
+                              setFormTargetCountries(formTargetCountries.filter(c => c !== country));
+                            } else {
+                              setFormTargetCountries([...formTargetCountries, country]);
+                            }
+                          }}
+                        >
+                          <input 
+                            type="checkbox"
+                            checked={isSelected}
+                            readOnly
+                            className="rounded border-gray-300 text-violet-600 focus:ring-violet-500 h-3 w-3 mr-2"
+                          />
+                          <span className="text-xs text-neutral-700 dark:text-neutral-300">{country}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               <div>

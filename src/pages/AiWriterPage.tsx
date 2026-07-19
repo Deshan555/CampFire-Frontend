@@ -2,7 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { generateAiArticle } from "../api";
 import Markdown from "../components/Markdown";
-import { AnimatedButton, ShimmerEffect, GlowingFluidOrb } from "../components/canves-animations";
+import { ShimmerEffect } from "../components/canves-animations";
+import Lottie from "lottie-react";
+const LottieComponent = (Lottie as any).default || Lottie;
+import robotWorkingAnimation from "../assets/lottie/RobotWorking.json";
+import { countries } from "countries-list";
+
+const countryOptions = Object.values(countries).map(c => c.name).sort();
 
 export const AiWriterPage: React.FC = () => {
   const [model, setModel] = useState("gemma3:1b");
@@ -13,6 +19,8 @@ export const AiWriterPage: React.FC = () => {
   const [generating, setGenerating] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [targetCountries, setTargetCountries] = useState<string[]>([]);
+  const [countriesDropdownOpen, setCountriesDropdownOpen] = useState(false);
 
   // Theme state local sync
   const [darkMode, setDarkMode] = useState(false);
@@ -38,6 +46,7 @@ export const AiWriterPage: React.FC = () => {
     title: string;
     summary: string;
     content: string[];
+    hashtags?: string[];
     video?: {
       src: string;
       type: string;
@@ -58,13 +67,53 @@ export const AiWriterPage: React.FC = () => {
     setGeneratedArticle(null);
 
     try {
+      const finalInstructions = instructions.trim() + (targetCountries.length > 0 ? `\nTarget Countries: ${targetCountries.join(", ")}` : "");
+      
       const response = await generateAiArticle({
         model,
         topic: topic.trim(),
         tone,
-        instructions: instructions.trim(),
+        instructions: finalInstructions,
         includeVideo
       });
+
+      // Filter out hashtags and image prompts from content
+      let newCleanContent: string[] = [];
+      let hashtagsFromContent: string[] = [];
+
+      for (let p of response.content || []) {
+        // Find if paragraph has image prompts indicator
+        const lowerP = p.toLowerCase();
+        if (lowerP.includes('image prompts:') || lowerP.includes('**image prompts:**')) {
+          const split = p.split(/(?:\*\*|)?image prompts?:?(?:\*\*|)?/i);
+          if (split[0].trim().length > 0) {
+            newCleanContent.push(split[0].trim());
+          }
+          break; // Usually image prompts are at the end, so we can ignore the rest
+        }
+
+        // Check if paragraph is primarily hashtags
+        const hashRegex = /#[\w-]+/g;
+        const matches = p.match(hashRegex);
+        if (matches && matches.length > 0) {
+          const textWithoutHashtags = p.replace(hashRegex, '').trim();
+          if (textWithoutHashtags.length < 15) {
+            // It's just a hashtag line
+            hashtagsFromContent.push(...matches);
+            continue;
+          }
+        }
+        
+        newCleanContent.push(p);
+      }
+
+      response.content = newCleanContent;
+      
+      // Combine backend hashtags with any leaked into content
+      let allHashtags = [...(response.hashtags || []), ...hashtagsFromContent];
+      // Clean and dedup
+      allHashtags = allHashtags.map(t => t.startsWith('#') ? t : `#${t}`);
+      response.hashtags = Array.from(new Set(allHashtags));
 
       setGeneratedArticle(response);
       setSuccessMsg("Article generated successfully!");
@@ -99,7 +148,7 @@ export const AiWriterPage: React.FC = () => {
             <span>Back</span>
           </Link>
           <div className="flex items-center gap-2">
-            <span className="text-sm font-display font-black tracking-widest text-neutral-900 dark:text-white uppercase select-none">
+            <span className="admin-panel-header uppercase select-none dark:text-white">
               THE CANVES AI EDITOR
             </span>
           </div>
@@ -140,13 +189,13 @@ export const AiWriterPage: React.FC = () => {
 
             <form onSubmit={handleGenerate} className="space-y-4">
               <div>
-                <label className="block text-[10px] font-bold text-neutral-450 dark:text-neutral-400 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-gray-700 dark:text-neutral-400 uppercase tracking-wider mb-1.5">
                   Ollama Model Engine *
                 </label>
                 <select
                   value={model}
                   onChange={(e) => setModel(e.target.value)}
-                  className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200 cursor-pointer"
+                  className="selectField-custom w-full"
                 >
                   <option value="gemma3:1b">Gemma 3 1B (Fastest)</option>
                   <option value="deepseek-r1:1.5b">DeepSeek R1 1.5B (Reasoning)</option>
@@ -157,13 +206,13 @@ export const AiWriterPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-neutral-450 dark:text-neutral-400 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-gray-700 dark:text-neutral-400 uppercase tracking-wider mb-1.5">
                   Tone of Voice *
                 </label>
                 <select
                   value={tone}
                   onChange={(e) => setTone(e.target.value)}
-                  className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200 cursor-pointer"
+                  className="selectField-custom w-full"
                 >
                   <option value="Professional">Professional</option>
                   <option value="Casual">Casual</option>
@@ -174,7 +223,7 @@ export const AiWriterPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-neutral-450 dark:text-neutral-400 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-gray-700 dark:text-neutral-400 uppercase tracking-wider mb-1.5">
                   Article Topic *
                 </label>
                 <input
@@ -183,12 +232,12 @@ export const AiWriterPage: React.FC = () => {
                   placeholder="e.g. Memory safety features in Rust..."
                   value={topic}
                   onChange={(e) => setTopic(e.target.value)}
-                  className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200"
+                  className="inputField-custom w-full"
                 />
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-neutral-455 dark:text-neutral-400 uppercase tracking-wider mb-1.5">
+                <label className="block text-xs font-bold text-gray-700 dark:text-neutral-400 uppercase tracking-wider mb-1.5">
                   Contextual Guidelines
                 </label>
                 <textarea
@@ -196,8 +245,60 @@ export const AiWriterPage: React.FC = () => {
                   placeholder="e.g. Focus on borrowing and lifetimes. Include a code block sample. Keep it brief."
                   value={instructions}
                   onChange={(e) => setInstructions(e.target.value)}
-                  className="w-full px-3 py-2 bg-white dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-800 dark:text-neutral-200 resize-none transition-all"
+                  className="textareaField-custom w-full"
                 ></textarea>
+              </div>
+
+              <div className="relative">
+                <label className="block text-xs font-bold text-gray-700 dark:text-neutral-400 uppercase tracking-wider mb-1.5">
+                  Target Countries for Prioritization
+                </label>
+                <div 
+                  className="inputField-custom w-full flex items-center justify-between cursor-pointer"
+                  onClick={() => setCountriesDropdownOpen(!countriesDropdownOpen)}
+                >
+                  <div className="flex flex-wrap gap-1 overflow-hidden h-5 max-w-[90%]">
+                    {targetCountries.length === 0 ? (
+                      <span className="text-neutral-400 text-sm">Select countries...</span>
+                    ) : (
+                      targetCountries.map(tc => (
+                        <span key={tc} className="text-[10px] font-bold bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 px-1.5 rounded">
+                          {tc}
+                        </span>
+                      ))
+                    )}
+                  </div>
+                  <i className={`fa-solid fa-chevron-down text-xs transition-transform ${countriesDropdownOpen ? "rotate-180" : ""}`}></i>
+                </div>
+                
+                {countriesDropdownOpen && (
+                  <div className="absolute z-50 mt-1 w-full bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                    {countryOptions.map(country => {
+                      const isSelected = targetCountries.includes(country);
+                      return (
+                        <div 
+                          key={country}
+                          className="flex items-center px-3 py-2 hover:bg-neutral-50 dark:hover:bg-neutral-700/50 cursor-pointer"
+                          onClick={() => {
+                            if (isSelected) {
+                              setTargetCountries(targetCountries.filter(c => c !== country));
+                            } else {
+                              setTargetCountries([...targetCountries, country]);
+                            }
+                          }}
+                        >
+                          <input 
+                            type="checkbox"
+                            checked={isSelected}
+                            readOnly
+                            className="rounded border-gray-300 text-violet-600 focus:ring-violet-500 h-3 w-3 mr-2"
+                          />
+                          <span className="text-xs text-neutral-700 dark:text-neutral-300">{country}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center gap-2 py-1">
@@ -206,18 +307,17 @@ export const AiWriterPage: React.FC = () => {
                   id="includeVideo"
                   checked={includeVideo}
                   onChange={(e) => setIncludeVideo(e.target.checked)}
-                  className="rounded border-neutral-300 dark:border-neutral-800 text-violet-650 focus:ring-accent-purple h-4 w-4 cursor-pointer"
+                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4 cursor-pointer"
                 />
-                <label htmlFor="includeVideo" className="text-[11px] font-medium text-neutral-600 dark:text-neutral-300 cursor-pointer select-none">
+                <label htmlFor="includeVideo" className="text-xs font-bold text-gray-700 dark:text-neutral-300 cursor-pointer select-none">
                   Find and attach a matching YouTube video
                 </label>
               </div>
 
-              <AnimatedButton
+              <button
                 type="submit"
                 disabled={generating}
-                variant="primary"
-                className="w-full py-2.5 text-xs font-bold rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-sm"
+                className="main-button w-full"
               >
                 {generating ? (
                   <>
@@ -230,7 +330,7 @@ export const AiWriterPage: React.FC = () => {
                     <span>Generate Draft</span>
                   </>
                 )}
-              </AnimatedButton>
+              </button>
             </form>
           </div>
 
@@ -261,10 +361,12 @@ export const AiWriterPage: React.FC = () => {
 
             {generating && (
               <div className="flex-1 flex flex-col items-center justify-center py-20 text-center w-full">
-                <GlowingFluidOrb
-                  size="lg"
-                  message="THE CANVES AI Editor is writing..."
-                />
+                <div className="flex flex-col items-center justify-center">
+                  <LottieComponent animationData={robotWorkingAnimation} loop={true} style={{ height: 320 }} />
+                  <p className="mt-4 text-sm font-semibold text-neutral-600 dark:text-neutral-400 font-[Poppins]">
+                    THE CANVES AI Editor is writing...
+                  </p>
+                </div>
                 <div className="space-y-4 w-full mt-8">
                   <ShimmerEffect className="h-6 w-3/4 rounded-md mx-auto" />
                   <ShimmerEffect className="h-4 w-1/2 rounded-md mx-auto" />
@@ -299,7 +401,7 @@ export const AiWriterPage: React.FC = () => {
 
                   <button
                     onClick={handleCopy}
-                    className="flex items-center gap-1.5 px-3 py-1.5 border-[0.5px] border-neutral-200 dark:border-neutral-805 hover:bg-neutral-50 dark:hover:bg-neutral-900 rounded-lg text-xs font-semibold text-neutral-700 dark:text-neutral-300 cursor-pointer shadow-sm"
+                    className="secondary-button"
                   >
                     <i className="fa-solid fa-copy"></i>
                     <span>Copy Article</span>
@@ -320,6 +422,17 @@ export const AiWriterPage: React.FC = () => {
                     {generatedArticle.summary}
                   </p>
                 </div>
+
+                {/* Hashtags */}
+                {generatedArticle.hashtags && generatedArticle.hashtags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 my-2">
+                    {generatedArticle.hashtags.map((tag, idx) => (
+                      <span key={idx} className="text-[10px] font-bold bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 px-2 py-1 rounded-md tracking-wide">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {/* Video Player Preview if Available */}
                 {generatedArticle.video?.src && (

@@ -22,13 +22,13 @@ import {
   fetchSubcategories,
   type ReviewRule
 } from "../api";
-import type { Article } from "../data/articles";
+import { ArticleStatus, type Article } from "../data/articles";
 
-import CrmHeader from "../components/dashboard/CrmHeader";
-import CrmAnalytics from "../components/dashboard/CrmAnalytics";
+import { AdminHeader } from "../components/admin/AdminHeader";
 import CrmTabs from "../components/dashboard/CrmTabs";
 import CrmTable from "../components/dashboard/CrmTable";
-import CrmPagination from "../components/dashboard/CrmPagination";
+import { Pagination } from "../components/common/Pagination";
+import { Newspaper, Plus, ShieldAlert } from "lucide-react";
 import AiRulesModal from "../components/dashboard/AiRulesModal";
 import AiReviewModal from "../components/dashboard/AiReviewModal";
 import ArticleFormDrawer from "../components/dashboard/ArticleFormDrawer";
@@ -56,7 +56,7 @@ export const CrmDashboard: React.FC = () => {
   const [formSubcategory, setFormSubcategory] = useState("");
   const [formHashtags, setFormHashtags] = useState<string[]>([]);
   const [formTargetCountries, setFormTargetCountries] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState<'approved' | 'pending' | 'rejected'>('approved');
+  const [activeTab, setActiveTab] = useState<ArticleStatus>(ArticleStatus.APPROVED);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 10;
   const [formImage, setFormImage] = useState("");
@@ -101,6 +101,7 @@ export const CrmDashboard: React.FC = () => {
   const [aiIncludeVideo, setAiIncludeVideo] = useState(true);
   const [aiError, setAiError] = useState("");
   const [aiSuccess, setAiSuccess] = useState("");
+  const [aiTargetCountries, setAiTargetCountries] = useState<string[]>([]);
   const [aiImagePrompts, setAiImagePrompts] = useState<string[]>([]);
 
   const triggerSuccess = (msg: string) => {
@@ -117,11 +118,13 @@ export const CrmDashboard: React.FC = () => {
     setAiError("");
     setAiSuccess("");
     try {
+      const finalInstructions = aiInstructions.trim() + (aiTargetCountries.length > 0 ? `\nTarget Countries: ${aiTargetCountries.join(", ")}` : "");
+      
       const result = await generateAiArticle({
         model: "gemma3:1b",
         topic: aiTopic.trim(),
         tone: aiTone,
-        instructions: aiInstructions.trim(),
+        instructions: finalInstructions,
         includeVideo: aiIncludeVideo
       });
 
@@ -171,8 +174,7 @@ export const CrmDashboard: React.FC = () => {
     const params = {
       editorMode: true,
       role: user.role,
-      authorUsername: user.username,
-      authorName: user.name
+      authorId: user.id
     };
     
     fetchArticles(undefined, params)
@@ -415,7 +417,7 @@ export const CrmDashboard: React.FC = () => {
   const handleApprove = async (id: string) => {
     if (!currentUser || currentUser.role !== "SUPER_ADMIN") return;
     try {
-      await approveArticle(id, currentUser.role);
+      await approveArticle(id);
       triggerSuccess("Article approved and published successfully.");
       loadArticles(currentUser);
     } catch (err: any) {
@@ -429,7 +431,7 @@ export const CrmDashboard: React.FC = () => {
     const reason = window.prompt("Enter a reason/feedback for declining this article:", "Content did not meet editorial guidelines.");
     if (reason === null) return;
     try {
-      await rejectArticle(id, currentUser.role, reason);
+      await rejectArticle(id, reason);
       triggerSuccess("Article successfully declined and moved to Declined tab.");
       loadArticles(currentUser);
     } catch (err: any) {
@@ -553,13 +555,11 @@ export const CrmDashboard: React.FC = () => {
       imageUrls: formImageUrls,
       video: videoObj,
       featured: formFeatured,
-      trending: formTrending,
-      isPartner: formIsPartner,
-      authorName: formAuthorName.trim(),
-      authorRole: formAuthorRole.trim(),
-      authorAvatar: formAuthorAvatar.trim(),
+      trending: editingArticle ? editingArticle.trending : false,
+      isPartner: editingArticle ? editingArticle.isPartner : false,
+      authorId: currentUser.id,
       role: currentUser.role,
-      status: editingArticle ? editingArticle.status : (currentUser.role === "SUPER_ADMIN" ? "approved" : "pending")
+      status: editingArticle?.status
     };
 
     setIsSaving(true);
@@ -604,15 +604,24 @@ export const CrmDashboard: React.FC = () => {
 
   const totalPages = Math.ceil(sortedArticles.length / pageSize);
   const totalArticles = filteredArticles.length;
-  const totalLikes = filteredArticles.reduce((sum, a) => sum + (a.likes || 0), 0);
-
   return (
-    <div className="flex-1 w-full max-w-[1440px] mx-auto px-6 py-8 border-x-[0.5px] border-neutral-200 dark:border-neutral-800 transition-colors duration-300">
-      <CrmHeader
-        currentUser={currentUser}
-        handleOpenRules={handleOpenRules}
-        handleOpenCreate={handleOpenCreate}
-      />
+    <div className="w-full h-full flex flex-col bg-white overflow-y-auto">
+      <AdminHeader
+        title="Editorial Dashboard"
+        icon={Newspaper}
+        badge={`${totalArticles} total`}
+      >
+        <div className="flex items-center gap-2">
+          {currentUser?.role === 'super_admin' && (
+            <button onClick={handleOpenRules} className="secondary-button">
+               <ShieldAlert size={14} className="mr-1 inline-block" /> AI Rules
+            </button>
+          )}
+          <button onClick={handleOpenCreate} className="main-button">
+            <Plus size={14} className="mr-1 inline-block" /> Write Article
+          </button>
+        </div>
+      </AdminHeader>
 
       {errorMsg && (
         <div className="mb-6 bg-red-50 dark:bg-red-955/20 border-[0.5px] border-red-200 dark:border-red-900 text-red-750 dark:text-red-400 text-xs font-bold py-3 px-4 rounded-xl flex items-center gap-2 animate-fade-in">
@@ -628,26 +637,14 @@ export const CrmDashboard: React.FC = () => {
         </div>
       )}
 
-      <CrmAnalytics
-        currentUser={currentUser}
-        loading={loading}
-        totalArticles={totalArticles}
-        totalLikes={totalLikes}
-        rulesCount={rules.length}
-        activeRulesCount={rules.filter(r => r.is_active).length}
-        activeModel={reviewModel}
-        handleOpenRules={handleOpenRules}
-      />
-
-      <CrmTabs
-        currentUser={currentUser}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        setCurrentPage={setCurrentPage}
-        articles={articles}
-      />
-
       <div className="bg-white dark:bg-brand-dark border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden animate-fade-in">
+        <CrmTabs
+          currentUser={currentUser}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+          setCurrentPage={setCurrentPage}
+          articles={articles}
+        />
         <CrmTable
           currentUser={currentUser}
           loading={loading}
@@ -661,13 +658,13 @@ export const CrmDashboard: React.FC = () => {
           handleOpenCreate={handleOpenCreate}
         />
 
-        <CrmPagination
-          sortedArticles={sortedArticles}
-          currentPage={currentPage}
-          setCurrentPage={setCurrentPage}
-          pageSize={pageSize}
-          totalPages={totalPages}
-        />
+        <div className="p-4 border-t border-gray-200">
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        </div>
       </div>
 
       <ArticleFormDrawer
@@ -736,6 +733,8 @@ export const CrmDashboard: React.FC = () => {
         aiError={aiError}
         aiSuccess={aiSuccess}
         aiImagePrompts={aiImagePrompts}
+        aiTargetCountries={aiTargetCountries}
+        setAiTargetCountries={setAiTargetCountries}
         handleRunAiWriter={handleRunAiWriter}
       />
 

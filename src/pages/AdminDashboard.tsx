@@ -32,7 +32,7 @@ export const AdminDashboard: React.FC = () => {
   React.useEffect(() => {
     const sessionStr = localStorage.getItem("editorUser");
     if (!sessionStr) {
-      navigate("/login");
+      navigate("/admin/login");
       return;
     }
     try {
@@ -42,10 +42,10 @@ export const AdminDashboard: React.FC = () => {
         setAuthorized(true);
       } else {
         alert("Access Denied: Admin privileges required.");
-        navigate("/login");
+        navigate("/admin/login");
       }
     } catch (e) {
-      navigate("/login");
+      navigate("/admin/login");
     }
   }, [navigate]);
 

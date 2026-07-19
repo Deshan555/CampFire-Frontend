@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Edit2, Trash2, Download, Upload, Trash, Hash } from "lucide-react";
+import { Plus, Search, PencilSparkles, Trash2, Trash, Hash } from "lucide-react";
 import { Pagination } from "../common/Pagination";
 import { AdminHeader } from "./AdminHeader";
 import { NoDataScreen } from "../common/NoDataScreen";
@@ -202,14 +202,14 @@ export const AdminTags: React.FC = () => {
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           onClick={() => handleEdit(tag)}
-                          className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                          className="admin-action-btn edit"
                           title="Edit"
                         >
-                          <Edit2 size={14} />
+                          <PencilSparkles size={14} />
                         </button>
                         <button
                           onClick={() => handleDelete(tag.id)}
-                          className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                          className="admin-action-btn delete"
                           title="Delete"
                         >
                           <Trash2 size={14} />

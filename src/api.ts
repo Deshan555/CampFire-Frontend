@@ -37,8 +37,7 @@ export async function fetchArticles(
   editorParams?: {
     editorMode?: boolean;
     role?: string;
-    authorUsername?: string;
-    authorName?: string;
+    authorId?: string;
   }
 ): Promise<Article[]> {
   const url = new URL(`${API_BASE_URL}/articles`);
@@ -52,11 +51,8 @@ export async function fetchArticles(
     if (editorParams.role) {
       url.searchParams.append("role", editorParams.role);
     }
-    if (editorParams.authorUsername) {
-      url.searchParams.append("authorUsername", editorParams.authorUsername);
-    }
-    if (editorParams.authorName) {
-      url.searchParams.append("authorName", editorParams.authorName);
+    if (editorParams.authorId) {
+      url.searchParams.append("authorId", editorParams.authorId);
     }
   }
   const response = await fetch(url.toString(), {
@@ -69,8 +65,7 @@ export async function fetchArticleDetails(
   id: string,
   userParams?: {
     role?: string;
-    authorUsername?: string;
-    authorName?: string;
+    authorId?: string;
   }
 ): Promise<Article> {
   const url = new URL(`${API_BASE_URL}/articles/${id}`);
@@ -78,11 +73,8 @@ export async function fetchArticleDetails(
     if (userParams.role) {
       url.searchParams.append("role", userParams.role);
     }
-    if (userParams.authorUsername) {
-      url.searchParams.append("authorUsername", userParams.authorUsername);
-    }
-    if (userParams.authorName) {
-      url.searchParams.append("authorName", userParams.authorName);
+    if (userParams.authorId) {
+      url.searchParams.append("authorId", userParams.authorId);
     }
   }
   const response = await fetch(url.toString(), {
@@ -112,9 +104,7 @@ export async function subscribeNewsletter(email: string): Promise<{ success: boo
 
 export async function createArticle(
   article: Partial<Article> & {
-    authorName?: string;
-    authorRole?: string;
-    authorAvatar?: string;
+    authorId?: string;
   }
 ): Promise<{ success: boolean; article: Article }> {
   const response = await fetch(`${API_BASE_URL}/articles`, {
@@ -145,8 +135,7 @@ export async function deleteArticle(
   id: string,
   userParams?: {
     role?: string;
-    authorUsername?: string;
-    authorName?: string;
+    authorId?: string;
   }
 ): Promise<{ success: boolean }> {
   const url = new URL(`${API_BASE_URL}/articles/${id}`);
@@ -154,11 +143,8 @@ export async function deleteArticle(
     if (userParams.role) {
       url.searchParams.append("role", userParams.role);
     }
-    if (userParams.authorUsername) {
-      url.searchParams.append("authorUsername", userParams.authorUsername);
-    }
-    if (userParams.authorName) {
-      url.searchParams.append("authorName", userParams.authorName);
+    if (userParams.authorId) {
+      url.searchParams.append("authorId", userParams.authorId);
     }
   }
   const response = await fetch(url.toString(), {
@@ -169,22 +155,20 @@ export async function deleteArticle(
 }
 
 export async function approveArticle(
-  id: string,
-  role: string
+  id: string
 ): Promise<{ success: boolean }> {
   const response = await fetch(`${API_BASE_URL}/articles/${id}/approve`, {
     method: "POST",
     headers: getHeaders({
       "Content-Type": "application/json"
     }),
-    body: JSON.stringify({ role })
+    body: JSON.stringify({})
   });
   return handleResponse(response);
 }
 
 export async function rejectArticle(
   id: string,
-  role: string,
   reason?: string
 ): Promise<{ success: boolean }> {
   const response = await fetch(`${API_BASE_URL}/articles/${id}/reject`, {
@@ -192,13 +176,13 @@ export async function rejectArticle(
     headers: getHeaders({
       "Content-Type": "application/json"
     }),
-    body: JSON.stringify({ role, reason })
+    body: JSON.stringify({ reason })
   });
   return handleResponse(response);
 }
 
 export async function registerReader(
-  payload: { username: string; email: string; password?: string; firstName?: string; lastName?: string; avatarUrl?: string; bio?: string }
+  payload: { username: string; email: string; password: string; firstName?: string; lastName?: string; avatarUrl?: string; bio?: string }
 ): Promise<{ success: boolean; user: any }> {
   const response = await fetch(`${API_BASE_URL}/auth/register`, {
     method: "POST",
@@ -211,7 +195,7 @@ export async function registerReader(
 }
 
 export async function registerAdmin(
-  payload: { username: string; email: string; password?: string; firstName?: string; lastName?: string; avatarUrl?: string; bio?: string; role: string }
+  payload: { username: string; email: string; password: string; firstName?: string; lastName?: string; avatarUrl?: string; bio?: string; role: string }
 ): Promise<{ success: boolean; user: any }> {
   const response = await fetch(`${API_BASE_URL}/admin/register`, {
     method: "POST",
@@ -346,7 +330,9 @@ export async function fetchCategories(): Promise<any[]> {
   return handleResponse(response);
 }
 
-export async function createCategory(payload: { name: string; slug?: string; status: string }): Promise<any> {
+export type TaxonomyStatus = "ACTIVE" | "INACTIVE";
+
+export async function createCategory(payload: { name: string; slug?: string; status: TaxonomyStatus }): Promise<any> {
   const response = await fetch(`${API_BASE_URL}/admin/categories`, {
     method: "POST",
     headers: getHeaders({ "Content-Type": "application/json" }),
@@ -355,7 +341,7 @@ export async function createCategory(payload: { name: string; slug?: string; sta
   return handleResponse(response);
 }
 
-export async function updateCategory(id: string, payload: { name: string; slug: string; status: string }): Promise<any> {
+export async function updateCategory(id: string, payload: { name: string; slug: string; status: TaxonomyStatus }): Promise<any> {
   const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
     method: "PUT",
     headers: getHeaders({ "Content-Type": "application/json" }),
@@ -379,7 +365,7 @@ export async function fetchSubcategories(): Promise<any[]> {
   return handleResponse(response);
 }
 
-export async function createSubcategory(payload: { name: string; parentName: string; slug?: string; status: string }): Promise<any> {
+export async function createSubcategory(payload: { name: string; parentName: string; slug?: string; status: TaxonomyStatus }): Promise<any> {
   const response = await fetch(`${API_BASE_URL}/admin/subcategories`, {
     method: "POST",
     headers: getHeaders({ "Content-Type": "application/json" }),
@@ -388,7 +374,7 @@ export async function createSubcategory(payload: { name: string; parentName: str
   return handleResponse(response);
 }
 
-export async function updateSubcategory(id: string, payload: { name: string; parentName: string; slug: string; status: string }): Promise<any> {
+export async function updateSubcategory(id: string, payload: { name: string; parentName: string; slug: string; status: TaxonomyStatus }): Promise<any> {
   const response = await fetch(`${API_BASE_URL}/admin/subcategories/${id}`, {
     method: "PUT",
     headers: getHeaders({ "Content-Type": "application/json" }),

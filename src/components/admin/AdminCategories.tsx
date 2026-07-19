@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { FolderPlus, Search, PencilSparkles, Trash2, Download, Upload, Trash, CheckSquare, FolderTree } from "lucide-react";
-import { fetchCategories, createCategory, updateCategory, deleteCategory } from "../../api";
+import { FolderPlus, Search, PencilSparkles, Trash2, Trash, CheckSquare, FolderTree } from "lucide-react";
+import { fetchCategories, createCategory, updateCategory, deleteCategory, type TaxonomyStatus } from "../../api";
 import { AdminHeader } from "./AdminHeader";
 import { Pagination } from "../common/Pagination";
 import { LoadingScreen } from "../common/LoadingScreen";
@@ -11,7 +11,7 @@ interface Category {
   name: string;
   slug: string;
   count: number;
-  status: "Active" | "Inactive";
+  status: TaxonomyStatus;
 }
 
 export const AdminCategories: React.FC = () => {
@@ -31,7 +31,7 @@ export const AdminCategories: React.FC = () => {
 
   const [name, setName] = useState("");
   const [slug, setSlug] = useState("");
-  const [status, setStatus] = useState<"Active" | "Inactive">("Active");
+  const [status, setStatus] = useState<TaxonomyStatus>("ACTIVE");
 
   useEffect(() => {
     loadCategories();
@@ -87,7 +87,7 @@ export const AdminCategories: React.FC = () => {
     setEditingCategory(null);
     setName("");
     setSlug("");
-    setStatus("Active");
+    setStatus("ACTIVE");
   };
 
   const handleEdit = (cat: Category) => {
@@ -129,7 +129,7 @@ export const AdminCategories: React.FC = () => {
       for (const id of selectedIds) {
         const cat = categories.find(c => c.id === id);
         if (cat) {
-          const nextStatus = cat.status === "Active" ? "Inactive" : "Active";
+          const nextStatus: TaxonomyStatus = cat.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
           await updateCategory(id, { name: cat.name, slug: cat.slug, status: nextStatus });
         }
       }
@@ -175,7 +175,7 @@ export const AdminCategories: React.FC = () => {
               setEditingCategory(null);
               setName("");
               setSlug("");
-              setStatus("Active");
+              setStatus("ACTIVE");
               setIsModalOpen(true);
             }}
             className="main-button"
@@ -193,8 +193,8 @@ export const AdminCategories: React.FC = () => {
               className="customDropdown text-xs text-gray-700"
             >
               <option value="All">Status: All</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
             </select>
           </div>
 
@@ -265,11 +265,11 @@ export const AdminCategories: React.FC = () => {
                           <span className="font-bold text-gray-800">{cat.count}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${cat.status === "Active"
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${cat.status === "ACTIVE"
                             ? "bg-green-50 text-green-700 border-green-200"
                             : "bg-gray-100 text-gray-600 border-gray-200"
                             }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${cat.status === "Active" ? "bg-green-500" : "bg-gray-400"}`}></span>
+                            <span className={`w-1.5 h-1.5 rounded-full ${cat.status === "ACTIVE" ? "bg-green-500" : "bg-gray-400"}`}></span>
                             {cat.status}
                           </span>
                         </td>
@@ -384,11 +384,11 @@ export const AdminCategories: React.FC = () => {
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Status</label>
                 <select
                   value={status}
-                  onChange={e => setStatus(e.target.value as "Active" | "Inactive")}
+                  onChange={e => setStatus(e.target.value as TaxonomyStatus)}
                   className="selectField-custom w-full cursor-pointer"
                 >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
                 </select>
               </div>
             </div>

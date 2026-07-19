@@ -3,12 +3,12 @@
  */
 
 import React from "react";
-import type { Article } from "../../data/articles";
+import { ArticleStatus, type Article } from "../../data/articles";
 
 interface CrmTabsProps {
   currentUser: any;
-  activeTab: "approved" | "pending" | "rejected";
-  setActiveTab: (tab: "approved" | "pending" | "rejected") => void;
+  activeTab: ArticleStatus;
+  setActiveTab: (tab: ArticleStatus) => void;
   setCurrentPage: (page: number) => void;
   articles: Article[];
 }
@@ -23,66 +23,33 @@ export const CrmTabs: React.FC<CrmTabsProps> = ({
   if (!currentUser) return null;
 
   return (
-    <div className="flex border-b-[0.5px] border-neutral-200 dark:border-neutral-800 mb-6 gap-6">
-      <button
-        onClick={() => {
-          setActiveTab("approved");
-          setCurrentPage(1);
-        }}
-        className={`pb-3 text-xs font-extrabold uppercase tracking-wider relative cursor-pointer transition-colors ${
-          activeTab === "approved"
-            ? "text-neutral-900 dark:text-white"
-            : "text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-355"
-        }`}
-      >
-        <span>Approved Publications</span>
-        <span className="ml-2 px-1.5 py-0.5 text-[10px] bg-neutral-100 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-855 rounded text-neutral-500 font-mono">
-          {articles.filter((a) => a.status === "approved").length}
-        </span>
-        {activeTab === "approved" && (
-          <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-neutral-900 dark:bg-white animate-fade-in"></span>
-        )}
-      </button>
-
-      <button
-        onClick={() => {
-          setActiveTab("pending");
-          setCurrentPage(1);
-        }}
-        className={`pb-3 text-xs font-extrabold uppercase tracking-wider relative cursor-pointer transition-colors ${
-          activeTab === "pending"
-            ? "text-neutral-900 dark:text-white"
-            : "text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-355"
-        }`}
-      >
-        <span>Pending Reviews</span>
-        <span className="ml-2 px-1.5 py-0.5 text-[10px] bg-red-500/10 border-[0.5px] border-red-500/20 rounded text-red-550 dark:text-red-400 font-mono font-bold">
-          {articles.filter((a) => a.status === "pending").length}
-        </span>
-        {activeTab === "pending" && (
-          <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-neutral-900 dark:bg-white animate-fade-in"></span>
-        )}
-      </button>
-
-      <button
-        onClick={() => {
-          setActiveTab("rejected");
-          setCurrentPage(1);
-        }}
-        className={`pb-3 text-xs font-extrabold uppercase tracking-wider relative cursor-pointer transition-colors ${
-          activeTab === "rejected"
-            ? "text-neutral-900 dark:text-white"
-            : "text-neutral-400 hover:text-neutral-600 dark:text-neutral-500 dark:hover:text-neutral-355"
-        }`}
-      >
-        <span>Declined contents</span>
-        <span className="ml-2 px-1.5 py-0.5 text-[10px] bg-amber-500/10 border-[0.5px] border-amber-500/20 rounded text-amber-600 dark:text-amber-400 font-mono font-bold">
-          {articles.filter((a) => a.status === "rejected").length}
-        </span>
-        {activeTab === "rejected" && (
-          <span className="absolute bottom-0 left-0 right-0 h-[2px] bg-neutral-900 dark:bg-white animate-fade-in"></span>
-        )}
-      </button>
+    <div className="px-6 py-3.5 border-b border-gray-200 shrink-0 bg-gray-50 flex items-center justify-between gap-4 flex-wrap">
+      <div className="flex items-center gap-2">
+        <select
+          value={activeTab}
+          onChange={(e) => {
+            setActiveTab(e.target.value as ArticleStatus);
+            setCurrentPage(1);
+          }}
+          className="customDropdown text-xs text-gray-700"
+        >
+          <option value={ArticleStatus.APPROVED}>Approved Publications ({articles.filter(a => a.status === ArticleStatus.APPROVED).length})</option>
+          <option value={ArticleStatus.PENDING_REVIEW}>Pending Reviews ({articles.filter(a => a.status === ArticleStatus.PENDING_REVIEW).length})</option>
+          <option value={ArticleStatus.REJECTED}>Rejected Drafts ({articles.filter(a => a.status === ArticleStatus.REJECTED).length})</option>
+        </select>
+      </div>
+      
+      <div className="relative w-full max-w-xs">
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-gray-400 pointer-events-none flex items-center justify-center">
+           <i className="fa-solid fa-magnifying-glass text-[11px]"></i>
+        </div>
+        <input
+          type="text"
+          placeholder="Search articles (coming soon)..."
+          disabled
+          className="customInput w-full pl-9 opacity-50 cursor-not-allowed"
+        />
+      </div>
     </div>
   );
 };

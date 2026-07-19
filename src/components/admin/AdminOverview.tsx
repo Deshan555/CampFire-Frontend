@@ -1,7 +1,9 @@
-import React, { useState } from "react";
-import { Users, FileText, CheckCircle, TrendingUp, Tags, RefreshCw, LayoutDashboard } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { LayoutDashboard, RefreshCw } from "lucide-react";
 import { Pagination } from "../common/Pagination";
 import { AdminHeader } from "./AdminHeader";
+import CrmAnalytics from "../dashboard/CrmAnalytics";
+import { fetchArticles, fetchRules } from "../../api";
 
 interface AuditLog {
   id: string;
@@ -30,6 +32,39 @@ const AdminOverview: React.FC = () => {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentLogs = auditLogs.slice(indexOfFirstItem, indexOfLastItem);
 
+  const [loading, setLoading] = useState(false);
+  const [totalArticles, setTotalArticles] = useState(0);
+  const [totalLikes, setTotalLikes] = useState(0);
+  const [rulesCount, setRulesCount] = useState(0);
+  const [activeRulesCount, setActiveRulesCount] = useState(0);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("editorUser");
+    if (stored) {
+      const user = JSON.parse(stored);
+      setCurrentUser(user);
+      
+      setLoading(true);
+      fetchArticles(undefined, { editorMode: true, role: user.role, authorId: user.id })
+        .then(data => {
+          setTotalArticles(data.length);
+          setTotalLikes(data.reduce((sum: number, a: any) => sum + (a.likes || 0), 0));
+        })
+        .catch(err => console.error("Failed to fetch articles", err))
+        .finally(() => setLoading(false));
+
+      if (user.role === "SUPER_ADMIN" || user.role === "EDITOR") {
+        fetchRules("11111111-1111-1111-1111-111111111111")
+          .then(data => {
+            setRulesCount(data.length);
+            setActiveRulesCount(data.filter((r: any) => r.is_active).length);
+          })
+          .catch(err => console.error("Failed to prefetch rules", err));
+      }
+    }
+  }, []);
+
   return (
     <div className="flex h-full w-full bg-white overflow-hidden text-sm">
 
@@ -45,53 +80,15 @@ const AdminOverview: React.FC = () => {
 
         {/* Stats Grid */}
         <div className="px-6 py-6 border-b border-gray-200 shrink-0 bg-white">
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-
-            <div className="p-5 bg-gray-50/50 border border-gray-200 rounded-2xl flex flex-col justify-between h-28 shadow-sm">
-              <div className="flex items-center justify-between text-gray-500 font-semibold text-xs">
-                <span>Total Users</span>
-                <div className="p-1.5 bg-blue-50 text-blue-600 rounded-lg"><Users size={14} /></div>
-              </div>
-              <div className="flex items-baseline gap-1.5 mt-2">
-                <span className="text-2xl font-black text-gray-900">1,248</span>
-                <span className="text-[10px] text-green-600 font-bold flex items-center gap-0.5"><TrendingUp size={10} /> +12%</span>
-              </div>
-            </div>
-
-            <div className="p-5 bg-gray-50/50 border border-gray-200 rounded-2xl flex flex-col justify-between h-28 shadow-sm">
-              <div className="flex items-center justify-between text-gray-500 font-semibold text-xs">
-                <span>Total Articles</span>
-                <div className="p-1.5 bg-purple-50 text-purple-600 rounded-lg"><FileText size={14} /></div>
-              </div>
-              <div className="flex items-baseline gap-1.5 mt-2">
-                <span className="text-2xl font-black text-gray-900">342</span>
-                <span className="text-[10px] text-green-600 font-bold flex items-center gap-0.5"><TrendingUp size={10} /> +5%</span>
-              </div>
-            </div>
-
-            <div className="p-5 bg-gray-50/50 border border-gray-200 rounded-2xl flex flex-col justify-between h-28 shadow-sm">
-              <div className="flex items-center justify-between text-gray-500 font-semibold text-xs">
-                <span>Pending Review</span>
-                <div className="p-1.5 bg-yellow-50 text-yellow-600 rounded-lg"><CheckCircle size={14} /></div>
-              </div>
-              <div className="flex items-baseline gap-1.5 mt-2">
-                <span className="text-2xl font-black text-gray-900">12</span>
-                <span className="text-[10px] text-gray-400 font-bold">Needs approval</span>
-              </div>
-            </div>
-
-            <div className="p-5 bg-[#0B0D14] border border-[#1B2230] rounded-2xl flex flex-col justify-between h-28 shadow-sm text-white">
-              <div className="flex items-center justify-between text-gray-400 font-semibold text-xs">
-                <span>Active Tags</span>
-                <div className="p-1.5 bg-blue-500/10 text-blue-400 rounded-lg"><Tags size={14} /></div>
-              </div>
-              <div className="flex items-baseline gap-1.5 mt-2">
-                <span className="text-2xl font-black text-white">156</span>
-                <span className="text-[10px] text-blue-400 font-bold">Globally used</span>
-              </div>
-            </div>
-
-          </div>
+          <CrmAnalytics
+            currentUser={currentUser}
+            loading={loading}
+            totalArticles={totalArticles}
+            totalLikes={totalLikes}
+            rulesCount={rulesCount}
+            activeRulesCount={activeRulesCount}
+            activeModel="gemma3:1b"
+          />
         </div>
 
         {/* Audit Logs Header */}

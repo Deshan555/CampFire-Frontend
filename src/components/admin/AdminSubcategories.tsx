@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Plus, Search, Edit2, Trash2, Download, Upload, Trash, CheckSquare, Layers } from "lucide-react";
-import { fetchSubcategories, createSubcategory, updateSubcategory, deleteSubcategory, fetchCategories } from "../../api";
+import { Plus, Search, PencilSparkles, Trash2, Trash, CheckSquare, Layers } from "lucide-react";
+import { fetchSubcategories, createSubcategory, updateSubcategory, deleteSubcategory, fetchCategories, type TaxonomyStatus } from "../../api";
 import { AdminHeader } from "./AdminHeader";
 import { Pagination } from "../common/Pagination";
 import { LoadingScreen } from "../common/LoadingScreen";
@@ -12,7 +12,7 @@ interface Subcategory {
   parentName: string;
   slug: string;
   count: number;
-  status: "Active" | "Inactive";
+  status: TaxonomyStatus;
 }
 
 export const AdminSubcategories: React.FC = () => {
@@ -34,7 +34,7 @@ export const AdminSubcategories: React.FC = () => {
   const [name, setName] = useState("");
   const [parentName, setParentName] = useState("");
   const [slug, setSlug] = useState("");
-  const [status, setStatus] = useState<"Active" | "Inactive">("Active");
+  const [status, setStatus] = useState<TaxonomyStatus>("ACTIVE");
 
   useEffect(() => {
     loadData();
@@ -100,7 +100,7 @@ export const AdminSubcategories: React.FC = () => {
     setEditingSub(null);
     setName("");
     setSlug("");
-    setStatus("Active");
+    setStatus("ACTIVE");
   };
 
   const handleEdit = (sub: Subcategory) => {
@@ -141,7 +141,7 @@ export const AdminSubcategories: React.FC = () => {
       await Promise.all(selectedIds.map(id => {
         const sub = subcategories.find(s => s.id === id);
         if (!sub) return Promise.resolve();
-        const nextStatus = sub.status === "Active" ? "Inactive" : "Active";
+        const nextStatus: TaxonomyStatus = sub.status === "ACTIVE" ? "INACTIVE" : "ACTIVE";
         return updateSubcategory(id, { name: sub.name, parentName: sub.parentName, slug: sub.slug, status: nextStatus });
       }));
       await loadData();
@@ -191,7 +191,7 @@ export const AdminSubcategories: React.FC = () => {
               setName("");
               setSlug("");
               setParentName(parentCategories[0]);
-              setStatus("Active");
+              setStatus("ACTIVE");
               setIsModalOpen(true);
             }}
             className="main-button"
@@ -220,8 +220,8 @@ export const AdminSubcategories: React.FC = () => {
               className="customDropdown text-xs text-gray-700"
             >
               <option value="All">Status: All</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
+              <option value="ACTIVE">Active</option>
+              <option value="INACTIVE">Inactive</option>
             </select>
           </div>
 
@@ -292,11 +292,11 @@ export const AdminSubcategories: React.FC = () => {
                           <span className="font-bold text-gray-800">{sub.count}</span>
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${sub.status === "Active"
+                          <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold border ${sub.status === "ACTIVE"
                             ? "bg-green-50 text-green-700 border-green-200"
                             : "bg-gray-100 text-gray-600 border-gray-200"
                             }`}>
-                            <span className={`w-1.5 h-1.5 rounded-full ${sub.status === "Active" ? "bg-green-500" : "bg-gray-400"}`}></span>
+                            <span className={`w-1.5 h-1.5 rounded-full ${sub.status === "ACTIVE" ? "bg-green-500" : "bg-gray-400"}`}></span>
                             {sub.status}
                           </span>
                         </td>
@@ -304,14 +304,14 @@ export const AdminSubcategories: React.FC = () => {
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => handleEdit(sub)}
-                              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                              className="admin-action-btn edit"
                               title="Edit"
                             >
-                              <Edit2 size={14} />
+                              <PencilSparkles size={14} />
                             </button>
                             <button
                               onClick={() => handleDelete(sub.id)}
-                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                              className="admin-action-btn delete"
                               title="Delete"
                             >
                               <Trash2 size={14} />
@@ -424,11 +424,11 @@ export const AdminSubcategories: React.FC = () => {
                 <label className="block text-xs font-bold text-gray-700 mb-1.5 uppercase tracking-wider">Status</label>
                 <select
                   value={status}
-                  onChange={e => setStatus(e.target.value as "Active" | "Inactive")}
+                  onChange={e => setStatus(e.target.value as TaxonomyStatus)}
                   className="selectField-custom w-full cursor-pointer"
                 >
-                  <option value="Active">Active</option>
-                  <option value="Inactive">Inactive</option>
+                  <option value="ACTIVE">Active</option>
+                  <option value="INACTIVE">Inactive</option>
                 </select>
               </div>
             </div>

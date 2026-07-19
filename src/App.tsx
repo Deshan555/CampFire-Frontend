@@ -14,6 +14,7 @@ import CrmDashboard from "./pages/CrmDashboard";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import AdminRegisterPage from "./pages/AdminRegisterPage";
+import { AdminLoginPage } from "./pages/AdminLoginPage";
 import AdminDashboard from "./pages/AdminDashboard";
 import AiWriterPage from "./pages/AiWriterPage";
 import CanvesAnimationShowcase from "./components/canves-animations";
@@ -79,7 +80,7 @@ function App() {
     currentPage * itemsPerPage
   );
 
-  const showLayout = location.pathname !== "/ai-writer" && location.pathname !== "/editor" && location.pathname !== "/login" && location.pathname !== "/register" && location.pathname !== "/admin/register" && !location.pathname.startsWith("/admin");
+  const showLayout = location.pathname !== "/ai-writer" && location.pathname !== "/editor" && location.pathname !== "/login" && location.pathname !== "/admin/login" && location.pathname !== "/register" && location.pathname !== "/admin/register" && !location.pathname.startsWith("/admin");
   const isHome = location.pathname === "/";
 
   return (
@@ -165,6 +166,7 @@ function App() {
           <Route path="/editor" element={<CrmDashboard />} />
           <Route path="/ai-writer" element={<AiWriterPage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/admin/register" element={<AdminRegisterPage />} />
         </Routes>

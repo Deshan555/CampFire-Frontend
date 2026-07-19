@@ -4,6 +4,16 @@ export interface Author {
   avatar: string;
 }
 
+export const ArticleStatus = {
+  DRAFT: "DRAFT",
+  PENDING_REVIEW: "PENDING_REVIEW",
+  APPROVED: "APPROVED",
+  REJECTED: "REJECTED",
+  ARCHIVED: "ARCHIVED"
+} as const;
+
+export type ArticleStatus = typeof ArticleStatus[keyof typeof ArticleStatus];
+
 export interface Article {
   id: string;
   title: string;
@@ -24,7 +34,7 @@ export interface Article {
   trending?: boolean;
   isPartner?: boolean;
   likes?: number;
-  status?: 'approved' | 'pending' | 'rejected' | 'draft';
+  status?: ArticleStatus;
   authorUsername?: string;
   hashtags?: string[];
   subcategory?: string;

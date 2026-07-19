@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { UserPlus, Search, Edit2, Trash2, Shield, Trash, CheckSquare, Users } from "lucide-react";
+import { UserPlus, Search, PencilSparkles, Trash2, Shield, Trash, CheckSquare, Users } from "lucide-react";
 import { fetchUsers, registerAdmin } from "../../api";
 import { AdminHeader } from "./AdminHeader";
 import { Pagination } from "../common/Pagination";
@@ -317,14 +317,14 @@ export const AdminUsers: React.FC = () => {
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               onClick={() => handleEdit(user)}
-                              className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                              className="admin-action-btn edit"
                               title="Edit"
                             >
-                              <Edit2 size={14} />
+                              <PencilSparkles size={14} />
                             </button>
                             <button
                               onClick={() => handleDelete(user.id)}
-                              className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                              className="admin-action-btn delete"
                               title="Delete"
                             >
                               <Trash2 size={14} />
