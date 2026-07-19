@@ -1,114 +1,149 @@
-import React, { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
-import { Search, Menu, X, Globe } from "lucide-react";
+import { Bookmark, ChevronDown, Menu, Search, UserRound, X } from "lucide-react";
+import { siteConfig } from "../config/site";
+
+type FeedFilter = "ALL" | "NEW" | "TRENDING" | "MORE";
 
 interface HeroNavigationProps {
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  user?: any;
+  user?: { name?: string; username?: string } | null;
   onLogout?: () => void;
+  categories?: string[];
+  subcategories?: string[];
+  selectedCategory?: string;
+  selectedSubcategory?: string;
+  feedFilter?: FeedFilter;
+  onSelectCategory?: (category: string) => void;
+  onSelectSubcategory?: (subcategory: string) => void;
+  onSelectFeedFilter?: (filter: FeedFilter) => void;
 }
 
-const HeroNavigation: React.FC<HeroNavigationProps> = ({
+const feedFilters: Array<{ label: string; value: FeedFilter }> = [
+  { label: "Latest", value: "NEW" },
+  { label: "Trending", value: "TRENDING" },
+  { label: "More", value: "MORE" }
+];
+
+export default function HeroNavigation({
   searchQuery,
   onSearchChange,
   user,
-  onLogout
-}) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  onLogout,
+  categories = ["All"],
+  subcategories = ["All"],
+  selectedCategory = "All",
+  selectedSubcategory = "All",
+  feedFilter = "ALL",
+  onSelectCategory,
+  onSelectSubcategory,
+  onSelectFeedFilter
+}: HeroNavigationProps) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const publicationDate = useMemo(
+    () => new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date()),
+    []
+  );
+  const editionLabel = useMemo(() => {
+    if (siteConfig.locationLabel) return siteConfig.locationLabel;
+    try {
+      return Intl.DateTimeFormat().resolvedOptions().timeZone.replace(/_/g, " ");
+    } catch {
+      return "Daily edition";
+    }
+  }, []);
+
+  const chooseCategory = (category: string) => {
+    onSelectCategory?.(category);
+    setMenuOpen(false);
+  };
 
   return (
-    <div className="w-full absolute top-0 left-0 z-50">
-      <nav className="w-full px-8 py-4 flex items-center justify-between text-white bg-black/20 backdrop-blur-xl border-b border-white/10">
-      {/* Left: Logo & Links */}
-      <div className="flex items-center gap-8">
-        <Link to="/" className="flex items-center gap-2 text-xl font-sans font-bold tracking-tight">
-          <div className="w-6 h-6 bg-white text-black flex items-center justify-center rounded-[6px] font-black text-sm">C</div>
-          CampFire
-        </Link>
-        <div className="hidden lg:flex items-center gap-6 text-sm font-medium text-white/90">
-          <Link to="#" className="hover:text-white transition-colors">Hotel</Link>
-          <Link to="#" className="hover:text-white transition-colors">Flight</Link>
-          <Link to="#" className="hover:text-white transition-colors">Train</Link>
-          <Link to="#" className="hover:text-white transition-colors">Travel</Link>
-          <Link to="#" className="hover:text-white transition-colors">Car Rental</Link>
-        </div>
-      </div>
-
-      {/* Center: Search Field (Hidden on Mobile) */}
-      <div className="hidden md:flex flex-1 justify-center max-w-sm mx-4">
-        <div className="relative w-full">
-          <input
-            type="text"
-            placeholder="Search destination..."
-            value={searchQuery}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="w-full bg-white/20 backdrop-blur-md border border-white/10 text-white placeholder:text-white/80 rounded-full py-2 pl-4 pr-10 text-sm focus:outline-none focus:bg-white/30 transition-colors"
-          />
-          <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/80" />
-        </div>
-      </div>
-
-      {/* Right: Auth Links & Mobile Toggle */}
-      <div className="flex items-center gap-4">
-        <div className="hidden md:flex items-center gap-4 text-sm font-medium">
-          <button className="flex items-center gap-1 hover:text-white/80 transition-colors">
-            <Globe className="w-4 h-4" />
-            EN
+    <header className="publication-header">
+      <div className="utility-bar editorial-shell">
+        <p>{publicationDate}</p>
+        <p className="utility-edition"><span aria-hidden="true" />{editionLabel}</p>
+        <div className="utility-actions">
+          <button type="button" onClick={() => setSearchOpen((value) => !value)} aria-label="Search articles">
+            <Search size={15} /> Search
           </button>
-          
           {user ? (
-             <div className="flex items-center gap-4">
-               <Link to="/editor" className="hover:text-white/80 transition-colors">Dashboard</Link>
-               <button onClick={onLogout} className="hover:text-white/80 transition-colors">Log Out</button>
-             </div>
+            <>
+              <Link to="/editor"><UserRound size={15} />{user.name || user.username || "Profile"}</Link>
+              <button type="button" onClick={onLogout}>Sign out</button>
+            </>
           ) : (
             <>
-              <Link to="/login" className="hover:text-white/80 transition-colors font-medium">Log In</Link>
-              <Link to="/register" className="bg-white text-black px-4 py-1.5 rounded-full hover:bg-gray-100 transition-colors font-medium text-sm">
-                Sign Up
-              </Link>
+              <Link to="/login">Sign in</Link>
+              <Link to="/register" className="utility-account">Create account</Link>
             </>
           )}
         </div>
-        
-        <button 
-          className="md:hidden text-white hover:text-white/80 transition-colors"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
-        </button>
       </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="absolute top-full left-0 w-full mt-4 bg-white text-black rounded-2xl shadow-xl p-6 flex flex-col gap-5 md:hidden border border-gray-100 animate-in fade-in slide-in-from-top-2">
-          <div className="relative w-full mb-2">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="w-full bg-gray-50 border border-gray-200 text-black placeholder:text-gray-400 rounded-xl py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-2 focus:ring-black/5"
-            />
-          </div>
-          {user ? (
-            <>
-              <Link to="/editor" className="font-semibold text-gray-800">Dashboard</Link>
-              <button onClick={onLogout} className="font-semibold text-left text-gray-800">Log Out</button>
-            </>
-          ) : (
-            <>
-              <Link to="/login" className="font-semibold text-gray-800">Log In</Link>
-              <Link to="/register" className="font-semibold text-blue-600">Sign Up</Link>
-            </>
-          )}
+      <div className="masthead editorial-shell">
+        <p className="masthead-note">Independent stories<br />for curious minds</p>
+        <Link to="/" className="wordmark" aria-label={`${siteConfig.name} home`}>{siteConfig.name}</Link>
+        <Link to="/editor" className="masthead-action"><Bookmark size={16} /> Reading list</Link>
+      </div>
+
+      {searchOpen && (
+        <div className="search-drawer editorial-shell">
+          <Search size={18} aria-hidden="true" />
+          <input
+            autoFocus
+            type="search"
+            value={searchQuery}
+            onChange={(event) => onSearchChange(event.target.value)}
+            placeholder="Search stories, topics, and authors"
+            aria-label="Search stories, topics, and authors"
+          />
+          <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search"><X size={18} /></button>
         </div>
       )}
-      </nav>
-    </div>
-  );
-};
 
-export default HeroNavigation;
+      <div className="nav-frame">
+        <nav className="category-nav editorial-shell" aria-label="Primary navigation">
+          <button type="button" className="mobile-menu-button" onClick={() => setMenuOpen((value) => !value)} aria-expanded={menuOpen}>
+            {menuOpen ? <X size={18} /> : <Menu size={18} />} Sections
+          </button>
+          <div className={`category-links ${menuOpen ? "is-open" : ""}`}>
+            {categories.map((category) => (
+              <button
+                type="button"
+                key={category}
+                onClick={() => chooseCategory(category)}
+                className={selectedCategory === category && feedFilter === "ALL" ? "is-active" : ""}
+              >
+                {category === "All" ? "Home" : category}
+              </button>
+            ))}
+            {feedFilters.map((filter) => (
+              <button
+                type="button"
+                key={filter.value}
+                onClick={() => onSelectFeedFilter?.(filter.value)}
+                className={feedFilter === filter.value ? "is-active" : ""}
+              >
+                {filter.label}
+              </button>
+            ))}
+          </div>
+          {subcategories.length > 1 && (
+            <label className="subcategory-select">
+              <span className="sr-only">Subcategory</span>
+              <select value={selectedSubcategory} onChange={(event) => onSelectSubcategory?.(event.target.value)}>
+                {subcategories.map((subcategory) => (
+                  <option key={subcategory} value={subcategory}>{subcategory === "All" ? "All topics" : subcategory}</option>
+                ))}
+              </select>
+              <ChevronDown size={14} aria-hidden="true" />
+            </label>
+          )}
+        </nav>
+      </div>
+    </header>
+  );
+}

@@ -1,167 +1,205 @@
-import { useState, useEffect } from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
-import HeroSection from "./components/HeroSection";
-import HeroNavigation from "./components/HeroNavigation";
-import BlogToolbar from "./components/BlogToolbar";
+import { useEffect, useMemo, useState } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
+import { fetchArticles } from "./api";
 import ArticleGrid from "./components/ArticleGrid";
+import CanvesAnimationShowcase from "./components/canves-animations";
+import Footer from "./components/Footer";
+import HeroNavigation from "./components/HeroNavigation";
+import HeroSection from "./components/HeroSection";
 import Pagination from "./components/Pagination";
 import PromotionalSection from "./components/PromotionalSection";
-import Footer from "./components/Footer";
-
-// Existing pages
+import type { Article } from "./data/articles";
+import AdminDashboard from "./pages/AdminDashboard";
+import { AdminLoginPage } from "./pages/AdminLoginPage";
+import AdminRegisterPage from "./pages/AdminRegisterPage";
+import AiWriterPage from "./pages/AiWriterPage";
 import ArticlePage from "./pages/ArticlePage";
 import CrmDashboard from "./pages/CrmDashboard";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import AdminRegisterPage from "./pages/AdminRegisterPage";
-import { AdminLoginPage } from "./pages/AdminLoginPage";
-import AdminDashboard from "./pages/AdminDashboard";
-import AiWriterPage from "./pages/AiWriterPage";
-import CanvesAnimationShowcase from "./components/canves-animations";
 
-import { fetchArticles } from "./api";
-import type { Article } from "./data/articles";
+type FeedFilter = "ALL" | "NEW" | "TRENDING" | "MORE";
+type SessionUser = { name?: string; username?: string };
+
+const readSession = (): SessionUser | null => {
+  try {
+    const stored = localStorage.getItem("editorUser");
+    return stored ? JSON.parse(stored) : null;
+  } catch {
+    return null;
+  }
+};
 
 function App() {
   const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [selectedSubcategory, setSelectedSubcategory] = useState("All");
+  const [feedFilter, setFeedFilter] = useState<FeedFilter>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
-  const user = null; // Placeholder for auth state
-
+  const [user, setUser] = useState<SessionUser | null>(readSession);
   const location = useLocation();
 
-  // Fetch articles from Express backend on mount
   useEffect(() => {
     let active = true;
-    if (articles.length === 0) {
-      setLoading(true);
-      fetchArticles()
-        .then((data) => {
-          if (active) {
-            setArticles(data);
-            setLoading(false);
-          }
-        })
-        .catch((err) => {
-          console.error("⚠️ Error loading articles:", err);
-          if (active) setLoading(false);
-        });
+    setLoading(true);
+    fetchArticles()
+      .then((data) => {
+        if (!active) return;
+        setArticles(Array.isArray(data) ? data : []);
+        setLoadError(false);
+      })
+      .catch((error) => {
+        console.error("Error loading articles:", error);
+        if (active) setLoadError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => { active = false; };
+  }, []);
+
+  useEffect(() => {
+    const syncSession = () => setUser(readSession());
+    window.addEventListener("storage", syncSession);
+    return () => window.removeEventListener("storage", syncSession);
+  }, []);
+
+  const categories = useMemo(() => [
+    "All",
+    ...Array.from(new Set(articles.map((article) => article.category).filter(Boolean))).sort()
+  ], [articles]);
+
+  const subcategories = useMemo(() => [
+    "All",
+    ...Array.from(new Set(
+      articles
+        .filter((article) => selectedCategory === "All" || article.category === selectedCategory)
+        .map((article) => article.subcategory)
+        .filter((value): value is string => Boolean(value))
+    )).sort()
+  ], [articles, selectedCategory]);
+
+  useEffect(() => {
+    if (location.pathname !== "/") return;
+    const category = new URLSearchParams(location.search).get("category");
+    if (category && categories.includes(category)) {
+      setSelectedCategory(category);
+      setSelectedSubcategory("All");
+      setCurrentPage(1);
     }
-    return () => {
-      active = false;
-    };
-  }, [articles.length]);
+  }, [categories, location.pathname, location.search]);
 
-  // Find featured articles for hero carousel
-  const featuredArticles = articles.filter(a => a.featured).slice(0, 4);
-  const heroArticles = featuredArticles.length > 0 ? featuredArticles : articles.slice(0, 4);
+  const filteredArticles = useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    return articles.filter((article) => {
+      const matchesCategory = selectedCategory === "All" || article.category === selectedCategory;
+      const matchesSubcategory = selectedSubcategory === "All" || article.subcategory === selectedSubcategory;
+      const matchesFeed =
+        feedFilter === "ALL" ||
+        (feedFilter === "TRENDING" && article.trending) ||
+        (feedFilter === "NEW" && !article.trending) ||
+        (feedFilter === "MORE" && Boolean(article.featured || article.isPartner || (article.likes || 0) > 0));
+      const matchesSearch = !query || [
+        article.title,
+        article.summary,
+        article.category,
+        article.subcategory,
+        article.author?.name
+      ].some((value) => (value || "").toLowerCase().includes(query));
+      return matchesCategory && matchesSubcategory && matchesFeed && matchesSearch;
+    });
+  }, [articles, feedFilter, searchQuery, selectedCategory, selectedSubcategory]);
 
-  // Derive categories
-  const categories = ["All", "Destinations", "Guides", "Experiences", "Art", "Design"];
-
-  // Filtering logic
-  const filteredArticles = articles.filter((article) => {
-    const matchesCategory = selectedCategory === "All" || article.category === selectedCategory;
-    const matchesSearch =
-      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      article.author.name.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
-
-  // Pagination logic
   const itemsPerPage = 6;
-  const totalPages = Math.ceil(filteredArticles.length / itemsPerPage) || 1;
-  const paginatedArticles = filteredArticles.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  const totalPages = Math.max(1, Math.ceil(filteredArticles.length / itemsPerPage));
+  const paginatedArticles = filteredArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const heroArticles = (articles.some((article) => article.featured)
+    ? [...articles.filter((article) => article.featured), ...articles.filter((article) => !article.featured)]
+    : articles).slice(0, 5);
 
-  const showLayout = location.pathname !== "/ai-writer" && location.pathname !== "/editor" && location.pathname !== "/login" && location.pathname !== "/admin/login" && location.pathname !== "/register" && location.pathname !== "/admin/register" && !location.pathname.startsWith("/admin");
-  const isHome = location.pathname === "/";
+  const publicationShell = !location.pathname.startsWith("/admin") && location.pathname !== "/editor" && location.pathname !== "/ai-writer";
+
+  const selectCategory = (category: string) => {
+    setSelectedCategory(category);
+    setSelectedSubcategory("All");
+    setFeedFilter("ALL");
+    setCurrentPage(1);
+  };
+
+  const selectFeed = (filter: FeedFilter) => {
+    setFeedFilter(filter);
+    setCurrentPage(1);
+  };
+
+  const logout = () => {
+    localStorage.removeItem("editorUser");
+    localStorage.removeItem("authToken");
+    setUser(null);
+  };
 
   return (
-    <div className={`min-h-screen flex flex-col w-full bg-white transition-colors duration-300 font-sans`}>
-      
-      {/* If it's not the home page, but we want the layout, show a standalone navigation */}
-      {showLayout && !isHome && (
-        <div className="w-full bg-[#111] mb-6">
-          <HeroNavigation 
-            searchQuery={searchQuery}
-            onSearchChange={setSearchQuery}
-            user={user}
-          />
-        </div>
+    <div className="app-shell">
+      {publicationShell && (
+        <HeroNavigation
+          searchQuery={searchQuery}
+          onSearchChange={(query) => { setSearchQuery(query); setCurrentPage(1); }}
+          user={user}
+          onLogout={logout}
+          categories={categories}
+          subcategories={subcategories}
+          selectedCategory={selectedCategory}
+          selectedSubcategory={selectedSubcategory}
+          feedFilter={feedFilter}
+          onSelectCategory={selectCategory}
+          onSelectSubcategory={(subcategory) => { setSelectedSubcategory(subcategory); setCurrentPage(1); }}
+          onSelectFeedFilter={selectFeed}
+        />
       )}
 
-      {showLayout ? (
-        <div className="w-full bg-white overflow-hidden flex flex-col min-h-screen">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <div className="flex flex-col flex-1">
-                  {loading ? (
-                    <div className="py-48 flex justify-center items-center flex-grow">
-                       <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
-                    </div>
-                  ) : (
-                    <>
-                      <HeroSection 
-                        articles={heroArticles} 
-                        searchQuery={searchQuery}
-                        onSearchChange={setSearchQuery}
-                        user={user}
-                      />
-                      
-                      <div className="px-6 md:px-12 flex-1 flex flex-col max-w-[1400px] mx-auto w-full">
-                        <div className="mb-6 mt-4">
-                          <h2 className="text-2xl font-serif font-bold text-gray-900 mb-2">Blog</h2>
-                          <p className="text-gray-500 text-sm">Here, we share travel tips, destination guides, and stories that inspire your next adventure.</p>
-                        </div>
-                        <BlogToolbar 
-                          categories={categories}
-                          selectedCategory={selectedCategory}
-                          onSelectCategory={(cat) => {
-                            setSelectedCategory(cat);
-                            setCurrentPage(1); // Reset to page 1 on filter
-                          }}
-                        />
-                        
-                        {paginatedArticles.length === 0 ? (
-                          <div className="py-24 text-center text-gray-500 font-medium">
-                            No articles found matching your criteria.
-                          </div>
-                        ) : (
-                          <ArticleGrid articles={paginatedArticles} />
-                        )}
-                        
-                        {filteredArticles.length > 0 && (
-                           <Pagination 
-                             currentPage={currentPage}
-                             totalPages={totalPages}
-                             onPageChange={setCurrentPage}
-                           />
-                        )}
-
-                        <PromotionalSection />
-                      </div>
-                    </>
-                  )}
-                </div>
-              }
-            />
-            <Route path="/article/:id" element={<ArticlePage />} />
-            <Route path="/animation-showcase" element={<CanvesAnimationShowcase />} />
-          </Routes>
-          
-          <Footer />
-        </div>
-      ) : (
+      <main className="app-main">
         <Routes>
+          <Route path="/" element={
+            loading ? (
+              <div className="editorial-shell editorial-loading" aria-label="Loading stories">
+                <span /><span /><span /><span />
+              </div>
+            ) : loadError ? (
+              <div className="editorial-shell publication-empty">
+                <p className="eyebrow">Edition unavailable</p>
+                <h1>We could not reach the editorial desk.</h1>
+                <p>Check the backend connection and refresh to load the current edition.</p>
+              </div>
+            ) : articles.length === 0 ? (
+              <div className="editorial-shell publication-empty">
+                <p className="eyebrow">The next edition</p>
+                <h1>New stories are being prepared.</h1>
+                <p>Published articles will appear here as soon as the editorial desk releases them.</p>
+              </div>
+            ) : (
+              <div className="home-publication">
+                <HeroSection articles={heroArticles} />
+                <div className="editorial-shell">
+                  {paginatedArticles.length > 0 ? (
+                    <ArticleGrid articles={paginatedArticles} />
+                  ) : (
+                    <div className="publication-empty publication-empty--compact">
+                      <p className="eyebrow">No matching stories</p>
+                      <h2>Try another topic or search.</h2>
+                    </div>
+                  )}
+                  {filteredArticles.length > itemsPerPage && (
+                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                  )}
+                  <PromotionalSection articles={filteredArticles.length > 0 ? filteredArticles : articles} />
+                </div>
+              </div>
+            )
+          } />
+          <Route path="/article/:id" element={<ArticlePage />} />
+          <Route path="/animation-showcase" element={<CanvesAnimationShowcase />} />
           <Route path="/admin/*" element={<AdminDashboard />} />
           <Route path="/editor" element={<CrmDashboard />} />
           <Route path="/ai-writer" element={<AiWriterPage />} />
@@ -170,8 +208,9 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/admin/register" element={<AdminRegisterPage />} />
         </Routes>
-      )}
+      </main>
 
+      {publicationShell && <Footer categories={categories} />}
     </div>
   );
 }

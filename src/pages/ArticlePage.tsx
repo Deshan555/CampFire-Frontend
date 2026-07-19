@@ -6,6 +6,7 @@ import VideoPlayer from "../components/VideoPlayer";
 import Markdown from "../components/Markdown";
 import { LoadingScreen } from "../components/common/LoadingScreen";
 import { NoDataScreen } from "../components/common/NoDataScreen";
+import ArticleArtwork from "../components/ArticleArtwork";
 
 interface WordPosition {
   word: string;
@@ -416,7 +417,7 @@ export const ArticlePage: React.FC = () => {
   ];
 
   return (
-    <div className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-12 border-x-[0.5px] border-neutral-200 dark:border-neutral-800 transition-colors duration-300 font-sans">
+    <div className="article-reading-page flex-1 font-sans">
 
       {/* Back to feed button */}
       <div className="mb-8 flex justify-start">
@@ -444,14 +445,20 @@ export const ArticlePage: React.FC = () => {
         {/* Author details section */}
         <div className="flex flex-wrap items-center justify-between border-y-[0.5px] border-neutral-200 dark:border-neutral-800 py-4 mb-8">
           <div className="flex items-center gap-3">
-            <img
-              src={article.author.avatar}
-              alt={article.author.name}
-              className="w-12 h-12 rounded-full object-cover border-[0.5px] border-neutral-200 dark:border-neutral-800"
-            />
+            {article.author?.avatar ? (
+              <img
+                src={article.author.avatar}
+                alt={article.author?.name || "Article author"}
+                className="w-12 h-12 rounded-full object-cover border-[0.5px] border-neutral-200 dark:border-neutral-800"
+              />
+            ) : (
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-neutral-100 text-sm font-bold text-neutral-500 dark:bg-neutral-800 dark:text-neutral-300">
+                {(article.author?.name || "E").charAt(0)}
+              </div>
+            )}
             <div>
               <p className="text-sm font-bold text-neutral-850 dark:text-neutral-50">
-                {article.author.name}
+                {article.author?.name || "Editorial Team"}
               </p>
               <p className="text-xs text-neutral-400 dark:text-neutral-550 font-medium">
                 {article.author.role} • {article.readingTime} • {article.date}
@@ -499,23 +506,31 @@ export const ArticlePage: React.FC = () => {
           </div>
         </div>
 
+        {article.status === "APPROVED" && (
+          <aside className="ai-disclosure" aria-label="Editorial transparency">
+            <div>
+              <span>Reviewed by an editor</span>
+              <strong>Editorial transparency</strong>
+            </div>
+            <p>
+              CampFire may use AI-assisted tools during research and drafting. This story completed the publication&apos;s editorial approval workflow before release.
+            </p>
+          </aside>
+        )}
+
         {/* Hero media display */}
         {article.video ? (
           <div className="w-full aspect-[16/10] bg-neutral-100 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden mb-8 flex">
             <VideoPlayer
               src={article.video.src}
-              poster={article.video.poster}
+              poster={article.video.poster || undefined}
             />
           </div>
-        ) : article.image ? (
+        ) : (
           <div className="w-full aspect-[16/10] bg-neutral-100 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-xl overflow-hidden mb-8">
-            <img
-              src={article.image}
-              alt={article.title}
-              className="w-full h-full object-cover"
-            />
+            <ArticleArtwork article={article} eager />
           </div>
-        ) : null}
+        )}
 
         {/* Editorial body rendering Markdown (README) format */}
         <div className="editorial-prose text-neutral-850 dark:text-neutral-200 mb-12 max-w-3xl mx-auto select-text text-justify flex flex-col gap-6">
