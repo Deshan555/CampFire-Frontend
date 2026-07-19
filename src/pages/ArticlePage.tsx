@@ -7,6 +7,7 @@ import Markdown from "../components/Markdown";
 import { LoadingScreen } from "../components/common/LoadingScreen";
 import { NoDataScreen } from "../components/common/NoDataScreen";
 import ArticleArtwork from "../components/ArticleArtwork";
+import ArticleShareModal from "../components/ArticleShareModal";
 import { ArrowLeft, Bookmark, Headphones, Heart, Pause, Share2, UserCheck, UserPlus } from "lucide-react";
 
 interface WordPosition {
@@ -76,6 +77,7 @@ export const ArticlePage: React.FC = () => {
   const [isLiked, setIsLiked] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
+  const [shareModalOpen, setShareModalOpen] = useState(false);
 
   // Emojis feedback state
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<number | null>(null);
@@ -388,6 +390,7 @@ export const ArticlePage: React.FC = () => {
         setIsLiked(false);
         setIsFollowing(false);
         setIsSaved(false);
+        setShareModalOpen(false);
         setFeedbackSubmitted(null);
 
         // Scroll to top
@@ -719,7 +722,14 @@ export const ArticlePage: React.FC = () => {
               <Heart size={16} fill={isLiked ? "currentColor" : "none"} />
               <span>{likes} Likes</span>
             </button>
-            <button className="p-2.5 rounded-lg border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 text-neutral-500 cursor-pointer" title="Share article">
+            <button
+              type="button"
+              onClick={() => setShareModalOpen(true)}
+              className="p-2.5 rounded-lg border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900 text-neutral-500 cursor-pointer"
+              title="Share article"
+              aria-label="Share article"
+              aria-haspopup="dialog"
+            >
               <Share2 size={16} />
             </button>
           </div>
@@ -775,6 +785,14 @@ export const ArticlePage: React.FC = () => {
         )}
 
       </article>
+
+      <ArticleShareModal
+        open={shareModalOpen}
+        onClose={() => setShareModalOpen(false)}
+        title={article.title}
+        summary={article.summary}
+        url={window.location.href}
+      />
 
       {/* Floating Audio Player Panel */}
       {isSpeaking && (
