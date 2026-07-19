@@ -7,6 +7,7 @@ import { Link } from "react-router-dom";
 import type { Article } from "../../data/articles";
 import { LoadingScreen } from "../common/LoadingScreen";
 import { NoDataScreen } from "../common/NoDataScreen";
+import { Bot, Check, X, PencilSparkles, Trash2, Video, FileText } from "lucide-react";
 
 interface CrmTableProps {
   currentUser: any;
@@ -57,7 +58,7 @@ export const CrmTable: React.FC<CrmTableProps> = ({
     <div className="overflow-x-auto">
       <table className="w-full text-left border-collapse">
         <thead>
-          <tr className="bg-neutral-50 dark:bg-neutral-900/30 border-b-[0.5px] border-neutral-200 dark:border-neutral-800 text-[10px] uppercase tracking-wider font-extrabold text-neutral-400 dark:text-neutral-500">
+          <tr className="bg-neutral-50 dark:bg-neutral-900/30 border-b-[0.5px] border-neutral-200 dark:border-neutral-800 text-[10px] uppercase tracking-wider font-extrabold text-neutral-400 dark:text-neutral-500 font-[Poppins]">
             <th className="py-4 px-6">Article Description</th>
             <th className="py-4 px-6">Category</th>
             <th className="py-4 px-6">Status & Attributes</th>
@@ -81,11 +82,11 @@ export const CrmTable: React.FC<CrmTableProps> = ({
                     />
                   ) : art.video ? (
                     <div className="w-14 h-10 bg-neutral-100 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-md flex items-center justify-center shrink-0 text-neutral-500">
-                      <i className="fa-solid fa-video text-xs"></i>
+                      <Video size={14} />
                     </div>
                   ) : (
                     <div className="w-14 h-10 bg-neutral-100 dark:bg-neutral-900 border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-md flex items-center justify-center shrink-0 text-neutral-350">
-                      <i className="fa-solid fa-newspaper text-xs"></i>
+                      <FileText size={14} />
                     </div>
                   )}
                   <div className="min-w-0">
@@ -191,47 +192,47 @@ export const CrmTable: React.FC<CrmTableProps> = ({
               </td>
 
               <td className="py-4 px-6 whitespace-nowrap text-right text-xs">
-                <div className="flex items-center justify-end gap-2.5">
+                <div className="flex items-center justify-end gap-1.5">
                   {(currentUser?.role === "SUPER_ADMIN" || currentUser?.role === "EDITOR") &&
                     art.status === "pending" && (
                       <>
                         <button
                           onClick={() => handleOpenReview(art)}
-                          className="w-8 h-8 rounded-full border-[0.5px] border-purple-200 hover:bg-purple-50 dark:border-purple-950/40 dark:hover:bg-purple-950/20 text-accent-purple transition-colors flex items-center justify-center cursor-pointer"
+                          className="admin-action-btn primary"
                           title="Agentic AI Review"
                         >
-                          <i className="fa-solid fa-robot text-xs"></i>
+                          <Bot size={14} />
                         </button>
                         <button
                           onClick={() => handleApprove(art.id)}
-                          className="w-8 h-8 rounded-full border-[0.5px] border-emerald-200 hover:bg-emerald-50 dark:border-emerald-950/40 dark:hover:bg-emerald-950/20 text-emerald-600 transition-colors flex items-center justify-center cursor-pointer"
+                          className="admin-action-btn primary-light"
                           title="Approve & Publish (Manual)"
                         >
-                          <i className="fa-solid fa-check text-xs"></i>
+                          <Check size={14} />
                         </button>
                         <button
                           onClick={() => handleReject(art.id)}
-                          className="w-8 h-8 rounded-full border-[0.5px] border-red-200 hover:bg-red-50 dark:border-red-950/40 dark:hover:bg-red-950/20 text-red-655 transition-colors flex items-center justify-center cursor-pointer"
+                          className="admin-action-btn delete"
                           title="Reject Submission (Manual)"
                         >
-                          <i className="fa-solid fa-xmark text-xs"></i>
+                          <X size={14} />
                         </button>
                       </>
                     )}
 
                   <button
                     onClick={() => handleOpenEdit(art)}
-                    className="w-8 h-8 rounded-full border-[0.5px] border-neutral-200 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-colors flex items-center justify-center cursor-pointer"
+                    className="admin-action-btn edit"
                     title="Edit publication"
                   >
-                    <i className="fa-solid fa-pen text-[11px]"></i>
+                    <PencilSparkles size={14} />
                   </button>
                   <button
                     onClick={() => handleDelete(art.id)}
-                    className="w-8 h-8 rounded-full border-[0.5px] border-red-100 dark:border-red-950/40 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-500 transition-colors flex items-center justify-center cursor-pointer"
+                    className="admin-action-btn delete"
                     title="Delete publication"
                   >
-                    <i className="fa-solid fa-trash-can text-[11px]"></i>
+                    <Trash2 size={14} />
                   </button>
                 </div>
               </td>
