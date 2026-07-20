@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { AlertCircle, Lock, Mail, PenLine, User } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerAdmin } from "../api";
 import { AnimatedButton, LoadingSpinner } from "../components/canves-animations";
@@ -17,8 +18,15 @@ export const AdminRegisterPage: React.FC = () => {
 
   useEffect(() => {
     const session = localStorage.getItem("editorUser");
-    if (session) {
-      navigate("/editor");
+    const token = localStorage.getItem("authToken");
+    if (session && token) {
+      try {
+        const user = JSON.parse(session);
+        navigate(user.role === "SUPER_ADMIN" ? "/admin" : "/editor");
+      } catch {
+        localStorage.removeItem("editorUser");
+        localStorage.removeItem("authToken");
+      }
     }
   }, [navigate]);
 
@@ -36,8 +44,8 @@ export const AdminRegisterPage: React.FC = () => {
         lastName,
         role
       });
-      // Redirect to login upon successful registration
-      navigate("/login");
+      // Redirect to staff login upon successful registration
+      navigate("/admin/login");
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "Registration failed. Please try again.");
@@ -67,7 +75,7 @@ export const AdminRegisterPage: React.FC = () => {
 
         {errorMsg && (
           <div className="mb-6 bg-red-50 dark:bg-red-950/20 border-[0.5px] border-red-200 dark:border-red-950 text-red-750 dark:text-red-400 text-xs font-bold py-3 px-4 rounded-xl flex items-center gap-2 animate-pulse">
-            <i className="fa-solid fa-circle-exclamation text-sm"></i>
+            <AlertCircle size={16} aria-hidden="true" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -104,9 +112,9 @@ export const AdminRegisterPage: React.FC = () => {
             <label className="block text-[10px] font-bold text-neutral-450 dark:text-neutral-550 uppercase tracking-wider mb-1.5">
               Username *
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-4 flex items-center text-neutral-400">
-                <i className="fa-solid fa-user text-[10px]"></i>
+            <div className="auth-field">
+              <span className="auth-field__icon">
+                <User size={16} aria-hidden="true" />
               </span>
               <input
                 type="text"
@@ -123,9 +131,9 @@ export const AdminRegisterPage: React.FC = () => {
             <label className="block text-[10px] font-bold text-neutral-450 dark:text-neutral-550 uppercase tracking-wider mb-1.5">
               Email *
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-4 flex items-center text-neutral-400">
-                <i className="fa-solid fa-envelope text-[10px]"></i>
+            <div className="auth-field">
+              <span className="auth-field__icon">
+                <Mail size={16} aria-hidden="true" />
               </span>
               <input
                 type="email"
@@ -142,9 +150,9 @@ export const AdminRegisterPage: React.FC = () => {
             <label className="block text-[10px] font-bold text-neutral-450 dark:text-neutral-550 uppercase tracking-wider mb-1.5">
               Password *
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-4 flex items-center text-neutral-400">
-                <i className="fa-solid fa-lock text-[10px]"></i>
+            <div className="auth-field">
+              <span className="auth-field__icon">
+                <Lock size={16} aria-hidden="true" />
               </span>
               <input
                 type="password"
@@ -184,7 +192,7 @@ export const AdminRegisterPage: React.FC = () => {
             ) : (
               <>
                 <span>Submit Application</span>
-                <i className="fa-solid fa-pen-nib text-[10px]"></i>
+                <PenLine size={14} aria-hidden="true" />
               </>
             )}
           </AnimatedButton>
@@ -193,7 +201,7 @@ export const AdminRegisterPage: React.FC = () => {
         <div className="mt-8 text-center">
           <p className="text-xs text-neutral-500 dark:text-neutral-400">
             Already staff?{" "}
-            <Link to="/login" className="text-neutral-900 dark:text-white font-bold hover:underline">
+            <Link to="/admin/login" className="text-neutral-900 dark:text-white font-bold hover:underline">
               Log in
             </Link>
           </p>
