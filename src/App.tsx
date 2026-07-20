@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
-import { Route, Routes, useLocation } from "react-router-dom";
+import type { ReactNode } from "react";
+import { Navigate, Route, Routes, useLocation } from "react-router-dom";
 import { fetchArticles, fetchArticlesPage, type PaginationMeta } from "./api";
 import ArticleGrid from "./components/ArticleGrid";
 import CanvesAnimationShowcase from "./components/canves-animations";
@@ -20,7 +21,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 
 type FeedFilter = "ALL" | "NEW" | "TRENDING" | "MORE";
-type SessionUser = { name?: string; username?: string };
+type SessionUser = { name?: string; username?: string; role?: string };
 
 const readSession = (): SessionUser | null => {
   try {
@@ -29,6 +30,26 @@ const readSession = (): SessionUser | null => {
   } catch {
     return null;
   }
+};
+
+const isSuperAdminSession = (): boolean => {
+  try {
+    const stored = localStorage.getItem("editorUser");
+    if (!stored || !localStorage.getItem("authToken")) return false;
+    const parsed = JSON.parse(stored) as SessionUser;
+    return parsed.role === "SUPER_ADMIN";
+  } catch {
+    return false;
+  }
+};
+
+const ProtectedAdminRoute = ({ children }: { children: ReactNode }) => {
+  const location = useLocation();
+  if (!isSuperAdminSession()) {
+    return <Navigate to="/admin/login" replace state={{ from: location.pathname }} />;
+  }
+
+  return children;
 };
 
 function App() {
@@ -170,6 +191,8 @@ function App() {
   const publicationShell =
     !location.pathname.startsWith("/admin") &&
     !location.pathname.startsWith("/article/") &&
+    location.pathname !== "/login" &&
+    location.pathname !== "/register" &&
     location.pathname !== "/editor" &&
     location.pathname !== "/ai-writer";
 
@@ -255,13 +278,17 @@ function App() {
           } />
           <Route path="/article/:id" element={<ArticlePage />} />
           <Route path="/animation-showcase" element={<CanvesAnimationShowcase />} />
-          <Route path="/admin/*" element={<AdminDashboard />} />
+          <Route path="/admin/login" element={<AdminLoginPage />} />
+          <Route path="/admin/register" element={<AdminRegisterPage />} />
+          <Route path="/admin/*" element={
+            <ProtectedAdminRoute>
+              <AdminDashboard />
+            </ProtectedAdminRoute>
+          } />
           <Route path="/editor" element={<CrmDashboard />} />
           <Route path="/ai-writer" element={<AiWriterPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/admin/login" element={<AdminLoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
-          <Route path="/admin/register" element={<AdminRegisterPage />} />
         </Routes>
       </main>
 
