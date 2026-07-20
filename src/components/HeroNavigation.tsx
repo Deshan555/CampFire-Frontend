@@ -221,7 +221,7 @@ export default function HeroNavigation({
         <div className="utility-actions">
           {user ? (
             <>
-              <Link to="/editor"><CircleUserRound size={14} />{user.name || user.username || "Profile"}</Link>
+              <Link to="/admin"><CircleUserRound size={14} />{user.name || user.username || "Profile"}</Link>
               <button type="button" onClick={onLogout}>Sign out</button>
             </>
           ) : (
