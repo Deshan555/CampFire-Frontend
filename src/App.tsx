@@ -82,16 +82,6 @@ function App() {
     )).sort()
   ], [articles, selectedCategory]);
 
-  useEffect(() => {
-    if (location.pathname !== "/") return;
-    const category = new URLSearchParams(location.search).get("category");
-    if (category && categories.includes(category)) {
-      setSelectedCategory(category);
-      setSelectedSubcategory("All");
-      setCurrentPage(1);
-    }
-  }, [categories, location.pathname, location.search]);
-
   const filteredArticles = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
     return articles.filter((article) => {

@@ -1,6 +1,5 @@
 import React from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { siteConfig } from "../config/site";
 
 interface SidebarProps {
   selectedCategory: string;
@@ -51,7 +50,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
       <div className="hidden md:block border-t-[0.5px] border-neutral-200 dark:border-neutral-800 pt-6 mt-8">
         <p className="text-[11px] text-neutral-400 dark:text-neutral-500 font-sans leading-relaxed">
-          © {new Date().getFullYear()} {siteConfig.name}. Independent stories for curious minds.
+          © 2026 THE CANVES. Inspired by classic Swiss print design and luxury digital publishing standards.
         </p>
       </div>
     </aside>

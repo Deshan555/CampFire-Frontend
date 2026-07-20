@@ -628,7 +628,7 @@ export const ArticleFormDrawer: React.FC<ArticleFormDrawerProps> = ({
                   <input
                     required={activeTab === 'manual'}
                     type="text"
-                    placeholder="Paste a lead image URL"
+                    placeholder="https://images.unsplash.com/..."
                     value={formImage}
                     onChange={(e) => setFormImage(e.target.value)}
                     className="flex-1 editor-component-base px-4 bg-neutral-50 dark:bg-neutral-900/50 border-[0.5px] border-neutral-200 dark:border-neutral-800 focus:outline-none focus:ring-1 focus:ring-accent-purple text-neutral-855 dark:text-neutral-100"

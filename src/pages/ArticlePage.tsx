@@ -549,18 +549,6 @@ export const ArticlePage: React.FC = () => {
           </div>
         </div>
 
-        {article.status === "APPROVED" && (
-          <aside className="ai-disclosure" aria-label="Editorial transparency">
-            <div>
-              <span>Reviewed by an editor</span>
-              <strong>Editorial transparency</strong>
-            </div>
-            <p>
-              CampFire may use AI-assisted tools during research and drafting. This story completed the publication&apos;s editorial approval workflow before release.
-            </p>
-          </aside>
-        )}
-
         {/* Hero artwork */}
         <div className="article-hero-frame">
           <ArticleArtwork article={article} eager />
