@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { AlertCircle, ArrowRight, Lock, Mail, User } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { registerReader } from "../api";
 import { AnimatedButton, LoadingSpinner } from "../components/canves-animations";
@@ -65,7 +66,7 @@ export const RegisterPage: React.FC = () => {
 
         {errorMsg && (
           <div className="mb-6 bg-red-50 dark:bg-red-950/20 border-[0.5px] border-red-200 dark:border-red-950 text-red-750 dark:text-red-400 text-xs font-bold py-3 px-4 rounded-xl flex items-center gap-2 animate-pulse">
-            <i className="fa-solid fa-circle-exclamation text-sm"></i>
+            <AlertCircle size={16} aria-hidden="true" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -102,9 +103,9 @@ export const RegisterPage: React.FC = () => {
             <label className="block text-[10px] font-bold text-neutral-450 dark:text-neutral-550 uppercase tracking-wider mb-1.5">
               Username *
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-4 flex items-center text-neutral-400">
-                <i className="fa-solid fa-user text-[10px]"></i>
+            <div className="auth-field">
+              <span className="auth-field__icon">
+                <User size={16} aria-hidden="true" />
               </span>
               <input
                 type="text"
@@ -121,9 +122,9 @@ export const RegisterPage: React.FC = () => {
             <label className="block text-[10px] font-bold text-neutral-450 dark:text-neutral-550 uppercase tracking-wider mb-1.5">
               Email *
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-4 flex items-center text-neutral-400">
-                <i className="fa-solid fa-envelope text-[10px]"></i>
+            <div className="auth-field">
+              <span className="auth-field__icon">
+                <Mail size={16} aria-hidden="true" />
               </span>
               <input
                 type="email"
@@ -140,9 +141,9 @@ export const RegisterPage: React.FC = () => {
             <label className="block text-[10px] font-bold text-neutral-450 dark:text-neutral-550 uppercase tracking-wider mb-1.5">
               Password *
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-4 flex items-center text-neutral-400">
-                <i className="fa-solid fa-lock text-[10px]"></i>
+            <div className="auth-field">
+              <span className="auth-field__icon">
+                <Lock size={16} aria-hidden="true" />
               </span>
               <input
                 type="password"
@@ -166,7 +167,7 @@ export const RegisterPage: React.FC = () => {
             ) : (
               <>
                 <span>Sign Up</span>
-                <i className="fa-solid fa-arrow-right text-[10px]"></i>
+                <ArrowRight size={14} aria-hidden="true" />
               </>
             )}
           </AnimatedButton>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { AlertCircle, Lock, LogIn, User } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { AnimatedButton, LoadingSpinner } from "../components/canves-animations";
 import { siteConfig } from "../config/site";
@@ -13,8 +14,15 @@ export const LoginPage: React.FC = () => {
   // If already logged in, redirect to editor
   useEffect(() => {
     const session = localStorage.getItem("editorUser");
-    if (session) {
-      navigate("/editor");
+    const token = localStorage.getItem("authToken");
+    if (session && token) {
+      try {
+        const user = JSON.parse(session);
+        navigate(user.role === "SUPER_ADMIN" ? "/admin" : "/editor");
+      } catch {
+        localStorage.removeItem("editorUser");
+        localStorage.removeItem("authToken");
+      }
     }
   }, [navigate]);
 
@@ -53,7 +61,7 @@ export const LoginPage: React.FC = () => {
       // Dispatch an event to notify Navbar and other components of auth status
       window.dispatchEvent(new Event("storage"));
       
-      navigate("/editor");
+      navigate(payload.user.role === "SUPER_ADMIN" ? "/admin" : "/editor");
     } catch (err: any) {
       console.error(err);
       setErrorMsg(err.message || "Unable to connect to server.");
@@ -83,7 +91,7 @@ export const LoginPage: React.FC = () => {
 
         {errorMsg && (
           <div className="mb-6 bg-red-50 dark:bg-red-950/20 border-[0.5px] border-red-200 dark:border-red-950 text-red-750 dark:text-red-400 text-xs font-bold py-3 px-4 rounded-xl flex items-center gap-2 animate-pulse">
-            <i className="fa-solid fa-circle-exclamation text-sm"></i>
+            <AlertCircle size={16} aria-hidden="true" />
             <span>{errorMsg}</span>
           </div>
         )}
@@ -93,9 +101,9 @@ export const LoginPage: React.FC = () => {
             <label className="block text-xs font-bold text-neutral-450 dark:text-neutral-550 uppercase tracking-wider mb-2">
               Username
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-4 flex items-center text-neutral-400">
-                <i className="fa-solid fa-user text-xs"></i>
+            <div className="auth-field">
+              <span className="auth-field__icon">
+                <User size={16} aria-hidden="true" />
               </span>
               <input
                 type="text"
@@ -112,9 +120,9 @@ export const LoginPage: React.FC = () => {
             <label className="block text-xs font-bold text-neutral-450 dark:text-neutral-550 uppercase tracking-wider mb-2">
               Password
             </label>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-4 flex items-center text-neutral-400">
-                <i className="fa-solid fa-lock text-xs"></i>
+            <div className="auth-field">
+              <span className="auth-field__icon">
+                <Lock size={16} aria-hidden="true" />
               </span>
               <input
                 type="password"
@@ -138,7 +146,7 @@ export const LoginPage: React.FC = () => {
             ) : (
               <>
                 <span>Secure Access</span>
-                <i className="fa-solid fa-arrow-right-to-bracket text-[10px]"></i>
+                <LogIn size={14} aria-hidden="true" />
               </>
             )}
           </AnimatedButton>
