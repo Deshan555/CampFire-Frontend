@@ -78,7 +78,7 @@ export default function Footer({ categories = [] }: FooterProps) {
           <a href="#accessibility">Accessibility</a>
           <a href="#privacy">Privacy</a>
           <a href="#terms">Terms</a>
-          <a href="#contact">Contact the desk</a>
+          <a href="mailto:editor@campfire.example">Contact the desk</a>
         </div>
       </div>
 
