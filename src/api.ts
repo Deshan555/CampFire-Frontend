@@ -2,6 +2,18 @@ import type { Article } from "./data/articles";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:5092/api";
 
+export interface PaginationMeta {
+  page: number;
+  limit: number;
+  totalItems: number;
+  totalPages: number;
+}
+
+export interface PaginatedArticles {
+  articles: Article[];
+  meta: PaginationMeta;
+}
+
 function getHeaders(extraHeaders: Record<string, string> = {}): Record<string, string> {
   const token = localStorage.getItem("authToken");
   const headers: Record<string, string> = {
@@ -14,6 +26,19 @@ function getHeaders(extraHeaders: Record<string, string> = {}): Record<string, s
 }
 
 async function handleResponse(response: Response) {
+  const json = await parseApiJson(response);
+  return json.data;
+}
+
+async function handleResponseWithMeta(response: Response) {
+  const json = await parseApiJson(response);
+  return {
+    data: json.data,
+    meta: json.meta
+  };
+}
+
+async function parseApiJson(response: Response) {
   let json;
   try {
     json = await response.json();
@@ -28,8 +53,7 @@ async function handleResponse(response: Response) {
     throw new Error(json.error || "An error occurred");
   }
   
-  // Return the data directly based on the new backend standard structure
-  return json.data;
+  return json;
 }
 
 export async function fetchArticles(
@@ -38,9 +62,13 @@ export async function fetchArticles(
     editorMode?: boolean;
     role?: string;
     authorId?: string;
+    page?: number;
+    limit?: number;
+    search?: string;
   }
 ): Promise<Article[]> {
-  const url = new URL(`${API_BASE_URL}/articles`);
+  const search = editorParams?.search?.trim();
+  const url = new URL(`${API_BASE_URL}/articles${search ? "/search" : ""}`);
   if (category && category !== "All") {
     url.searchParams.append("category", category);
   }
@@ -54,11 +82,66 @@ export async function fetchArticles(
     if (editorParams.authorId) {
       url.searchParams.append("authorId", editorParams.authorId);
     }
+    if (editorParams.page) {
+      url.searchParams.append("page", String(editorParams.page));
+    }
+    if (editorParams.limit) {
+      url.searchParams.append("limit", String(editorParams.limit));
+    }
+    if (search) {
+      url.searchParams.append("search", search);
+    }
   }
   const response = await fetch(url.toString(), {
     headers: getHeaders()
   });
   return handleResponse(response);
+}
+
+export async function fetchArticlesPage(
+  category?: string,
+  pagination: { page: number; limit: number; search?: string } = { page: 1, limit: 20 },
+  editorParams?: {
+    editorMode?: boolean;
+    role?: string;
+    authorId?: string;
+  }
+): Promise<PaginatedArticles> {
+  const search = pagination.search?.trim();
+  const url = new URL(`${API_BASE_URL}/articles${search ? "/search" : ""}`);
+  if (category && category !== "All") {
+    url.searchParams.append("category", category);
+  }
+  url.searchParams.append("page", String(pagination.page));
+  url.searchParams.append("limit", String(pagination.limit));
+  if (search) {
+    url.searchParams.append("search", search);
+  }
+  if (editorParams) {
+    if (editorParams.editorMode) {
+      url.searchParams.append("editorMode", "true");
+    }
+    if (editorParams.role) {
+      url.searchParams.append("role", editorParams.role);
+    }
+    if (editorParams.authorId) {
+      url.searchParams.append("authorId", editorParams.authorId);
+    }
+  }
+
+  const response = await fetch(url.toString(), {
+    headers: getHeaders()
+  });
+  const result = await handleResponseWithMeta(response);
+  return {
+    articles: Array.isArray(result.data) ? result.data : [],
+    meta: result.meta || {
+      page: pagination.page,
+      limit: pagination.limit,
+      totalItems: 0,
+      totalPages: 1
+    }
+  };
 }
 
 export async function fetchArticleDetails(
@@ -224,8 +307,25 @@ export async function generateAiArticle(payload: {
   return handleResponse(response);
 }
 
-export async function fetchArticleSuggestions(id: string): Promise<Article[]> {
-  const response = await fetch(`${API_BASE_URL}/articles/${id}/suggestions`, {
+export async function fetchArticleSuggestions(
+  id: string,
+  location?: { country?: string; city?: string; region?: string; location?: string }
+): Promise<Article[]> {
+  const url = new URL(`${API_BASE_URL}/articles/${id}/suggestions`);
+  if (location?.country?.trim()) {
+    url.searchParams.append("country", location.country.trim());
+  }
+  if (location?.city?.trim()) {
+    url.searchParams.append("city", location.city.trim());
+  }
+  if (location?.region?.trim()) {
+    url.searchParams.append("region", location.region.trim());
+  }
+  if (location?.location?.trim()) {
+    url.searchParams.append("location", location.location.trim());
+  }
+
+  const response = await fetch(url.toString(), {
     headers: getHeaders()
   });
   return handleResponse(response);

@@ -7,9 +7,6 @@ interface LoadingScreenProps {
 }
 
 export const LoadingScreen: React.FC<LoadingScreenProps> = ({ message = 'Loading...' }) => {
-  console.log('Lottie component:', Lottie);
-  console.log('Animation:', LoadingAnimation);
-  
   // Handle case where Vite wraps the default export
   const LottieComponent = Lottie && (Lottie as any).default ? (Lottie as any).default : Lottie;
 

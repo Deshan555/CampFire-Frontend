@@ -1,4 +1,4 @@
-import { ArrowRight, Mail, Rss, Share2 } from "lucide-react";
+import { AtSign, Mail, Newspaper, Radio, SendHorizontal } from "lucide-react";
 import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { subscribeNewsletter } from "../api";
@@ -37,9 +37,10 @@ export default function Footer({ categories = [] }: FooterProps) {
         </div>
         <form onSubmit={submit}>
           <label htmlFor="footer-email">Email address</label>
-          <div>
+          <div className="footer-input-group">
+            <AtSign size={17} aria-hidden="true" />
             <input id="footer-email" type="email" required value={email} onChange={(event) => setEmail(event.target.value)} placeholder="you@example.com" />
-            <button type="submit" disabled={status === "loading"} aria-label="Subscribe to newsletter"><ArrowRight size={19} /></button>
+            <button type="submit" disabled={status === "loading"} aria-label="Subscribe to newsletter"><SendHorizontal size={18} /></button>
           </div>
           <p role="status">
             {status === "success" ? "You are on the list." : status === "error" ? "Subscription failed. Please try again." : "One considered email. No noise."}
@@ -52,9 +53,9 @@ export default function Footer({ categories = [] }: FooterProps) {
           <Link to="/" className="footer-wordmark">{siteConfig.name}</Link>
           <p>{siteConfig.description}</p>
           <div className="footer-socials" aria-label="Social links">
-            <a href="#social" aria-label="Social channels"><Share2 size={18} /></a>
+            <a href="#publication" aria-label="Publication updates"><Newspaper size={18} /></a>
             <a href="#newsletter" aria-label="Newsletter"><Mail size={18} /></a>
-            <a href="#feed" aria-label="RSS feed"><Rss size={18} /></a>
+            <a href="#feed" aria-label="Live feed"><Radio size={18} /></a>
           </div>
         </div>
 

@@ -8,7 +8,8 @@ import { LoadingScreen } from "../components/common/LoadingScreen";
 import { NoDataScreen } from "../components/common/NoDataScreen";
 import ArticleArtwork from "../components/ArticleArtwork";
 import ArticleShareModal from "../components/ArticleShareModal";
-import { ArrowLeft, Bookmark, Headphones, Heart, Pause, Share2, UserCheck, UserPlus } from "lucide-react";
+import Hikari404Animation from "../assets/lottie/hikari-404.json";
+import { AlignJustify, ArrowLeft, BookOpen, Bookmark, Columns2, Disc3, ExternalLink, Hash, Headphones, Heart, Music2, Palette, Pause, Share2, Type, UserCheck, UserPlus } from "lucide-react";
 
 interface WordPosition {
   word: string;
@@ -16,10 +17,37 @@ interface WordPosition {
   end: number;
 }
 
-interface ArticleImagePlacement {
-  imageIndex: number;
-  url: string;
-}
+type ReadingLayout = "one" | "two";
+type ReadingFont = "serif" | "sans" | "mono";
+type ReadingTheme = "sepia" | "paper" | "mist" | "night";
+type ArticleSuggestionLocation = { country?: string; city?: string; region?: string; location?: string };
+
+const readingFonts: Array<{ value: ReadingFont; label: string; title: string }> = [
+  { value: "serif", label: "Serif", title: "Serif reading font" },
+  { value: "sans", label: "Sans", title: "Sans reading font" },
+  { value: "mono", label: "Mono", title: "Monospace reading font" }
+];
+
+const readingThemes: Array<{ value: ReadingTheme; label: string; title: string }> = [
+  { value: "sepia", label: "Sepia", title: "Sepia background filter" },
+  { value: "paper", label: "Paper", title: "Paper background filter" },
+  { value: "mist", label: "Mist", title: "Cool gray background filter" },
+  { value: "night", label: "Night", title: "Night background filter" }
+];
+
+const nextOption = <T extends string>(options: Array<{ value: T }>, current: T): T => {
+  const currentIndex = options.findIndex((option) => option.value === current);
+  return options[(currentIndex + 1) % options.length].value;
+};
+
+const readStoredOption = <T extends string>(
+  key: string,
+  options: Array<{ value: T }>,
+  fallback: T
+): T => {
+  const stored = localStorage.getItem(key);
+  return options.some((option) => option.value === stored) ? stored as T : fallback;
+};
 
 const getWordPositions = (text: string): WordPosition[] => {
   const words: WordPosition[] = [];
@@ -35,34 +63,38 @@ const getWordPositions = (text: string): WordPosition[] => {
   return words;
 };
 
-const distributeArticleImages = (
-  articleId: string,
-  paragraphCount: number,
-  imageUrls: string[] = []
-): Map<number, ArticleImagePlacement[]> => {
-  const placements = new Map<number, ArticleImagePlacement[]>();
-  if (paragraphCount === 0 || imageUrls.length === 0) return placements;
+const getArticleSuggestionLocation = async (): Promise<ArticleSuggestionLocation | undefined> => {
+  const storageKey = "articleSuggestionLocation";
 
-  const paragraphSlots = Array.from({ length: paragraphCount }, (_, index) => index);
-  let seed = Array.from(articleId).reduce(
-    (hash, character) => Math.imul(hash ^ character.charCodeAt(0), 16777619) >>> 0,
-    2166136261
-  );
-
-  for (let index = paragraphSlots.length - 1; index > 0; index -= 1) {
-    seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
-    const swapIndex = seed % (index + 1);
-    [paragraphSlots[index], paragraphSlots[swapIndex]] = [paragraphSlots[swapIndex], paragraphSlots[index]];
+  try {
+    const cached = localStorage.getItem(storageKey);
+    if (cached) {
+      const parsed = JSON.parse(cached) as ArticleSuggestionLocation;
+      if (parsed.country || parsed.city || parsed.region || parsed.location) return parsed;
+    }
+  } catch {
+    localStorage.removeItem(storageKey);
   }
 
-  imageUrls.forEach((url, imageIndex) => {
-    const paragraphIndex = paragraphSlots[imageIndex % paragraphSlots.length];
-    const paragraphImages = placements.get(paragraphIndex) || [];
-    paragraphImages.push({ imageIndex, url });
-    placements.set(paragraphIndex, paragraphImages);
-  });
+  try {
+    const response = await fetch("https://ipapi.co/json/");
+    const data = await response.json();
+    const location = {
+      country: data?.country_name,
+      city: data?.city,
+      region: data?.region,
+      location: data?.country_name
+    };
 
-  return placements;
+    if (location.country || location.city || location.region) {
+      localStorage.setItem(storageKey, JSON.stringify(location));
+      return location;
+    }
+  } catch (error) {
+    console.error("Failed to resolve suggestion location:", error);
+  }
+
+  return undefined;
 };
 
 export const ArticlePage: React.FC = () => {
@@ -78,6 +110,16 @@ export const ArticlePage: React.FC = () => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [isSaved, setIsSaved] = useState(false);
   const [shareModalOpen, setShareModalOpen] = useState(false);
+  const [readingMode, setReadingMode] = useState(() => localStorage.getItem("articleReadingMode") === "kindle");
+  const [readingLayout, setReadingLayout] = useState<ReadingLayout>(() =>
+    localStorage.getItem("articleReadingLayout") === "one" ? "one" : "two"
+  );
+  const [readingFont, setReadingFont] = useState<ReadingFont>(() =>
+    readStoredOption("articleReadingFont", readingFonts, "serif")
+  );
+  const [readingTheme, setReadingTheme] = useState<ReadingTheme>(() =>
+    readStoredOption("articleReadingTheme", readingThemes, "sepia")
+  );
 
   // Emojis feedback state
   const [feedbackSubmitted, setFeedbackSubmitted] = useState<number | null>(null);
@@ -121,6 +163,22 @@ export const ArticlePage: React.FC = () => {
   useEffect(() => {
     playbackRateRef.current = playbackRate;
   }, [playbackRate]);
+
+  useEffect(() => {
+    localStorage.setItem("articleReadingMode", readingMode ? "kindle" : "standard");
+  }, [readingMode]);
+
+  useEffect(() => {
+    localStorage.setItem("articleReadingLayout", readingLayout);
+  }, [readingLayout]);
+
+  useEffect(() => {
+    localStorage.setItem("articleReadingFont", readingFont);
+  }, [readingFont]);
+
+  useEffect(() => {
+    localStorage.setItem("articleReadingTheme", readingTheme);
+  }, [readingTheme]);
 
   // Load SpeechSynthesis voices
   useEffect(() => {
@@ -402,7 +460,8 @@ export const ArticlePage: React.FC = () => {
         setLoading(false);
       });
 
-    fetchArticleSuggestions(id)
+    getArticleSuggestionLocation()
+      .then((locationData) => fetchArticleSuggestions(id, locationData))
       .then((data) => {
         setSuggestions(data);
       })
@@ -414,7 +473,7 @@ export const ArticlePage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex-1 py-32 text-center flex flex-col items-center justify-center bg-white dark:bg-brand-dark">
+      <div className="flex-1 text-center flex flex-col items-center justify-center bg-white dark:bg-brand-dark blog-lottie-loading article-detail-lottie-loading">
         <LoadingScreen message="Loading Publication Details..." />
       </div>
     );
@@ -423,7 +482,11 @@ export const ArticlePage: React.FC = () => {
   if (fetchError || !article) {
     return (
       <div className="flex-1 py-20 text-center flex flex-col items-center justify-center">
-        <NoDataScreen message="Article Not Found" />
+        <NoDataScreen
+          message="Article Not Found"
+          animationData={Hikari404Animation}
+          animationClassName="article-not-found-animation"
+        />
         <p className="text-neutral-500 mb-8 max-w-sm">
           The publication you are searching for might have been archived or moved to another edition.
         </p>
@@ -455,14 +518,8 @@ export const ArticlePage: React.FC = () => {
     { label: "Loved it", symbol: "🤩", iconClass: "fa-solid fa-face-grin-stars text-accent-coral" },
   ];
 
-  const inlineImagesByParagraph = distributeArticleImages(
-    article.id,
-    article.content.length,
-    article.imageUrls
-  );
-
   return (
-    <div className="article-reading-page flex-1 font-sans">
+    <div className={`article-reading-page ${readingMode ? "reading-mode-kindle" : ""} reading-layout-${readingLayout} reading-font-${readingFont} reading-theme-${readingTheme} flex-1 font-sans`}>
 
       {/* Back to feed button */}
       <div className="article-back-row">
@@ -473,6 +530,102 @@ export const ArticlePage: React.FC = () => {
           <ArrowLeft size={16} />
           <span>Back to today&apos;s edition</span>
         </Link>
+      </div>
+
+      <div className="article-floating-controls" aria-label="Article controls">
+        <button
+          type="button"
+          onClick={isSpeaking && !isPaused ? handlePauseSpeech : handlePlaySpeech}
+          className={`article-floating-action ${isSpeaking && !isPaused ? "is-active" : ""}`}
+          title={isSpeaking && !isPaused ? "Pause listening" : "Listen to article audio"}
+          aria-pressed={isSpeaking && !isPaused}
+        >
+          {isSpeaking && !isPaused ? <Pause size={16} /> : <Headphones size={16} />}
+          <span>{isSpeaking && !isPaused ? "Playing" : "Listen"}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsFollowing(!isFollowing)}
+          className={`article-floating-action ${isFollowing ? "is-active" : ""}`}
+          title={isFollowing ? "Unfollow author" : "Follow author"}
+          aria-pressed={isFollowing}
+        >
+          {isFollowing ? <UserCheck size={16} /> : <UserPlus size={16} />}
+          <span>{isFollowing ? "Following" : "Follow"}</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setIsSaved(!isSaved)}
+          className={`article-floating-action ${isSaved ? "is-active" : ""}`}
+          title={isSaved ? "Remove bookmark" : "Save article"}
+          aria-pressed={isSaved}
+        >
+          <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} />
+          <span>Save</span>
+        </button>
+
+        <span className="article-floating-divider" aria-hidden="true" />
+
+        <button
+          type="button"
+          className={`article-floating-action ${readingMode ? "is-active" : ""}`}
+          onClick={() => setReadingMode((enabled) => !enabled)}
+          title={readingMode ? "Turn off Kindle mode" : "Turn on Kindle reading mode"}
+          aria-pressed={readingMode}
+        >
+          <BookOpen size={16} />
+          <span>Kindle</span>
+        </button>
+
+        {readingMode && (
+          <>
+            <button
+              type="button"
+              className="article-floating-action"
+              onClick={() => setReadingFont((font) => nextOption(readingFonts, font))}
+              title={`Font: ${readingFonts.find((font) => font.value === readingFont)?.label || "Serif"}. Click to switch.`}
+              aria-label="Switch reading font"
+            >
+              <Type size={16} />
+              <span>Font</span>
+            </button>
+
+            <button
+              type="button"
+              className="article-floating-action"
+              onClick={() => setReadingTheme((theme) => nextOption(readingThemes, theme))}
+              title={`Colour: ${readingThemes.find((theme) => theme.value === readingTheme)?.label || "Sepia"}. Click to switch.`}
+              aria-label="Switch reading colour"
+            >
+              <Palette size={16} />
+              <span>Colour</span>
+            </button>
+          </>
+        )}
+
+        <button
+          type="button"
+          className={`article-floating-action ${readingLayout === "one" ? "is-active" : ""}`}
+          onClick={() => setReadingLayout("one")}
+          title="One column view"
+          aria-pressed={readingLayout === "one"}
+        >
+          <AlignJustify size={16} />
+          <span>1 row</span>
+        </button>
+
+        <button
+          type="button"
+          className={`article-floating-action ${readingLayout === "two" ? "is-active" : ""}`}
+          onClick={() => setReadingLayout("two")}
+          title="Two column view"
+          aria-pressed={readingLayout === "two"}
+        >
+          <Columns2 size={16} />
+          <span>2 row</span>
+        </button>
       </div>
 
       {/* Main article content panel */}
@@ -514,45 +667,46 @@ export const ArticlePage: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 mt-2 sm:mt-0">
-            {/* Listen Button */}
-            <button
-              onClick={isSpeaking && !isPaused ? handlePauseSpeech : handlePlaySpeech}
-              className={`article-icon-action article-listen-action ${isSpeaking && !isPaused
-                  ? "is-active"
-                  : ""
-                }`}
-              title={isSpeaking && !isPaused ? "Pause listening" : "Listen to article audio"}
-            >
-              {isSpeaking && !isPaused ? (
-                <Pause size={15} />
-              ) : (
-                <Headphones size={15} />
-              )}
-              <span>{isSpeaking && !isPaused ? "Playing" : "Listen"}</span>
-            </button>
+        </div>
 
-            <button
-              onClick={() => setIsFollowing(!isFollowing)}
-              className={`article-icon-action ${isFollowing ? "is-active" : ""}`}
-            >
-              {isFollowing ? <UserCheck size={15} /> : <UserPlus size={15} />}
-              {isFollowing ? "Following" : "Follow"}
-            </button>
-            <button
-              onClick={() => setIsSaved(!isSaved)}
-              className={`article-square-action ${isSaved ? "is-active" : ""}`}
-              title="Bookmark"
-            >
-              <Bookmark size={16} fill={isSaved ? "currentColor" : "none"} />
-            </button>
+        {article.video && (
+          <div className="article-video-section article-video-section--top">
+            <div className="article-music-player">
+              <div className="article-music-player__meta">
+                <div className="article-music-player__cover">
+                  {article.video.poster || article.image ? (
+                    <img
+                      src={article.video.poster || article.image || ""}
+                      alt={`${article.title} video poster`}
+                    />
+                  ) : (
+                    <ArticleArtwork article={article} />
+                  )}
+                </div>
+                <div className="article-music-player__copy">
+                  <span><Music2 size={14} /> Now playing</span>
+                  <h2>{article.title}</h2>
+                  <p>{article.category}{article.subcategory ? ` • ${article.subcategory}` : ""}</p>
+                  <div className="article-music-player__progress" aria-hidden="true">
+                    <span />
+                  </div>
+                </div>
+                <div className="article-music-player__controls">
+                  <Disc3 size={22} className="article-music-player__disc" aria-hidden="true" />
+                  <a href={article.video.src} target="_blank" rel="noreferrer" aria-label="Open video on YouTube">
+                    <ExternalLink size={16} />
+                  </a>
+                </div>
+              </div>
+              <div className="article-video-frame">
+                <VideoPlayer
+                  src={article.video.src}
+                  poster={article.video.poster || undefined}
+                />
+              </div>
+            </div>
           </div>
-        </div>
-
-        {/* Hero artwork */}
-        <div className="article-hero-frame">
-          <ArticleArtwork article={article} eager />
-        </div>
+        )}
 
         {/* Editorial body rendering Markdown (README) format */}
         <div className="editorial-prose text-neutral-850 dark:text-neutral-200 mb-12 max-w-3xl mx-auto select-text text-justify flex flex-col gap-6">
@@ -599,38 +753,50 @@ export const ArticlePage: React.FC = () => {
                     <Markdown content={paragraph} />
                   )}
                 </div>
-
-                {(inlineImagesByParagraph.get(index) || []).map(({ imageIndex, url }) => (
-                  <figure key={`${url}-${imageIndex}`} className="article-inline-figure">
-                    <button
-                      type="button"
-                      className="article-inline-image"
-                      onClick={() => setActiveImageIndex(imageIndex)}
-                      aria-label={`Open image ${imageIndex + 1} from ${article.title}`}
-                    >
-                      <img
-                        src={url}
-                        alt={`${article.title}, image ${imageIndex + 1}`}
-                        loading="lazy"
-                      />
-                    </button>
-                  </figure>
-                ))}
               </React.Fragment>
             );
           })}
         </div>
 
-        {/* Video follows the written article */}
-        {article.video && (
-          <div className="article-video-section">
-            <div className="article-video-frame">
-              <VideoPlayer
-                src={article.video.src}
-                poster={article.video.poster || undefined}
-              />
+        {article.hashtags && article.hashtags.length > 0 && (
+          <section className="article-bottom-tags" aria-label="Article hashtags">
+            <div className="article-bottom-tags__heading">
+              <Hash size={15} aria-hidden="true" />
+              <span>Hashtags</span>
             </div>
-          </div>
+            <div className="article-hashtag-row article-hashtag-row--bottom">
+              {article.hashtags.map((tag) => {
+                const label = tag.startsWith("#") ? tag : `#${tag}`;
+                return <span key={label}>{label}</span>;
+              })}
+            </div>
+          </section>
+        )}
+
+        {article.imageUrls && article.imageUrls.length > 0 && (
+          <section className="article-image-gallery" aria-label={`${article.title} image gallery`}>
+            <div className="article-image-gallery__heading">
+              <span>Image gallery</span>
+              <p>{article.imageUrls.length} visuals from this article</p>
+            </div>
+            <div className="article-image-gallery__grid">
+              {article.imageUrls.map((url, imageIndex) => (
+                <button
+                  key={`${url}-${imageIndex}`}
+                  type="button"
+                  className="article-gallery-thumb"
+                  onClick={() => setActiveImageIndex(imageIndex)}
+                  aria-label={`Open image ${imageIndex + 1} from ${article.title}`}
+                >
+                  <img
+                    src={url}
+                    alt={`${article.title}, image ${imageIndex + 1}`}
+                    loading="lazy"
+                  />
+                </button>
+              ))}
+            </div>
+          </section>
         )}
 
         {/* Lightbox Popover / Dialog Overlay */}

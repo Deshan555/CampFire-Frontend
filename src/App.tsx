@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { Route, Routes, useLocation } from "react-router-dom";
-import { fetchArticles } from "./api";
+import { fetchArticles, fetchArticlesPage, type PaginationMeta } from "./api";
 import ArticleGrid from "./components/ArticleGrid";
 import CanvesAnimationShowcase from "./components/canves-animations";
 import Footer from "./components/Footer";
 import HeroNavigation from "./components/HeroNavigation";
 import HeroSection from "./components/HeroSection";
+import { LoadingScreen } from "./components/common/LoadingScreen";
 import Pagination from "./components/Pagination";
 import PromotionalSection from "./components/PromotionalSection";
 import type { Article } from "./data/articles";
@@ -39,8 +40,16 @@ function App() {
   const [selectedSubcategory, setSelectedSubcategory] = useState("All");
   const [feedFilter, setFeedFilter] = useState<FeedFilter>("ALL");
   const [currentPage, setCurrentPage] = useState(1);
+  const [serverArticles, setServerArticles] = useState<Article[]>([]);
+  const [serverMeta, setServerMeta] = useState<PaginationMeta | null>(null);
+  const [serverLoading, setServerLoading] = useState(false);
   const [user, setUser] = useState<SessionUser | null>(readSession);
   const location = useLocation();
+  const itemsPerPage = 6;
+  const activeSearchQuery = searchQuery.trim().length >= 3 ? searchQuery : "";
+  const canUseServerPagination =
+    selectedSubcategory === "All" &&
+    feedFilter === "ALL";
 
   useEffect(() => {
     let active = true;
@@ -67,6 +76,33 @@ function App() {
     return () => window.removeEventListener("storage", syncSession);
   }, []);
 
+  useEffect(() => {
+    if (!canUseServerPagination) return;
+
+    let active = true;
+    setServerLoading(true);
+    fetchArticlesPage(selectedCategory, {
+      page: currentPage,
+      limit: itemsPerPage,
+      search: activeSearchQuery
+    })
+      .then(({ articles: pageArticles, meta }) => {
+        if (!active) return;
+        setServerArticles(pageArticles);
+        setServerMeta(meta);
+        setLoadError(false);
+      })
+      .catch((error) => {
+        console.error("Error loading paginated articles:", error);
+        if (active) setLoadError(true);
+      })
+      .finally(() => {
+        if (active) setServerLoading(false);
+      });
+
+    return () => { active = false; };
+  }, [activeSearchQuery, canUseServerPagination, currentPage, selectedCategory]);
+
   const categories = useMemo(() => [
     "All",
     ...Array.from(new Set(articles.map((article) => article.category).filter(Boolean))).sort()
@@ -83,7 +119,7 @@ function App() {
   ], [articles, selectedCategory]);
 
   const filteredArticles = useMemo(() => {
-    const query = searchQuery.trim().toLowerCase();
+    const query = activeSearchQuery.trim().toLowerCase().replace(/^#/, "");
     return articles.filter((article) => {
       const matchesCategory = selectedCategory === "All" || article.category === selectedCategory;
       const matchesSubcategory = selectedSubcategory === "All" || article.subcategory === selectedSubcategory;
@@ -94,23 +130,48 @@ function App() {
         (feedFilter === "MORE" && Boolean(article.featured || article.isPartner || (article.likes || 0) > 0));
       const matchesSearch = !query || [
         article.title,
+        article.id,
+        article.dbId,
         article.summary,
         article.category,
         article.subcategory,
-        article.author?.name
-      ].some((value) => (value || "").toLowerCase().includes(query));
+        article.author?.name,
+        article.authorUsername,
+        ...(article.hashtags || [])
+      ].some((value) => (value || "").toLowerCase().replace(/^#/, "").includes(query));
       return matchesCategory && matchesSubcategory && matchesFeed && matchesSearch;
     });
-  }, [articles, feedFilter, searchQuery, selectedCategory, selectedSubcategory]);
+  }, [activeSearchQuery, articles, feedFilter, selectedCategory, selectedSubcategory]);
 
-  const itemsPerPage = 6;
-  const totalPages = Math.max(1, Math.ceil(filteredArticles.length / itemsPerPage));
-  const paginatedArticles = filteredArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
-  const heroArticles = (articles.some((article) => article.featured)
-    ? [...articles.filter((article) => article.featured), ...articles.filter((article) => !article.featured)]
-    : articles).slice(0, 5);
+  const clientTotalPages = Math.max(1, Math.ceil(filteredArticles.length / itemsPerPage));
+  const clientPaginatedArticles = filteredArticles.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+  const visibleArticles = canUseServerPagination ? serverArticles : clientPaginatedArticles;
+  const visibleTotalItems = canUseServerPagination ? (serverMeta?.totalItems ?? serverArticles.length) : filteredArticles.length;
+  const visibleTotalPages = canUseServerPagination ? Math.max(1, serverMeta?.totalPages || 1) : clientTotalPages;
+  const heroArticles = useMemo(() => {
+    if (articles.length === 0) return [];
+    const shuffleArray = (array: Article[]) => {
+      const newArray = [...array];
+      for (let i = newArray.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+      }
+      return newArray;
+    };
+    const featured = articles.filter((article) => article.featured);
+    const nonFeatured = articles.filter((article) => !article.featured);
+    
+    return (featured.length > 0
+      ? [...shuffleArray(featured), ...shuffleArray(nonFeatured)]
+      : shuffleArray(articles)
+    ).slice(0, 5);
+  }, [articles]);
 
-  const publicationShell = !location.pathname.startsWith("/admin") && location.pathname !== "/editor" && location.pathname !== "/ai-writer";
+  const publicationShell =
+    !location.pathname.startsWith("/admin") &&
+    !location.pathname.startsWith("/article/") &&
+    location.pathname !== "/editor" &&
+    location.pathname !== "/ai-writer";
 
   const selectCategory = (category: string) => {
     setSelectedCategory(category);
@@ -153,8 +214,8 @@ function App() {
         <Routes>
           <Route path="/" element={
             loading ? (
-              <div className="editorial-shell editorial-loading" aria-label="Loading stories">
-                <span /><span /><span /><span />
+              <div className="editorial-shell blog-lottie-loading" aria-label="Loading stories">
+                <LoadingScreen message="Loading stories..." />
               </div>
             ) : loadError ? (
               <div className="editorial-shell publication-empty">
@@ -172,16 +233,20 @@ function App() {
               <div className="home-publication">
                 <HeroSection articles={heroArticles} />
                 <div className="editorial-shell">
-                  {paginatedArticles.length > 0 ? (
-                    <ArticleGrid articles={paginatedArticles} />
+                  {serverLoading ? (
+                    <div className="blog-lottie-loading blog-lottie-loading--compact" aria-label="Loading stories">
+                      <LoadingScreen message="Loading articles..." />
+                    </div>
+                  ) : visibleArticles.length > 0 ? (
+                    <ArticleGrid articles={visibleArticles} />
                   ) : (
                     <div className="publication-empty publication-empty--compact">
                       <p className="eyebrow">No matching stories</p>
                       <h2>Try another topic or search.</h2>
                     </div>
                   )}
-                  {filteredArticles.length > itemsPerPage && (
-                    <Pagination currentPage={currentPage} totalPages={totalPages} onPageChange={setCurrentPage} />
+                  {visibleTotalItems > itemsPerPage && (
+                    <Pagination currentPage={currentPage} totalPages={visibleTotalPages} onPageChange={setCurrentPage} />
                   )}
                   <PromotionalSection articles={filteredArticles.length > 0 ? filteredArticles : articles} />
                 </div>

@@ -1,5 +1,5 @@
 import React from "react";
-// import { ChevronRight } from "lucide-react"; // Removed unused
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -12,39 +12,88 @@ const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
 }) => {
+  const pageItems = getPageItems(currentPage, totalPages);
+
   return (
-    <div className="w-full flex justify-center items-center gap-2 pt-8 pb-16">
+    <nav className="modern-pagination" aria-label="Article pagination">
       <button
+        type="button"
         onClick={() => onPageChange(Math.max(currentPage - 1, 1))}
         disabled={currentPage === 1}
-        className="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors"
+        className="modern-pagination__arrow"
+        aria-label="Previous page"
       >
-        <span className="text-sm font-semibold">&lt;</span>
+        <ChevronLeft size={17} />
       </button>
-      
-      {[...Array(totalPages)].map((_, i) => (
-        <button
-          key={i}
-          onClick={() => onPageChange(i + 1)}
-          className={`w-8 h-8 flex items-center justify-center rounded-md text-xs font-semibold transition-colors ${
-            currentPage === i + 1
-              ? "bg-black text-white"
-              : "bg-transparent text-gray-600 hover:bg-gray-100"
-          }`}
-        >
-          {i + 1}
-        </button>
-      ))}
+
+      <div className="modern-pagination__pages">
+        {pageItems.map((item, index) => (
+          item === "ellipsis" ? (
+            <span key={`ellipsis-${index}`} className="modern-pagination__ellipsis" aria-hidden="true">...</span>
+          ) : (
+            <button
+              key={item}
+              type="button"
+              onClick={() => onPageChange(item)}
+              className={`modern-pagination__page ${currentPage === item ? "is-active" : ""}`}
+              aria-current={currentPage === item ? "page" : undefined}
+              aria-label={`Page ${item}`}
+            >
+              {item}
+            </button>
+          )
+        ))}
+      </div>
 
       <button
+        type="button"
         onClick={() => onPageChange(Math.min(currentPage + 1, totalPages))}
         disabled={currentPage === totalPages}
-        className="w-8 h-8 flex items-center justify-center rounded-md text-gray-500 hover:bg-gray-100 disabled:opacity-30 transition-colors"
+        className="modern-pagination__arrow"
+        aria-label="Next page"
       >
-        <span className="text-sm font-semibold">&gt;</span>
+        <ChevronRight size={17} />
       </button>
-    </div>
+
+      <span className="modern-pagination__status">Page {currentPage} of {totalPages}</span>
+    </nav>
   );
+};
+
+const getPageItems = (currentPage: number, totalPages: number): Array<number | "ellipsis"> => {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  const pages = new Set<number>([1, totalPages]);
+  for (let page = currentPage - 1; page <= currentPage + 1; page += 1) {
+    if (page > 1 && page < totalPages) pages.add(page);
+  }
+
+  if (currentPage <= 3) {
+    pages.add(2);
+    pages.add(3);
+    pages.add(4);
+  }
+
+  if (currentPage >= totalPages - 2) {
+    pages.add(totalPages - 3);
+    pages.add(totalPages - 2);
+    pages.add(totalPages - 1);
+  }
+
+  const sortedPages = Array.from(pages).filter((page) => page >= 1 && page <= totalPages).sort((a, b) => a - b);
+  const items: Array<number | "ellipsis"> = [];
+
+  sortedPages.forEach((page, index) => {
+    const previousPage = sortedPages[index - 1];
+    if (previousPage && page - previousPage > 1) {
+      items.push("ellipsis");
+    }
+    items.push(page);
+  });
+
+  return items;
 };
 
 export default Pagination;

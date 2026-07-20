@@ -1,8 +1,24 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
-import { Bookmark, ChevronDown, ChevronRight, Menu, Search, UserRound, X } from "lucide-react";
-import { fetchCategories, fetchSubcategories, type CategoryDto, type SubcategoryDto } from "../api";
+import {
+  ChevronDown,
+  ChevronRight,
+  CircleUserRound,
+  Clock3,
+  Flame,
+  Home,
+  Layers,
+  LogIn,
+  Menu,
+  Search,
+  Sparkles,
+  UserPlus,
+  X
+} from "lucide-react";
+import { fetchArticlesPage, fetchCategories, fetchSubcategories, type CategoryDto, type SubcategoryDto } from "../api";
+import type { Article } from "../data/articles";
 import { siteConfig } from "../config/site";
+import ArticleArtwork from "./ArticleArtwork";
 
 type FeedFilter = "ALL" | "NEW" | "TRENDING" | "MORE";
 
@@ -21,10 +37,10 @@ interface HeroNavigationProps {
   onSelectFeedFilter?: (filter: FeedFilter) => void;
 }
 
-const feedFilters: Array<{ label: string; value: FeedFilter }> = [
-  { label: "Latest", value: "NEW" },
-  { label: "Trending", value: "TRENDING" },
-  { label: "More", value: "MORE" }
+const feedFilters: Array<{ label: string; value: FeedFilter; Icon: typeof Clock3 }> = [
+  { label: "Latest", value: "NEW", Icon: Clock3 },
+  { label: "Trending", value: "TRENDING", Icon: Flame },
+  { label: "More", value: "MORE", Icon: Sparkles }
 ];
 
 export default function HeroNavigation({
@@ -46,7 +62,11 @@ export default function HeroNavigation({
   const [openCategory, setOpenCategory] = useState<string | null>(null);
   const [apiCategories, setApiCategories] = useState<CategoryDto[]>([]);
   const [apiSubcategories, setApiSubcategories] = useState<SubcategoryDto[]>([]);
+  const [previewArticles, setPreviewArticles] = useState<Article[]>([]);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState(false);
   const categoryLinksRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const publicationDate = useMemo(
     () => new Intl.DateTimeFormat(undefined, { weekday: "long", month: "long", day: "numeric", year: "numeric" }).format(new Date()),
     []
@@ -97,6 +117,47 @@ export default function HeroNavigation({
       document.removeEventListener("keydown", closeOnEscape);
     };
   }, [openCategory]);
+
+  useEffect(() => {
+    if (searchOpen) searchInputRef.current?.focus();
+  }, [searchOpen]);
+
+  const searchExpanded = searchOpen || searchQuery.trim().length > 0;
+
+  useEffect(() => {
+    const query = searchQuery.trim();
+    if (!searchExpanded || query.length < 3) {
+      setPreviewArticles([]);
+      setPreviewLoading(false);
+      setPreviewError(false);
+      return;
+    }
+
+    let active = true;
+    const timer = window.setTimeout(() => {
+      setPreviewLoading(true);
+      setPreviewError(false);
+      fetchArticlesPage(undefined, { page: 1, limit: 5, search: query })
+        .then(({ articles }) => {
+          if (!active) return;
+          setPreviewArticles(articles);
+        })
+        .catch((error) => {
+          console.error("Failed to load search preview:", error);
+          if (!active) return;
+          setPreviewArticles([]);
+          setPreviewError(true);
+        })
+        .finally(() => {
+          if (active) setPreviewLoading(false);
+        });
+    }, 260);
+
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [searchExpanded, searchQuery]);
 
   const categoryGroups = useMemo(() => {
     if (apiCategories.length > 0) {
@@ -158,43 +219,109 @@ export default function HeroNavigation({
         <p>{publicationDate}</p>
         <p className="utility-edition"><span aria-hidden="true" />{editionLabel}</p>
         <div className="utility-actions">
-          <button type="button" onClick={() => setSearchOpen((value) => !value)} aria-label="Search articles">
-            <Search size={15} /> Search
-          </button>
           {user ? (
             <>
-              <Link to="/editor"><UserRound size={15} />{user.name || user.username || "Profile"}</Link>
+              <Link to="/editor"><CircleUserRound size={14} />{user.name || user.username || "Profile"}</Link>
               <button type="button" onClick={onLogout}>Sign out</button>
             </>
           ) : (
             <>
-              <Link to="/login">Sign in</Link>
-              <Link to="/register" className="utility-account">Create account</Link>
+              <Link to="/login"><LogIn size={14} /> Sign in</Link>
+              <Link to="/register" className="utility-account"><UserPlus size={14} /> Create account</Link>
             </>
           )}
         </div>
       </div>
 
       <div className="masthead editorial-shell">
-        <p className="masthead-note">Independent stories<br />for curious minds</p>
-        <Link to="/" className="wordmark" aria-label={`${siteConfig.name} home`}>{siteConfig.name}</Link>
-        <Link to="/editor" className="masthead-action"><Bookmark size={16} /> Reading list</Link>
-      </div>
-
-      {searchOpen && (
-        <div className="search-drawer editorial-shell">
-          <Search size={18} aria-hidden="true" />
-          <input
-            autoFocus
-            type="search"
-            value={searchQuery}
-            onChange={(event) => onSearchChange(event.target.value)}
-            placeholder="Search stories, topics, and authors"
-            aria-label="Search stories, topics, and authors"
-          />
-          <button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search"><X size={18} /></button>
+        <p className="masthead-edition">Today's edition</p>
+        <div className="masthead-brand">
+          <Link to="/" className="wordmark" aria-label={`${siteConfig.name} home`}>{siteConfig.name}</Link>
+          <p className="masthead-tagline">Stories <span /> Ideas <span /> Perspectives</p>
         </div>
-      )}
+        <div className={`masthead-search-shell ${searchExpanded ? "is-open" : ""}`}>
+          <div className={`masthead-search-floating ${searchExpanded ? "is-open" : ""}`}>
+            {searchExpanded ? (
+              <>
+                <button
+                  type="button"
+                  className="masthead-search-leading"
+                  onClick={() => searchInputRef.current?.focus()}
+                  aria-label="Focus search"
+                >
+                  <Search size={17} />
+                </button>
+                <input
+                  ref={searchInputRef}
+                  type="search"
+                  value={searchQuery}
+                  onChange={(event) => onSearchChange(event.target.value)}
+                  placeholder="Search articles"
+                  aria-label="Search articles"
+                  aria-controls="masthead-search-preview"
+                  aria-expanded={searchExpanded}
+                />
+                <button
+                  type="button"
+                  className="masthead-search-close"
+                  onClick={() => {
+                    onSearchChange("");
+                    setPreviewArticles([]);
+                    setSearchOpen(false);
+                  }}
+                  aria-label="Clear search"
+                >
+                  <X size={14} />
+                </button>
+              </>
+            ) : (
+              <button
+                type="button"
+                className="masthead-search-toggle"
+                onClick={() => setSearchOpen(true)}
+                aria-label="Open search"
+              >
+                <Search size={16} />
+                <span>Search</span>
+              </button>
+            )}
+          </div>
+          {searchExpanded && searchQuery.trim().length > 0 && (
+            <div id="masthead-search-preview" className="masthead-search-preview" role="listbox" aria-label="Search previews">
+              {searchQuery.trim().length < 3 ? (
+                <p className="masthead-search-preview__state">Type 3 letters to search</p>
+              ) : previewLoading ? (
+                <p className="masthead-search-preview__state">Searching...</p>
+              ) : previewError ? (
+                <p className="masthead-search-preview__state">Search unavailable</p>
+              ) : previewArticles.length > 0 ? (
+                <>
+                  {previewArticles.map((article) => (
+                    <Link
+                      key={article.id}
+                      to={`/article/${article.id}`}
+                      className="masthead-search-result"
+                      role="option"
+                      onClick={() => setSearchOpen(false)}
+                    >
+                      <span className="masthead-search-result__image">
+                        <ArticleArtwork article={article} />
+                      </span>
+                      <span className="masthead-search-result__copy">
+                        <span className="masthead-search-result__category">{article.category}</span>
+                        <span className="masthead-search-result__title">{article.title}</span>
+                        <span className="masthead-search-result__meta">{article.readingTime}</span>
+                      </span>
+                    </Link>
+                  ))}
+                </>
+              ) : (
+                <p className="masthead-search-preview__state">No matches yet</p>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
 
       <div className="nav-frame">
         <nav className="category-nav editorial-shell" aria-label="Primary navigation">
@@ -207,6 +334,7 @@ export default function HeroNavigation({
               onClick={() => chooseCategory("All")}
               className={selectedCategory === "All" && feedFilter === "ALL" ? "is-active" : ""}
             >
+              <Home size={14} aria-hidden="true" />
               Home
             </button>
             {categoryGroups.length > 0 && (
@@ -218,6 +346,7 @@ export default function HeroNavigation({
                   aria-haspopup="menu"
                   aria-expanded={Boolean(openCategory)}
                 >
+                  <Layers size={14} aria-hidden="true" />
                   Sections
                   <ChevronDown size={13} aria-hidden="true" />
                 </button>
@@ -272,13 +401,14 @@ export default function HeroNavigation({
                 </div>
               </div>
             )}
-            {feedFilters.map((filter) => (
+            {feedFilters.map(({ Icon, ...filter }) => (
               <button
                 type="button"
                 key={filter.value}
                 onClick={() => onSelectFeedFilter?.(filter.value)}
                 className={feedFilter === filter.value ? "is-active" : ""}
               >
+                <Icon size={14} aria-hidden="true" />
                 {filter.label}
               </button>
             ))}
