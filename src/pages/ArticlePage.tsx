@@ -9,7 +9,7 @@ import { NoDataScreen } from "../components/common/NoDataScreen";
 import ArticleArtwork from "../components/ArticleArtwork";
 import ArticleShareModal from "../components/ArticleShareModal";
 import Hikari404Animation from "../assets/lottie/hikari-404.json";
-import { AlignJustify, ArrowLeft, BookOpen, Bookmark, Columns2, Disc3, ExternalLink, Hash, Headphones, Heart, Music2, Palette, Pause, Share2, Type, UserCheck, UserPlus } from "lucide-react";
+import { AlignJustify, ArrowLeft, BookOpen, Bookmark, Columns2, ExternalLink, Hash, Headphones, Heart, Palette, Pause, Play, Share2, Square, Type, UserCheck, UserPlus, Video } from "lucide-react";
 
 interface WordPosition {
   word: string;
@@ -671,9 +671,15 @@ export const ArticlePage: React.FC = () => {
 
         {article.video && (
           <div className="article-video-section article-video-section--top">
-            <div className="article-music-player">
-              <div className="article-music-player__meta">
-                <div className="article-music-player__cover">
+            <div className="article-media-player">
+              <div className="article-video-frame">
+                <VideoPlayer
+                  src={article.video.src}
+                  poster={article.video.poster || undefined}
+                />
+              </div>
+              <div className="article-media-player__header">
+                <div className="article-media-player__cover">
                   {article.video.poster || article.image ? (
                     <img
                       src={article.video.poster || article.image || ""}
@@ -683,27 +689,23 @@ export const ArticlePage: React.FC = () => {
                     <ArticleArtwork article={article} />
                   )}
                 </div>
-                <div className="article-music-player__copy">
-                  <span><Music2 size={14} /> Now playing</span>
+                <div className="article-media-player__copy">
+                  <span><Video size={14} /> Featured video</span>
                   <h2>{article.title}</h2>
-                  <p>{article.category}{article.subcategory ? ` • ${article.subcategory}` : ""}</p>
-                  <div className="article-music-player__progress" aria-hidden="true">
-                    <span />
-                  </div>
+                  <p>{article.category}{article.subcategory ? ` / ${article.subcategory}` : ""}</p>
                 </div>
-                <div className="article-music-player__controls">
-                  <Disc3 size={22} className="article-music-player__disc" aria-hidden="true" />
-                  <a href={article.video.src} target="_blank" rel="noreferrer" aria-label="Open video on YouTube">
-                    <ExternalLink size={16} />
-                  </a>
-                </div>
+                <a
+                  className="article-media-player__action"
+                  href={article.video.src}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Open video source"
+                >
+                  <ExternalLink size={16} />
+                  <span>Open</span>
+                </a>
               </div>
-              <div className="article-video-frame">
-                <VideoPlayer
-                  src={article.video.src}
-                  poster={article.video.poster || undefined}
-                />
-              </div>
+
             </div>
           </div>
         )}
@@ -950,56 +952,46 @@ export const ArticlePage: React.FC = () => {
 
       {/* Floating Audio Player Panel */}
       {isSpeaking && (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-md bg-white/95 dark:bg-brand-charcoal/95 border-[1.5px] border-brand-dark rounded-xl shadow-[4px_4px_0px_0px_#000] p-4 flex flex-col gap-3 backdrop-blur-md animate-fade-in text-neutral-900 dark:text-white transition-all">
+        <div className="article-audio-player">
 
-          <div className="flex items-center justify-between">
-            <div className="text-left truncate flex-1 pr-4">
-              <span className="text-[9px] uppercase tracking-widest font-extrabold text-accent-coral font-display">
-                Audio Reader Active
-              </span>
-              <h5 className="font-serif font-black text-sm truncate">
+          <div className="article-audio-player__main">
+            <div className="article-audio-player__meta">
+              <span>Audio reader</span>
+              <h5>
                 {article.title}
               </h5>
             </div>
 
-            {/* Playback Controls */}
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="article-audio-player__controls">
               <button
                 onClick={isPaused ? handlePlaySpeech : handlePauseSpeech}
-                className="w-8 h-8 rounded-full border border-brand-dark hover:bg-accent-coral hover:text-white transition-all flex items-center justify-center cursor-pointer bg-neutral-50 dark:bg-neutral-800"
+                className="article-audio-player__button article-audio-player__button--primary"
                 title={isPaused ? "Play" : "Pause"}
               >
-                <i className={`fa-solid ${isPaused ? "fa-play pl-0.5" : "fa-pause"}`}></i>
+                {isPaused ? <Play size={15} fill="currentColor" aria-hidden="true" /> : <Pause size={15} fill="currentColor" aria-hidden="true" />}
               </button>
 
               <button
                 onClick={handleStopSpeech}
-                className="w-8 h-8 rounded-full border border-brand-dark hover:bg-red-500 hover:text-white transition-all flex items-center justify-center cursor-pointer bg-neutral-50 dark:bg-neutral-800"
+                className="article-audio-player__button"
                 title="Stop reading"
               >
-                <i className="fa-solid fa-square text-xs"></i>
+                <Square size={13} fill="currentColor" aria-hidden="true" />
               </button>
             </div>
           </div>
 
-          <div className="w-full h-[0.5px] bg-neutral-200 dark:bg-neutral-800"></div>
-
-          {/* Player Adjustment rate & voice */}
-          <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
-            {/* Speed settings */}
-            <div className="flex items-center gap-1.5 text-left">
-              <span className="text-neutral-450 dark:text-neutral-550 font-bold uppercase tracking-wider text-[9px]">
+          <div className="article-audio-player__settings">
+            <div className="article-audio-player__option">
+              <span>
                 Speed:
               </span>
-              <div className="flex gap-1">
+              <div className="article-audio-player__rates">
                 {[0.75, 1, 1.25, 1.5, 2].map((r) => (
                   <button
                     key={r}
                     onClick={() => handleRateChange(r)}
-                    className={`px-1.5 py-0.5 rounded text-[9px] font-bold border transition-all cursor-pointer ${playbackRate === r
-                        ? "bg-accent-coral text-white border-brand-dark"
-                        : "border-neutral-200 hover:bg-neutral-100 dark:border-neutral-800 dark:hover:bg-neutral-800"
-                      }`}
+                    className={`article-audio-player__rate${playbackRate === r ? " article-audio-player__rate--active" : ""}`}
                   >
                     {r}x
                   </button>
@@ -1009,14 +1001,14 @@ export const ArticlePage: React.FC = () => {
 
             {/* Voices settings */}
             {voices.length > 0 && (
-              <div className="flex items-center gap-1.5 text-left">
-                <span className="text-neutral-455 dark:text-neutral-550 font-bold uppercase tracking-wider text-[9px]">
+              <div className="article-audio-player__option">
+                <span>
                   Voice:
                 </span>
                 <select
                   value={selectedVoiceName}
                   onChange={(e) => handleVoiceChange(e.target.value)}
-                  className="bg-neutral-50 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 px-1.5 py-0.5 rounded text-[10px] font-sans text-neutral-800 dark:text-neutral-200 focus:outline-none focus:ring-1 focus:ring-accent-coral max-w-[140px] truncate"
+                  className="article-audio-player__select"
                 >
                   {voices
                     .filter((v) => v.lang.startsWith("en") || v.lang.startsWith("es"))
