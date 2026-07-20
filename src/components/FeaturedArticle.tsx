@@ -1,7 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import type { Article } from "../data/articles";
-import ArticleArtwork from "./ArticleArtwork";
 
 interface FeaturedArticleProps {
   article: Article;
@@ -60,7 +59,7 @@ export const FeaturedArticle: React.FC<FeaturedArticleProps> = ({ article }) => 
 
               {/* Tags block */}
               <div className="flex gap-2 flex-wrap">
-                {(article.hashtags || []).slice(0, 3).map((tag) => (
+                {["Trends", "Photography", "Film"].map((tag) => (
                   <span
                     key={tag}
                     className="editorial-tag"
@@ -77,7 +76,12 @@ export const FeaturedArticle: React.FC<FeaturedArticleProps> = ({ article }) => 
             to={`/article/${article.id}`}
             className="flex-1 aspect-[16/10] md:aspect-auto md:w-1/2 bg-neutral-200 rounded-3xl overflow-hidden group cursor-pointer block"
           >
-            <ArticleArtwork article={article} eager className="group-hover:scale-[1.02]" />
+            <img
+              src={article.image || "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80"}
+              alt={article.title}
+              className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-700 ease-out"
+              loading="eager"
+            />
           </Link>
 
         </article>
