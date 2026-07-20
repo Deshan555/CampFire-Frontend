@@ -238,14 +238,14 @@ export const AdminSubcategories: React.FC = () => {
         </div>
 
         {/* Table Content */}
-        <div className="flex-grow overflow-auto">
+        <div className="admin-modern-table-shell">
           {loading ? (
             <LoadingScreen message="Loading subcategories..." />
           ) : (
             <>
-              <table className="w-full text-left border-collapse min-w-[700px]">
+              <table className="crm-table admin-modern-table min-w-[700px]">
                 <thead>
-                  <tr className="bg-white border-b border-gray-150 text-[10px] uppercase font-bold tracking-wider text-gray-500 select-none">
+                  <tr>
                     <th className="w-12 px-6 py-3.5">
                       <input
                         type="checkbox"
@@ -262,11 +262,11 @@ export const AdminSubcategories: React.FC = () => {
                     <th className="px-6 py-3.5 font-bold text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 text-xs text-gray-700">
+                <tbody>
                   {currentSubs.map((sub) => {
                     const isSelected = selectedIds.includes(sub.id);
                     return (
-                      <tr key={sub.id} className={`hover:bg-gray-50/50 transition-colors ${isSelected ? "bg-blue-50/20" : ""}`}>
+                      <tr key={sub.id} className={isSelected ? "is-selected" : ""}>
                         <td className="px-6 py-4">
                           <input
                             type="checkbox"
@@ -277,7 +277,7 @@ export const AdminSubcategories: React.FC = () => {
                         </td>
                         <td className="px-6 py-4">
                           <div className="font-semibold text-gray-900">{sub.name}</div>
-                          <div className="text-[10px] text-gray-400">ID: {sub.id}</div>
+                          <div className="text-[10px] text-gray-400">/{sub.slug}</div>
                         </td>
                         <td className="px-6 py-4 font-medium text-gray-600">
                           <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-gray-100 text-gray-700 border border-gray-200">
@@ -301,7 +301,7 @@ export const AdminSubcategories: React.FC = () => {
                           </span>
                         </td>
                         <td className="px-6 py-4 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
+                          <div className="crm-action-group">
                             <button
                               onClick={() => handleEdit(sub)}
                               className="admin-action-btn edit"

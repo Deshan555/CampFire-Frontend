@@ -4585,7 +4585,13 @@ select {
 }
 
 .crm-table-shell {
-  max-height: 65vh;
+  max-height: 80vh;
+  overflow: auto;
+  background: #ffffff;
+}
+
+.admin-modern-table-shell {
+  flex-grow: 1;
   overflow: auto;
   background: #ffffff;
 }
@@ -4631,6 +4637,86 @@ select {
 .crm-table tbody tr:hover {
   background: #fbfcfe;
   box-shadow: inset 3px 0 0 #111827;
+}
+
+.crm-table tbody tr.is-selected,
+.admin-modern-table tbody tr.is-selected {
+  background: #f8fbff;
+  box-shadow: inset 3px 0 0 #2563eb;
+}
+
+.admin-modern-table input[type="checkbox"] {
+  width: 15px;
+  height: 15px;
+  border-radius: 5px;
+  border-color: #cbd5e1;
+  cursor: pointer;
+}
+
+.admin-modern-table td:first-child,
+.admin-modern-table th:first-child {
+  width: 54px;
+  padding-right: 8px;
+}
+
+.admin-modern-table td:last-child,
+.admin-modern-table th:last-child {
+  text-align: right;
+}
+
+.admin-modern-table .w-8.h-8 {
+  width: 38px !important;
+  height: 38px !important;
+  border-radius: 12px !important;
+  border-color: #e5e7eb !important;
+  background: #f8fafc !important;
+  color: #334155 !important;
+}
+
+.admin-modern-table td .font-semibold {
+  color: #111827 !important;
+  font-size: 13px;
+  font-weight: 650 !important;
+}
+
+.admin-modern-table td .font-mono,
+.admin-modern-table td .text-gray-400 {
+  color: #94a3b8 !important;
+  font-family: "Poppins", "SF Pro Display", "Inter", sans-serif !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+}
+
+.admin-modern-table td > span,
+.admin-modern-table td .inline-flex {
+  border-radius: 999px !important;
+}
+
+.admin-modern-table td .font-bold.text-gray-800 {
+  display: inline-flex;
+  min-width: 34px;
+  height: 26px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  background: #f1f5f9;
+  color: #334155 !important;
+  font-size: 11px;
+  font-weight: 700 !important;
+}
+
+.admin-modern-table .bg-gray-100 {
+  background: #f8fafc !important;
+}
+
+.admin-modern-table .text-gray-700,
+.admin-modern-table .text-gray-600 {
+  color: #475569 !important;
+}
+
+.admin-modern-table .border-gray-200,
+.admin-modern-table .border-gray-100 {
+  border-color: #e5e7eb !important;
 }
 
 .crm-publication-cell {

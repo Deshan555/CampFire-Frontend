@@ -637,7 +637,7 @@ export const CrmDashboard: React.FC = () => {
         </div>
       )}
 
-      <div className="bg-white dark:bg-brand-dark border-[0.5px] border-neutral-200 dark:border-neutral-800 rounded-2xl overflow-hidden animate-fade-in">
+      <div className="bg-white dark:bg-brand-dark border-[0.0px] border-neutral-200 dark:border-neutral-800 overflow-hidden animate-fade-in">
         <CrmTabs
           currentUser={currentUser}
           activeTab={activeTab}
@@ -658,7 +658,7 @@ export const CrmDashboard: React.FC = () => {
           handleOpenCreate={handleOpenCreate}
         />
 
-        <div className="p-4 border-t border-gray-200">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20">
           <Pagination
             currentPage={currentPage}
             totalPages={totalPages}
